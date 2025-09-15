@@ -1,0 +1,75 @@
+.line-selector {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.line-selector label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.line-selector input {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.line-selector input:focus {
+  border-color: #034991;
+  box-shadow: 0 0 0 2px rgba(3, 73, 145, 0.2);
+}
+
+.options-list {
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  max-height: 150px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+}
+
+.options-list li {
+  padding: 0.6rem;
+  cursor: pointer;
+}
+
+.options-list li:hover {
+  background: #f0f0f0;
+}
+
+.no-results {
+  color: #999;
+  padding: 0.6rem;
+}
+
+.selected-items {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+}
+
+.selected-chip {
+  background: #034991;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.selected-chip button {
+  margin-left: 0.4rem;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}

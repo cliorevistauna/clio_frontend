@@ -1,0 +1,35 @@
+/* Layout general */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ocupa toda la pantalla */
+  background-color: #f9f9f9; /* gris muy claro para contraste */
+}
+
+/* Header fijo */
+.page-header {
+  position: sticky; /* siempre arriba */
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Contenido principal */
+.main-content {
+  flex: 1;
+  max-width: 1200px; /* ancho máximo en pantallas grandes */
+  margin: 40px auto; /* centrado */
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Ajuste para pantallas grandes (16:9 o mayores) */
+@media (min-width: 1600px) {
+  .main-content {
+    max-width: 1400px;
+    padding: 40px;
+  }
+}

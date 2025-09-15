@@ -1,0 +1,161 @@
+/* Contenedor principal del header */
+
+.page-header {
+  border-radius: 8px;
+  display: flex; 
+  flex-direction: column; /* Apila primero usuario y luego logo + menú */
+  align-items: stretch;  
+  background-color: #ffffff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: "Frutiger", Arial, sans-serif;
+}
+
+/* Usuario en la parte superior */
+.page-header .user-section {
+  display: flex;
+  justify-content: flex-end; /* Alinea a la derecha */
+  align-items: center; 
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.page-header .user-section span {
+  font-weight: bold;
+}
+
+.page-header .user-section a {
+  color: #034991;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.page-header .user-section a:hover {
+  text-decoration: underline;
+}
+
+.page-header .logout-btn {
+  background-color: #CD1719;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.page-header .logout-btn:hover {
+  background-color: #a50f15;
+}
+
+/* Contenedor logo + menú */
+.page-header .main-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Logo */
+.page-header img {
+  max-width: 100%;
+  height: 10%;
+}
+
+/* Menú alineado a la izquierda */
+.page-header nav {
+  padding-top: 10px;
+  display: flex;
+  gap: 40px;
+  justify-content: flex-start; /* Alinea el menú totalmente a la izquierda */
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+/* Enlaces del menú */
+.page-header nav a {
+  text-decoration: none;
+  color: #034991;
+  font-weight: bold;
+  font-size: 15px;
+  transition: color 0.3s ease;
+}
+
+.page-header nav a:hover {
+  color: #CD1719;
+  text-decoration: underline;
+}
+
+/* Número de editorial alineado a la derecha */
+.page-header .editorial-number {
+  padding-top: 5px;
+  text-align: right;
+  font-size: 18px;
+  font-family: "Goudy Old Style", serif; 
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+  margin-left: auto; 
+  display: flex;
+  gap: 40px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex: 1 1 auto; 
+}
+
+/* ========================= */
+/* RESPONSIVIDAD */
+/* ========================= */
+
+/* Pantallas medianas (tablets) */
+@media (max-width: 992px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-header nav {
+    justify-content: center;
+    gap: 20px;
+    margin: 10px 0;
+  }
+
+  .page-header .user-section {
+    align-items: center;
+  }
+}
+
+/* Pantallas pequeñas (celulares) */
+@media (max-width: 600px) {
+  .page-header {
+    padding: 10px;
+  }
+
+  .page-header img {
+    max-width: 140px;
+  }
+
+  .page-header nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-header nav a {
+    font-size: 14px;
+  }
+
+  .page-header .user-section {
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .page-header .logout-btn {
+    width: 100%; /* botón ocupa todo el ancho en móvil */
+    text-align: center;
+  }
+}
+/* ========================= */
+/* FIN RESPONSIVIDAD */
+/* ========================= */
