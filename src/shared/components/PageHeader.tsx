@@ -82,7 +82,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
           )}
         </nav>
         <div className="editorial-number">
-          Número Editorial: {currentEditorialNumber?.number || 'N/A'}
+          Número de Publicación: {currentEditorialNumber?.number || 'N/A'}
         </div>
       </div>
     </header>

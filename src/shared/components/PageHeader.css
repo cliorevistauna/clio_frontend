@@ -74,34 +74,70 @@
 }
 
 /* Enlaces del menú */
-.page-header nav a {
+.page-header nav a, .page-header nav .submenu-container {
   text-decoration: none;
   color: #034991;
   font-weight: bold;
   font-size: 15px;
   transition: color 0.3s ease;
+  cursor: pointer;
 }
 
-.page-header nav a:hover {
+.page-header nav a:hover, .page-header nav .submenu-container:hover {
   color: #CD1719;
   text-decoration: underline;
 }
 
-/* Número de editorial alineado a la derecha */
+/* Estilos específicos para el contenedor del submenú */
+.page-header nav .submenu-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Estilos para el submenú */
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 160px;
+  padding: 8px 0;
+}
+
+.submenu-link {
+  display: block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: #034991;
+  font-weight: normal;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.submenu-link:hover {
+  background-color: #f5f5f5;
+  color: #CD1719;
+  text-decoration: none;
+}
+
+/* Número de publicación alineado a la derecha */
 .page-header .editorial-number {
-  padding-top: 5px;
+  padding-top: 10px;
   text-align: right;
-  font-size: 18px;
-  font-family: "Goudy Old Style", serif; 
-  font-size: 20px;
+  font-family: "Frutiger", Arial, sans-serif;
+  font-size: 15px;
   font-weight: bold;
-  color: #000000;
-  margin-left: auto; 
+  color: #034991;
+  margin-left: auto;
   display: flex;
   gap: 40px;
   justify-content: flex-end;
   flex-wrap: wrap;
-  flex: 1 1 auto; 
+  flex: 1 1 auto;
 }
 
 /* ========================= */
