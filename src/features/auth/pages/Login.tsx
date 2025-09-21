@@ -77,7 +77,7 @@ const Login: React.FC = () => {
 
   return (
     <AppLayout>
-      <FormContainer title="Iniciar sesión">
+      <FormContainer>
         <form onSubmit={handleSubmit}>
           <FormField label="Correo electrónico" required>
             <Input
