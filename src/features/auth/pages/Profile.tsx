@@ -1,9 +1,176 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useAuth } from '../hooks';
 import { authService } from '../services';
 import { getUserRoleName } from '../../../shared/utils';
 import PageHeader from '../../../shared/components/PageHeader';
+import { AppLayout } from '../../../shared/components/layout';
+import { Button } from '../../../shared/components/ui';
 import './Profile.css';
+
+const Container = styled.div`
+  padding: 20px;
+`;
+
+const InfoCard = styled.div`
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  margin-bottom: 15px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+`;
+
+const InfoLabel = styled.span`
+  font-weight: bold;
+  width: 200px;
+  color: #034991;
+  font-family: "Frutiger", Arial, sans-serif;
+`;
+
+const InfoValue = styled.span`
+  color: #333;
+  flex: 1;
+`;
+
+const PasswordForm = styled.form`
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #034991;
+  font-family: "Frutiger", Arial, sans-serif;
+`;
+
+const Input = styled.input<{ hasError?: boolean }>`
+  width: 100%;
+  padding: 12px;
+  border: 2px solid ${props => props.hasError ? '#dc3545' : '#ddd'};
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #034991;
+    box-shadow: 0 0 0 3px rgba(3, 73, 145, 0.1);
+  }
+`;
+
+const ErrorMessage = styled.span`
+  display: block;
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 8px;
+`;
+
+const FormText = styled.small`
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+  color: #6c757d;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+`;
+
+const ConfirmDialog = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+
+  h3 {
+    margin-bottom: 20px;
+    color: #034991;
+    font-family: "Frutiger", Arial, sans-serif;
+  }
+
+  p {
+    margin-bottom: 25px;
+    color: #666;
+    line-height: 1.5;
+  }
+`;
+
+const DialogButtons = styled.div`
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+`;
+
+const Alert = styled.div<{ variant?: 'error' | 'success' }>`
+  color: #fff;
+  background: ${props => props.variant === 'success' ? '#28a745' : '#dc3545'};
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  text-align: center;
+  position: relative;
+`;
+
+const AlertClose = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 0.7;
+  }
+`;
 
 interface ChangePasswordData {
   current_password: string;
@@ -143,163 +310,154 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="profile-container">
+    <AppLayout>
       <PageHeader />
-      <div className="profile-content">
+      <Container>
         <h1>Mi Perfil</h1>
 
         {/* Datos básicos del usuario */}
-        <div className="profile-info">
-          <div className="info-row">
-            <label>Nombre Completo:</label>
-            <span>{user.nombre}</span>
-          </div>
+        <InfoCard>
+          <h2>Información Personal</h2>
+          <InfoRow>
+            <InfoLabel>Nombre Completo:</InfoLabel>
+            <InfoValue>{user.nombre}</InfoValue>
+          </InfoRow>
 
-          <div className="info-row">
-            <label>Rol:</label>
-            <span>{getUserRoleName(user) || 'Sin rol asignado'}</span>
-          </div>
+          <InfoRow>
+            <InfoLabel>Rol:</InfoLabel>
+            <InfoValue>{getUserRoleName(user) || 'Sin rol asignado'}</InfoValue>
+          </InfoRow>
 
-          <div className="info-row">
-            <label>Fecha de Registro:</label>
-            <span>{formatDate(user.date_joined)}</span>
-          </div>
+          <InfoRow>
+            <InfoLabel>Fecha de Registro:</InfoLabel>
+            <InfoValue>{formatDate(user.date_joined)}</InfoValue>
+          </InfoRow>
 
-          <div className="info-row">
-            <label>Correo Electrónico:</label>
-            <span>{user.email || user.correo}</span>
-          </div>
-        </div>
+          <InfoRow>
+            <InfoLabel>Correo Electrónico:</InfoLabel>
+            <InfoValue>{user.email || user.correo}</InfoValue>
+          </InfoRow>
+        </InfoCard>
 
         {/* Sección de cambio de contraseña */}
-        <div className="password-section">
-          <h2>Cambiar Contraseña</h2>
-
-          {!showPasswordForm ? (
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowPasswordForm(true)}
-            >
+        {!showPasswordForm ? (
+          <InfoCard>
+            <h2>Cambiar Contraseña</h2>
+            <Button onClick={() => setShowPasswordForm(true)}>
               Cambiar Contraseña
-            </button>
-          ) : (
-            <form onSubmit={handleSubmit} className="password-form">
-              <div className="form-group">
-                <label htmlFor="current_password">Contraseña Actual:</label>
-                <input
-                  type="password"
-                  id="current_password"
-                  name="current_password"
-                  value={passwordData.current_password}
-                  onChange={handleInputChange}
-                  className={errors.current_password ? 'error' : ''}
-                />
-                {errors.current_password && (
-                  <span className="error-message">{errors.current_password}</span>
-                )}
-              </div>
+            </Button>
+          </InfoCard>
+        ) : (
+          <PasswordForm onSubmit={handleSubmit}>
+            <h2>Cambiar Contraseña</h2>
 
-              <div className="form-group">
-                <label htmlFor="new_password">Nueva Contraseña:</label>
-                <input
-                  type="password"
-                  id="new_password"
-                  name="new_password"
-                  value={passwordData.new_password}
-                  onChange={handleInputChange}
-                  className={errors.new_password ? 'error' : ''}
-                />
-                <small className="form-text">
-                  Mínimo 8 caracteres, incluir letras y números
-                </small>
-                {errors.new_password && (
-                  <span className="error-message">{errors.new_password}</span>
-                )}
-              </div>
+            <FormGroup>
+              <Label htmlFor="current_password">Contraseña Actual:</Label>
+              <Input
+                type="password"
+                id="current_password"
+                name="current_password"
+                value={passwordData.current_password}
+                onChange={handleInputChange}
+                hasError={!!errors.current_password}
+              />
+              {errors.current_password && (
+                <ErrorMessage>{errors.current_password}</ErrorMessage>
+              )}
+            </FormGroup>
 
-              <div className="form-group">
-                <label htmlFor="confirm_password">Confirmación de Contraseña:</label>
-                <input
-                  type="password"
-                  id="confirm_password"
-                  name="confirm_password"
-                  value={passwordData.confirm_password}
-                  onChange={handleInputChange}
-                  className={errors.confirm_password ? 'error' : ''}
-                />
-                {errors.confirm_password && (
-                  <span className="error-message">{errors.confirm_password}</span>
-                )}
-              </div>
+            <FormGroup>
+              <Label htmlFor="new_password">Nueva Contraseña:</Label>
+              <Input
+                type="password"
+                id="new_password"
+                name="new_password"
+                value={passwordData.new_password}
+                onChange={handleInputChange}
+                hasError={!!errors.new_password}
+              />
+              <FormText>
+                Mínimo 8 caracteres, incluir letras y números
+              </FormText>
+              {errors.new_password && (
+                <ErrorMessage>{errors.new_password}</ErrorMessage>
+              )}
+            </FormGroup>
 
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="btn btn-success"
-                  disabled={loading}
-                >
-                  {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setShowPasswordForm(false);
-                    setPasswordData({
-                      current_password: '',
-                      new_password: '',
-                      confirm_password: ''
-                    });
-                    setErrors({});
-                  }}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+            <FormGroup>
+              <Label htmlFor="confirm_password">Confirmación de Contraseña:</Label>
+              <Input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                value={passwordData.confirm_password}
+                onChange={handleInputChange}
+                hasError={!!errors.confirm_password}
+              />
+              {errors.confirm_password && (
+                <ErrorMessage>{errors.confirm_password}</ErrorMessage>
+              )}
+            </FormGroup>
 
-        {/* Modal de confirmación */}
-        {showConfirmModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3>Confirmar Cambio de Contraseña</h3>
-              <p>¿Está seguro de que desea cambiar su contraseña?</p>
-              <div className="modal-actions">
-                <button
-                  className="btn btn-success"
-                  onClick={handleConfirmChange}
-                  disabled={loading}
-                >
-                  Sí, cambiar
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowConfirmModal(false)}
-                  disabled={loading}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
+            <ButtonGroup>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
+              </Button>
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => {
+                  setShowPasswordForm(false);
+                  setPasswordData({
+                    current_password: '',
+                    new_password: '',
+                    confirm_password: ''
+                  });
+                  setErrors({});
+                }}
+              >
+                Cancelar
+              </Button>
+            </ButtonGroup>
+          </PasswordForm>
         )}
 
         {/* Mensajes de estado */}
         {message && (
-          <div className={`alert alert-${message.type}`}>
+          <Alert variant={message.type}>
             {message.text}
-            <button
-              className="alert-close"
-              onClick={() => setMessage(null)}
-            >
+            <AlertClose onClick={() => setMessage(null)}>
               ×
-            </button>
-          </div>
+            </AlertClose>
+          </Alert>
         )}
-      </div>
-    </div>
+      </Container>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <ConfirmDialog>
+          <DialogContent>
+            <h3>Confirmar Cambio de Contraseña</h3>
+            <p>¿Está seguro de que desea cambiar su contraseña?</p>
+            <DialogButtons>
+              <Button
+                variant="secondary"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleConfirmChange}
+                disabled={loading}
+              >
+                {loading ? 'Cambiando...' : 'Sí, cambiar'}
+              </Button>
+            </DialogButtons>
+          </DialogContent>
+        </ConfirmDialog>
+      )}
+    </AppLayout>
   );
 };
 
