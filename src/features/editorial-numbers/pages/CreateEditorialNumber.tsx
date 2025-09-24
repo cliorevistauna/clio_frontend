@@ -1,37 +1,115 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
+import { editorialNumberService } from "../services";
+import { CreateEditorialNumberRequest } from "../types";
 import "./CreateEditorialNumber.css";
 
 const CreateEditorialNumber: React.FC = () => {
   const [numero, setNumero] = useState("");
+  const [anio, setAnio] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [comentarios, setComentarios] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // RF-008: El año vigente debe cargarse automáticamente
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    setAnio(currentYear.toString());
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validaciones básicas front-end
-    if (!numero || !fechaInicio || !fechaFin) {
+    if (!numero || !anio || !fechaInicio || !fechaFin) {
       alert("Debe completar todos los campos obligatorios.");
       return;
     }
 
-    // Ejemplo de validación de fecha simple
-    const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/;
-    if (!regexFecha.test(fechaInicio) || !regexFecha.test(fechaFin)) {
-      alert("Ingrese una fecha válida (formato DD/MM/AAAA).");
+    // Validar que número y año sean números válidos
+    const numeroInt = parseInt(numero);
+    const anioInt = parseInt(anio);
+
+    if (isNaN(numeroInt) || numeroInt <= 0) {
+      alert("El número debe ser un valor positivo.");
       return;
     }
 
-    console.log({
-      numero,
-      fechaInicio,
-      fechaFin,
-      comentarios,
-    });
+    if (isNaN(anioInt) || anioInt < 1990 || anioInt > new Date().getFullYear() + 10) {
+      alert("Ingrese un año válido.");
+      return;
+    }
 
-    alert("Número editorial creado exitosamente.");
+    // Validar formato de fecha (YYYY-MM-DD para el backend)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(fechaInicio) || !dateRegex.test(fechaFin)) {
+      alert("Las fechas deben estar en formato YYYY-MM-DD.");
+      return;
+    }
+
+    // Validar que la fecha de inicio sea anterior a la de fin
+    if (new Date(fechaInicio) >= new Date(fechaFin)) {
+      alert("La fecha de inicio debe ser anterior a la fecha de finalización.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const request: CreateEditorialNumberRequest = {
+        numero: numeroInt,
+        anio: anioInt,
+        fecha_inicio: fechaInicio,
+        fecha_final: fechaFin,
+        comentarios: comentarios || "",
+      };
+
+      await editorialNumberService.create(request);
+
+      alert("Número editorial creado exitosamente.");
+
+      // Limpiar el formulario
+      setNumero("");
+      setAnio("");
+      setFechaInicio("");
+      setFechaFin("");
+      setComentarios("");
+
+    } catch (error: any) {
+      console.error("Error al crear número editorial:", error);
+
+      // RF-008: Mostrar mensaje específico para número editorial duplicado
+      let errorMessage = "Error al crear el número de publicación.";
+
+      if (error?.details && typeof error.details === 'object') {
+        // Verificar si es error de validación de unicidad
+        const details = error.details;
+        if (details.non_field_errors && Array.isArray(details.non_field_errors)) {
+          const uniqueError = details.non_field_errors.find((err: string) =>
+            err.includes('numero') && err.includes('anio')
+          );
+          if (uniqueError) {
+            errorMessage = "Este número de publicación ya existe.";
+          }
+        }
+
+        // Verificar otros errores de validación
+        if (details.numero && Array.isArray(details.numero) && details.numero.length > 0) {
+          errorMessage = details.numero[0];
+        } else if (details.anio && Array.isArray(details.anio) && details.anio.length > 0) {
+          errorMessage = details.anio[0];
+        } else if (details.message) {
+          errorMessage = details.message;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,37 +120,52 @@ const CreateEditorialNumber: React.FC = () => {
       {/* Contenido principal */}
       <main className="main-content">
         <div className="form-container">
-          <h2>Creación de Números Editoriales</h2>
+          <h2>Creación de Números de Publicación</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Número Editorial *</label>
+              <label>Número de Publicación *</label>
               <input
-                type="text"
+                type="number"
                 value={numero}
                 onChange={(e) => setNumero(e.target.value)}
+                min="1"
                 required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Año *</label>
+              <input
+                type="number"
+                value={anio}
+                onChange={(e) => setAnio(e.target.value)}
+                min="1990"
+                max={new Date().getFullYear() + 10}
+                required
+                disabled={isLoading}
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Inicio *</label>
               <input
-                type="text"
-                placeholder="DD/MM/AAAA"
+                type="date"
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Finalización *</label>
               <input
-                type="text"
-                placeholder="DD/MM/AAAA"
+                type="date"
                 value={fechaFin}
                 onChange={(e) => setFechaFin(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -82,11 +175,12 @@ const CreateEditorialNumber: React.FC = () => {
                 value={comentarios}
                 onChange={(e) => setComentarios(e.target.value)}
                 rows={3}
+                disabled={isLoading}
               />
             </div>
 
-            <button type="submit" className="submit-btn">
-              Crear Número Editorial
+            <button type="submit" className="submit-btn" disabled={isLoading}>
+              {isLoading ? "Creando..." : "Crear Número de Publicación"}
             </button>
           </form>
         </div>

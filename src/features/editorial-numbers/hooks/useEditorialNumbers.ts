@@ -29,6 +29,7 @@ export const useEditorialNumbers = (params?: PaginationParams) => {
       setCurrentEditorialNumber(current);
     } catch (err) {
       console.error('Error fetching current editorial number:', err);
+      setCurrentEditorialNumber(null);
     }
   }, []);
 
@@ -79,7 +80,7 @@ export const useEditorialNumbers = (params?: PaginationParams) => {
     }
   }, [currentEditorialNumber]);
 
-  const deleteEditorialNumber = useCallback(async (id: string) => {
+  const deleteEditorialNumber = useCallback(async (id: number) => {
     try {
       setIsLoading(true);
       setError(null);

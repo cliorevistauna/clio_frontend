@@ -1,23 +1,22 @@
 export interface EditorialNumber {
-  id: string;
-  number: string;
-  startDate: string;
-  endDate: string;
-  comments?: string;
-  status: "draft" | "active" | "closed";
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
+  id: number;
+  numero: number;
+  anio: number;
+  fecha_inicio: string | null;
+  fecha_final: string | null;
+  comentarios: string;
+  estado: "activo" | "inactivo";
 }
 
 export interface CreateEditorialNumberRequest {
-  number: string;
-  startDate: string;
-  endDate: string;
-  comments?: string;
+  numero: number;
+  anio: number;
+  fecha_inicio: string;
+  fecha_final: string;
+  comentarios?: string;
 }
 
 export interface UpdateEditorialNumberRequest extends Partial<CreateEditorialNumberRequest> {
-  id: string;
-  status?: "draft" | "active" | "closed";
+  id: number;
+  estado?: "activo" | "inactivo";
 }
