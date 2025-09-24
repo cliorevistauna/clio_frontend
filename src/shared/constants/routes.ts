@@ -3,6 +3,7 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   RECOVER_PASSWORD: '/recover',
+  RESET_PASSWORD: '/reset-password/:uidb64/:token',
   DASHBOARD: '/home',
   PROFILE: '/profile',
 
@@ -27,6 +28,7 @@ export const ROUTES = {
   // Admin
   ADMIN: '/admin',
   USER_MANAGEMENT: '/admin/users',
+  MANAGE_USERS: '/manage-users',
 
   // Build/Development
   BUILD: '/build',

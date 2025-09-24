@@ -1,0 +1,272 @@
+/* Usar el mismo patrón que CreateResearcher.css */
+.app-layout {
+  background-color: #A7A7A9;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-container {
+  margin-top: 35px;
+  background: #fff;
+  padding: 50px;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #034991;
+}
+
+/* Información del perfil */
+.profile-info {
+  margin-bottom: 40px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #034991;
+  box-shadow: 0 0 0 2px rgba(3, 73, 145, 0.2);
+}
+
+/* Inputs de solo lectura */
+.form-group input[readonly] {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: default;
+}
+
+.form-group input.error {
+  border-color: #dc3545;
+}
+
+.form-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Sección de cambio de contraseña */
+.password-section {
+  margin-top: 30px;
+}
+
+.password-section h2 {
+  color: #034991;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  text-align: left;
+}
+
+.password-form {
+  max-width: 100%;
+}
+
+/* Botones */
+.submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background: #034991;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-bottom: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #023670;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #545b62;
+}
+
+.cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #034991;
+  text-align: center;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  color: #555;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Alertas */
+.alert {
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.alert-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-close:hover {
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .form-container {
+    padding: 1.5rem;
+    margin-top: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+/* Responsive para tablets */
+@media (max-width: 768px) {
+  .app-layout {
+    padding: 10px;
+  }
+
+  .form-container {
+    margin-top: 20px;
+    padding: 30px;
+  }
+}
