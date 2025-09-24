@@ -1,6 +1,6 @@
 import { ApiError } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 class ApiClient {
   private baseURL: string;
@@ -16,7 +16,7 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
 
     // Obtener token de localStorage para incluir en las peticiones
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('access_token');
 
     const config: RequestInit = {
       headers: {

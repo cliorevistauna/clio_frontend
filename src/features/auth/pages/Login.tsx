@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useAuth } from "../hooks/useAuth";
 import { useForm } from "../../../shared/hooks";
-import { validateEmail, validatePassword } from "../../../shared/utils";
 import { AppLayout, FormContainer } from "../../../shared/components/layout";
 import { Button, Input, FormField } from "../../../shared/components/ui";
 import { ROUTES } from "../../../shared/constants";
@@ -42,7 +41,8 @@ const Login: React.FC = () => {
   const {
     getFieldProps,
     handleSubmit,
-    isSubmitting
+    isSubmitting,
+    errors
   } = useForm({
     initialValues: {
       email: "",
@@ -51,11 +51,16 @@ const Login: React.FC = () => {
     validate: (values) => {
       const errors: any = {};
 
-      const emailError = validateEmail(values.email);
-      if (emailError) errors.email = emailError;
+      // Validación para campos vacíos (RF-001)
+      if (!values.email || !values.password) {
+        return { form: "Debe completar todos los campos." };
+      }
 
-      const passwordError = validatePassword(values.password);
-      if (passwordError) errors.password = passwordError;
+      // Validación de formato de email (RF-001)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(values.email)) {
+        errors.email = "El correo electrónico debe tener formato válido (ejemplo: usuario@dominio.com).";
+      }
 
       return errors;
     },
@@ -93,6 +98,10 @@ const Login: React.FC = () => {
             />
           </FormField>
 
+          {/* Mostrar error de validación de campos vacíos */}
+          {errors.form && <Alert>{errors.form}</Alert>}
+
+          {/* Mostrar errores del servidor */}
           {loginError && <Alert>{loginError}</Alert>}
 
           <Button
@@ -105,7 +114,7 @@ const Login: React.FC = () => {
 
           <LinksRow>
             <Link to={ROUTES.RECOVER_PASSWORD}>¿Olvidaste tu contraseña?</Link>
-            <Link to={ROUTES.REGISTER}>Registrarse</Link>
+            <Link to={ROUTES.REGISTER}>Crear cuenta</Link>
           </LinksRow>
         </form>
       </FormContainer>

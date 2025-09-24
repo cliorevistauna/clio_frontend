@@ -1,50 +1,119 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { useAuth } from "../hooks/useAuth";
+import { useForm } from "../../../shared/hooks";
+import { AppLayout, FormContainer } from "../../../shared/components/layout";
+import { Button, Input, FormField } from "../../../shared/components/ui";
+import { ROUTES } from "../../../shared/constants";
+
+const Alert = styled.div<{ variant?: 'error' | 'success' }>`
+  color: #fff;
+  background: ${props => props.variant === 'success' ? '#28a745' : '#dc3545'};
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const BackLink = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+
+  a {
+    color: #034991;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
 
 const RecoverPassword: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const { resetPassword } = useAuth();
   const [submitted, setSubmitted] = useState(false);
+  const [resetError, setResetError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    getFieldProps,
+    handleSubmit,
+    isSubmitting,
+    errors
+  } = useForm({
+    initialValues: {
+      email: ""
+    },
+    validate: (values) => {
+      const errors: any = {};
 
-    if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      alert("Por favor, introduce un correo válido.");
-      return;
+      // Validación de formato de email válido (RF-003)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(values.email)) {
+        errors.email = "El correo ingresado debe tener formato válido.";
+      }
+
+      return errors;
+    },
+    onSubmit: async (values) => {
+      try {
+        setResetError("");
+        await resetPassword(values.email);
+        setSubmitted(true);
+      } catch (error) {
+        setResetError(error instanceof Error ? error.message : "Error al enviar el correo de recuperación");
+      }
     }
+  });
 
-    setSubmitted(true);
-  };
+  if (submitted) {
+    return (
+      <AppLayout>
+        <FormContainer>
+          <Alert variant="success">
+            Se ha enviado un enlace a su correo para restablecer la contraseña.
+          </Alert>
+          <BackLink>
+            <Link to={ROUTES.LOGIN}>Volver al inicio de sesión</Link>
+          </BackLink>
+        </FormContainer>
+      </AppLayout>
+    );
+  }
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <h2>Recuperar Contraseña</h2>
-          {!submitted ? (
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>Correo electrónico</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Introduce tu correo"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </Form.Group>
-              <Button variant="primary" type="submit" className="w-100">
-                Enviar enlace de recuperación
-              </Button>
-            </Form>
-          ) : (
-            <Alert variant="success" className="mt-3">
-              Hemos enviado un enlace de recuperación a tu correo.
-            </Alert>
-          )}
-        </Col>
-      </Row>
-    </Container>
+    <AppLayout>
+      <FormContainer>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Recuperar Contraseña</h2>
+        <form onSubmit={handleSubmit}>
+          <FormField label="Correo electrónico" required>
+            <Input
+              type="email"
+              placeholder="Introduce tu correo electrónico"
+              {...getFieldProps("email")}
+            />
+          </FormField>
+
+          {/* Mostrar errores de validación */}
+          {errors.email && <Alert>{errors.email}</Alert>}
+
+          {/* Mostrar errores del servidor */}
+          {resetError && <Alert>{resetError}</Alert>}
+
+          <Button
+            type="submit"
+            loading={isSubmitting}
+            style={{ width: '100%', marginBottom: '1rem' }}
+          >
+            Enviar enlace de recuperación
+          </Button>
+        </form>
+
+        <BackLink>
+          <Link to={ROUTES.LOGIN}>Volver al inicio de sesión</Link>
+        </BackLink>
+      </FormContainer>
+    </AppLayout>
   );
 };
 

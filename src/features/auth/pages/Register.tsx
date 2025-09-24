@@ -1,90 +1,178 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { useAuth } from "../hooks/useAuth";
+import { useForm } from "../../../shared/hooks";
+import { AppLayout, FormContainer } from "../../../shared/components/layout";
+import { Button, Input, FormField } from "../../../shared/components/ui";
+import { ROUTES } from "../../../shared/constants";
+
+const Alert = styled.div<{ variant?: 'error' | 'success' }>`
+  color: #fff;
+  background: ${props => props.variant === 'success' ? '#28a745' : '#dc3545'};
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const BackLink = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+
+  a {
+    color: #034991;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
 
 const Register: React.FC = () => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const [registrationError, setRegistrationError] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  const {
+    getFieldProps,
+    handleSubmit,
+    isSubmitting,
+    errors
+  } = useForm({
+    initialValues: {
+      nombre: "",
+      correo: "",
+      password: "",
+      confirmPassword: ""
+    },
+    validate: (values) => {
+      const errors: any = {};
+
+      // Validación de nombre (requerido)
+      if (!values.nombre || values.nombre.trim().length === 0) {
+        errors.nombre = "El nombre es obligatorio.";
+      }
+
+      // Validación de formato de email (RF-004)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(values.correo)) {
+        errors.correo = "El correo electrónico debe tener formato válido (ejemplo: usuario@dominio.com).";
+      }
+
+      // Validación de contraseña - mínimo 8 caracteres, combinación de letras y números (RF-004)
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      if (!passwordRegex.test(values.password)) {
+        errors.password = "La contraseña no cumple con los requisitos de seguridad.";
+      }
+
+      // Validación de confirmación de contraseña (RF-004)
+      if (values.password !== values.confirmPassword) {
+        errors.confirmPassword = "Las contraseñas no coinciden.";
+      }
+
+      return errors;
+    },
+    onSubmit: async (values) => {
+      try {
+        setRegistrationError("");
+        await register({
+          nombre: values.nombre,
+          correo: values.correo,
+          password: values.password,
+          password_confirm: values.confirmPassword
+        });
+        setRegistrationSuccess(true);
+      } catch (error) {
+        setRegistrationError(error instanceof Error ? error.message : "Error al registrar usuario");
+      }
+    }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (form.password !== form.confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
-    }
-
-    alert(`Usuario ${form.name} registrado con éxito (simulado).`);
-  };
+  // Si el registro fue exitoso
+  if (registrationSuccess) {
+    return (
+      <AppLayout>
+        <FormContainer>
+          <Alert variant="success">
+            Registro exitoso. Su cuenta está pendiente de aprobación por un administrador.
+          </Alert>
+          <BackLink>
+            <Link to={ROUTES.LOGIN}>Volver al inicio de sesión</Link>
+          </BackLink>
+        </FormContainer>
+      </AppLayout>
+    );
+  }
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-md-center">
-        <Col md={6}>
-          <h2>Registro de Usuario</h2>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formName">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                placeholder="Introduce tu nombre"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+    <AppLayout>
+      <FormContainer>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Registro de Usuario</h2>
+        <form onSubmit={handleSubmit}>
+          <FormField label="Nombre completo" required>
+            <Input
+              type="text"
+              placeholder="Ingrese su nombre completo"
+              {...getFieldProps("nombre")}
+            />
+          </FormField>
 
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Correo electrónico</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                placeholder="Introduce tu correo"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+          {/* Mostrar errores de validación de nombre */}
+          {errors.nombre && <Alert>{errors.nombre}</Alert>}
 
-            <Form.Group className="mb-3" controlId="formPassword">
-              <Form.Label>Contraseña</Form.Label>
-              <Form.Control
-                type="password"
-                name="password"
-                placeholder="Introduce tu contraseña"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+          <FormField label="Correo electrónico" required>
+            <Input
+              type="email"
+              placeholder="usuario@dominio.com"
+              {...getFieldProps("correo")}
+            />
+          </FormField>
 
-            <Form.Group className="mb-3" controlId="formConfirmPassword">
-              <Form.Label>Confirmar Contraseña</Form.Label>
-              <Form.Control
-                type="password"
-                name="confirmPassword"
-                placeholder="Repite tu contraseña"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
+          {/* Mostrar errores de validación de email */}
+          {errors.correo && <Alert>{errors.correo}</Alert>}
 
-            <Button variant="success" type="submit" className="w-100">
-              Registrarse
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+          <FormField label="Contraseña" required>
+            <Input
+              type="password"
+              placeholder="Mínimo 8 caracteres, incluir letras y números"
+              {...getFieldProps("password")}
+            />
+          </FormField>
+
+          {/* Mostrar errores de validación de contraseña */}
+          {errors.password && <Alert>{errors.password}</Alert>}
+
+          <FormField label="Confirmación de contraseña" required>
+            <Input
+              type="password"
+              placeholder="Repita su contraseña"
+              {...getFieldProps("confirmPassword")}
+            />
+          </FormField>
+
+          {/* Mostrar errores de confirmación de contraseña */}
+          {errors.confirmPassword && <Alert>{errors.confirmPassword}</Alert>}
+
+          {/* Mostrar errores del servidor */}
+          {registrationError && <Alert>{registrationError}</Alert>}
+
+          <Button
+            type="submit"
+            loading={isSubmitting}
+            style={{ width: '100%', marginBottom: '1rem' }}
+          >
+            Crear cuenta
+          </Button>
+        </form>
+
+        <BackLink>
+          <Link to={ROUTES.LOGIN}>Ya tengo cuenta - Iniciar sesión</Link>
+        </BackLink>
+      </FormContainer>
+    </AppLayout>
   );
 };
 

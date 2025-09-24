@@ -20,7 +20,9 @@ const TextAreaWrapper = styled.div`
   gap: 0.25rem;
 `;
 
-const StyledTextArea = styled.textarea<{ hasError?: boolean }>`
+const StyledTextArea = styled.textarea.withConfig({
+  shouldForwardProp: (prop) => prop !== 'hasError',
+})<{ hasError?: boolean }>`
   padding: 0.75rem;
   border: 1px solid ${props => props.hasError ? '#dc3545' : '#ccc'};
   border-radius: 8px;
