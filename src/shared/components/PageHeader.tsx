@@ -23,7 +23,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
       case "ADMINISTRADOR":
         return [
           "Gestión Administrativa",
-          "Números Editoriales",
           "Autores y Evaluadores",
           "Líneas Temáticas",
           "Artículos",
@@ -99,15 +98,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     <Link to={ROUTES.MANAGE_USERS} className="submenu-link">
                       Gestionar Usuarios
                     </Link>
+                    <Link to={ROUTES.CREATE_EDITORIAL_NUMBER} className="submenu-link">
+                      Registrar Número de Publicación
+                    </Link>
                   </div>
                 )}
               </div>
             ) : item === "Autores y Evaluadores" ? (
               <Link key={index} to={ROUTES.CREATE_RESEARCHER} className="nav-link">
-                {item}
-              </Link>
-            ) : item === "Números Editoriales" ? (
-              <Link key={index} to={ROUTES.CREATE_EDITORIAL_NUMBER} className="nav-link">
                 {item}
               </Link>
             ) : (
