@@ -101,6 +101,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     <Link to={ROUTES.CREATE_EDITORIAL_NUMBER} className="submenu-link">
                       Registrar Número de Publicación
                     </Link>
+                    <Link to={ROUTES.MODIFY_EDITORIAL_NUMBER} className="submenu-link">
+                      Modificar Número de Publicación
+                    </Link>
                   </div>
                 )}
               </div>
@@ -122,7 +125,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
           )}
         </nav>
         <div className="editorial-number">
-          Número de Publicación: {currentEditorialNumber?.number || 'N/A'}
+          Número de Publicación: {currentEditorialNumber ? `${currentEditorialNumber.numero}-${currentEditorialNumber.anio}` : 'N/A'}
         </div>
       </div>
     </header>

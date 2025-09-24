@@ -11,6 +11,7 @@ export const ROUTES = {
   EDITORIAL_NUMBERS: '/editorial-numbers',
   CREATE_EDITORIAL_NUMBER: '/editorial-numbers/create',
   EDIT_EDITORIAL_NUMBER: '/editorial-numbers/:id/edit',
+  MODIFY_EDITORIAL_NUMBER: '/editorial-numbers/modify',
 
   // Researchers
   RESEARCHERS: '/researchers',

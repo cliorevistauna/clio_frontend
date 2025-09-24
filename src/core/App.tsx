@@ -3,9 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Login, RecoverPassword, Register, ResetPassword, Profile } from "../features/auth/pages";
 import Home from "./Home";
 import BuildDefault from "./BuildDefault";
-import { CreateEditorialNumber } from "../features/editorial-numbers/pages";
+import { CreateEditorialNumber, ModifyEditorialNumber } from "../features/editorial-numbers/pages";
 import { CreateResearcher } from "../features/researchers/pages";
 import { ManageUsers } from "../features/users/pages";
+import { CreateArticle } from "../features/articles/pages";
 import { ROUTES } from "../shared/constants";
 import { useAuth } from "../features/auth/hooks";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
@@ -57,6 +58,14 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path={ROUTES.MODIFY_EDITORIAL_NUMBER}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <ModifyEditorialNumber />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path={ROUTES.CREATE_RESEARCHER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
@@ -77,6 +86,14 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_ARTICLE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
+              <CreateArticle />
             </ProtectedRoute>
           }
         />
