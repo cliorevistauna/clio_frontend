@@ -16,6 +16,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
   const { currentEditorialNumber } = useEditorialNumbers();
   const [showSubmenu, setShowSubmenu] = useState(false);
   const [showAdminSubmenu, setShowAdminSubmenu] = useState(false);
+  const [showResearcherSubmenu, setShowResearcherSubmenu] = useState(false);
 
   // RF-002: Menú dinámico basado en el rol del usuario
   const getMenuByRole = (roleName: string): string[] => {
@@ -24,7 +25,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
         return [
           "Gestión Administrativa",
           "Autores y Evaluadores",
-          "Líneas Temáticas",
           "Artículos",
           "Reportes",
         ];
@@ -76,7 +76,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                 {showSubmenu && (
                   <div className="submenu">
                     <Link to={ROUTES.CREATE_ARTICLE} className="submenu-link">
-                      Crear Artículo
+                      Registrar Artículo
                     </Link>
                     <Link to={ROUTES.ARTICLES} className="submenu-link">
                       Lista de Artículos
@@ -98,19 +98,46 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     <Link to={ROUTES.MANAGE_USERS} className="submenu-link">
                       Gestionar Usuarios
                     </Link>
+                    <div className="submenu-divider">Números de Publicación</div>
                     <Link to={ROUTES.CREATE_EDITORIAL_NUMBER} className="submenu-link">
                       Registrar Número de Publicación
                     </Link>
                     <Link to={ROUTES.MODIFY_EDITORIAL_NUMBER} className="submenu-link">
                       Modificar Número de Publicación
                     </Link>
+                    <div className="submenu-divider">Líneas Temáticas</div>
+                    <Link to={ROUTES.CREATE_THEMATIC_LINE} className="submenu-link">
+                      Registrar Línea Temática
+                    </Link>
+                    <Link to={ROUTES.MODIFY_THEMATIC_LINE} className="submenu-link">
+                      Modificar Línea Temática
+                    </Link>
+                    <Link to={ROUTES.DEACTIVATE_THEMATIC_LINE} className="submenu-link">
+                      Eliminar Línea Temática
+                    </Link>
                   </div>
                 )}
               </div>
             ) : item === "Autores y Evaluadores" ? (
-              <Link key={index} to={ROUTES.CREATE_RESEARCHER} className="nav-link">
-                {item}
-              </Link>
+              <div
+                key={index}
+                className="nav-link submenu-container"
+                onMouseEnter={() => setShowResearcherSubmenu(true)}
+                onMouseLeave={() => setShowResearcherSubmenu(false)}
+                tabIndex={0}
+              >
+                Autores y Evaluadores
+                {showResearcherSubmenu && (
+                  <div className="submenu">
+                    <Link to={ROUTES.CREATE_AUTHOR} className="submenu-link">
+                      Registrar Autor
+                    </Link>
+                    <Link to={ROUTES.CREATE_EVALUATOR} className="submenu-link">
+                      Registrar Evaluador
+                    </Link>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link key={index} to={ROUTES.BUILD} className="nav-link">
                 {item}

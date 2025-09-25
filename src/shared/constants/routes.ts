@@ -16,6 +16,8 @@ export const ROUTES = {
   // Researchers
   RESEARCHERS: '/researchers',
   CREATE_RESEARCHER: '/researchers/create',
+  CREATE_AUTHOR: '/researchers/create-author',
+  CREATE_EVALUATOR: '/researchers/create-evaluator',
   EDIT_RESEARCHER: '/researchers/:id/edit',
 
   // Articles
@@ -25,6 +27,11 @@ export const ROUTES = {
 
   // Reports
   REPORTS: '/reports',
+
+  // Thematic Lines
+  CREATE_THEMATIC_LINE: '/thematic-lines/create',
+  MODIFY_THEMATIC_LINE: '/thematic-lines/modify',
+  DEACTIVATE_THEMATIC_LINE: '/thematic-lines/deactivate',
 
   // Admin
   ADMIN: '/admin',

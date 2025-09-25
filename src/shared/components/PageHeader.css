@@ -192,6 +192,33 @@
     text-align: center;
   }
 }
+
+/* Divisores del submenú */
+.submenu-divider {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 4px 0;
+}
+
+.submenu-divider:first-child {
+  margin-top: 0;
+}
+
+.submenu-divider + .submenu-link {
+  padding-top: 10px;
+}
+
+/* Mejorar el espaciado del submenú */
+.submenu {
+  min-width: 240px; /* Hacer el submenú un poco más ancho para acomodar las opciones */
+}
+
 /* ========================= */
 /* FIN RESPONSIVIDAD */
 /* ========================= */

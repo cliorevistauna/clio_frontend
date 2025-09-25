@@ -21,7 +21,7 @@ const CreateArticle: React.FC = () => {
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Crear Artículo</h2>
+          <h2>Registrar Artículo</h2>
 
           {/* RF-010: Mostrar número editorial vigente precargado automáticamente */}
           <div style={{
@@ -55,7 +55,7 @@ const CreateArticle: React.FC = () => {
             </div>
 
             <button type="submit" className="submit-btn">
-              Crear Artículo
+              Registrar Artículo
             </button>
           </form>
 

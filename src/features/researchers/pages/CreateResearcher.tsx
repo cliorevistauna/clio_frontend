@@ -131,7 +131,7 @@ const CreateResearcher: React.FC = () => {
             </div>
 
             <button type="submit" className="submit-btn">
-              Crear Autor/Evaluador
+              Registrar Autor/Evaluador
             </button>
           </form>
         </div>

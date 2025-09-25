@@ -4,9 +4,10 @@ import { Login, RecoverPassword, Register, ResetPassword, Profile } from "../fea
 import Home from "./Home";
 import BuildDefault from "./BuildDefault";
 import { CreateEditorialNumber, ModifyEditorialNumber } from "../features/editorial-numbers/pages";
-import { CreateResearcher } from "../features/researchers/pages";
+import { CreateResearcher, CreateAuthor, CreateEvaluator } from "../features/researchers/pages";
 import { ManageUsers } from "../features/users/pages";
 import { CreateArticle } from "../features/articles/pages";
+import { CreateThematicLine, ModifyThematicLine, DeactivateThematicLine } from "../features/thematic-lines/pages";
 import { ROUTES } from "../shared/constants";
 import { useAuth } from "../features/auth/hooks";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
@@ -74,6 +75,22 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path={ROUTES.CREATE_AUTHOR}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
+              <CreateAuthor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_EVALUATOR}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
+              <CreateEvaluator />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path={ROUTES.MANAGE_USERS}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
@@ -94,6 +111,30 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
               <CreateArticle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_THEMATIC_LINE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <CreateThematicLine />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.MODIFY_THEMATIC_LINE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <ModifyThematicLine />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.DEACTIVATE_THEMATIC_LINE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <DeactivateThematicLine />
             </ProtectedRoute>
           }
         />

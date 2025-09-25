@@ -180,7 +180,7 @@ const CreateEditorialNumber: React.FC = () => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={isLoading}>
-              {isLoading ? "Creando..." : "Crear Número de Publicación"}
+              {isLoading ? "Registrando..." : "Registrar Número de Publicación"}
             </button>
           </form>
         </div>
