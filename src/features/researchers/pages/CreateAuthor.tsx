@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
-import "./CreateResearcher.css";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../shared/constants";

@@ -35,53 +35,32 @@ const CreateThematicLine: React.FC = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
   return (
-    <div>
+    <div className="app-layout">
       <PageHeader />
-      <div className="create-form-container">
-        <h2>RF-014: Registrar Línea Temática</h2>
+      <main className="main-content">
+        <div className="form-container">
+          <h2>Registro de Líneas Temáticas</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Nombre de la Línea Temática *</label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ingrese el nombre de la línea temática"
+                required
+                maxLength={150}
+                disabled={isSubmitting}
+              />
+            </div>
 
-        <form onSubmit={handleSubmit} className="create-form">
-          <div className="form-group">
-            <label htmlFor="nombre">
-              Nombre de la Línea Temática *
-            </label>
-            <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="Ingrese el nombre de la línea temática"
-              required
-              maxLength={150}
-            />
-          </div>
-
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Guardando..." : "Guardar"}
+            <button type="submit" className="submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? "Registrando..." : "Registrar Línea Temática"}
             </button>
-
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="btn-secondary"
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      </main>
     </div>
   );
 };

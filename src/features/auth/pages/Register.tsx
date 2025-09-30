@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useAuth } from "../hooks/useAuth";
 import { useForm } from "../../../shared/hooks";
@@ -31,7 +31,6 @@ const BackLink = styled.div`
 `;
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
   const { register } = useAuth();
   const [registrationError, setRegistrationError] = useState("");
   const [registrationSuccess, setRegistrationSuccess] = useState(false);

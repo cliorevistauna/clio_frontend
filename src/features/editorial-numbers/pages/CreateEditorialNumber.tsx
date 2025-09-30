@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { CreateEditorialNumberRequest } from "../types";
-import "./CreateEditorialNumber.css";
 
 const CreateEditorialNumber: React.FC = () => {
   const [numero, setNumero] = useState("");

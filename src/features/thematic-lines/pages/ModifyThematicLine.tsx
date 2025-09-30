@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import PageHeader from "../../../shared/components/PageHeader";
 import { thematicLinesService, ThematicLine } from "../services/thematicLinesService";
 import "./ThematicLines.css";
 
-/**
- * RF-015: Modificación de Líneas Temáticas
- * Vista con pestañas: Búsqueda específica y tabla con todas las líneas
- */
 const ModifyThematicLine: React.FC = () => {
-  const navigate = useNavigate();
 
   // Estado para controlar qué pestaña está activa
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
@@ -163,10 +157,11 @@ const ModifyThematicLine: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="app-layout">
       <PageHeader />
-      <div className="modify-form-container">
-        <h2>RF-015: Modificar Línea Temática</h2>
+      <div className="main-content">
+        <div className="form-container">
+        <h2>Modificación de Líneas Temáticas</h2>
 
         {/* Pestañas */}
         <div className="tabs">
@@ -335,41 +330,34 @@ const ModifyThematicLine: React.FC = () => {
 
         {/* Formulario de Edición */}
         {selectedLine && (
-          <div className="edit-section">
-            <h3>Editando: {selectedLine.nombre}</h3>
-            <form onSubmit={handleUpdate} className="modify-form">
+          <div>
+            <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label htmlFor="editName">
-                  Nombre de la Línea Temática *
-                </label>
+                <label>Nombre de la Línea Temática *</label>
                 <input
                   type="text"
-                  id="editName"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Ingrese el nuevo nombre"
+                  placeholder="Ingrese el nombre de la línea temática"
                   required
                   maxLength={150}
+                  disabled={isUpdating}
                 />
               </div>
 
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isUpdating}
-                >
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="submit-btn" disabled={isUpdating}>
                   {isUpdating ? "Guardando..." : "Guardar Cambios"}
                 </button>
-
                 <button
                   type="button"
+                  className="submit-btn"
                   onClick={() => {
                     setSelectedLine(null);
                     setEditName("");
                   }}
-                  className="btn-secondary"
                   disabled={isUpdating}
+                  style={{ backgroundColor: '#6c757d' }}
                 >
                   Cancelar
                 </button>
@@ -377,16 +365,6 @@ const ModifyThematicLine: React.FC = () => {
             </form>
           </div>
         )}
-
-        {/* Botón para volver */}
-        <div className="form-actions">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="btn-secondary"
-          >
-            Volver
-          </button>
         </div>
       </div>
     </div>

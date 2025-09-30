@@ -7,7 +7,7 @@ interface AppLayoutProps {
 }
 
 const LayoutContainer = styled.div`
-  background-color: #A7A7A9;
+  background-color: var(--color-background);
   min-height: 100vh;
   padding: 20px;
   display: flex;

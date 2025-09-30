@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import logo from "../../images/pageHeaderLogoImage_en_US.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/hooks";
 import { useEditorialNumbers } from "../../features/editorial-numbers/hooks";
 import { ROUTES } from "../constants";
@@ -12,6 +12,7 @@ interface PageHeaderProps {
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { currentEditorialNumber } = useEditorialNumbers();
   const [showSubmenu, setShowSubmenu] = useState(false);
@@ -42,6 +43,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
     if (onLogout) {
       onLogout();
     }
+    // Redirigir al login y recargar la página
+    navigate(ROUTES.LOGIN);
+    window.location.reload();
   };
 
   if (!user) return null;

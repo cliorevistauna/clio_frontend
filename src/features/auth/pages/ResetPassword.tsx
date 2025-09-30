@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useForm } from "../../../shared/hooks";
 import { AppLayout, FormContainer } from "../../../shared/components/layout";
@@ -32,7 +32,6 @@ const BackLink = styled.div`
 
 const ResetPassword: React.FC = () => {
   const { uidb64, token } = useParams<{ uidb64: string; token: string }>();
-  const navigate = useNavigate();
   const [resetComplete, setResetComplete] = useState(false);
   const [resetError, setResetError] = useState("");
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);

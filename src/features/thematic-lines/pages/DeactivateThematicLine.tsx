@@ -4,10 +4,6 @@ import PageHeader from "../../../shared/components/PageHeader";
 import { thematicLinesService, ThematicLine } from "../services/thematicLinesService";
 import "./ThematicLines.css";
 
-/**
- * RF-016: Eliminación de Líneas Temáticas
- * Vista con pestañas: Búsqueda específica y tabla con todas las líneas activas
- */
 const DeactivateThematicLine: React.FC = () => {
   const navigate = useNavigate();
 
@@ -137,10 +133,11 @@ const DeactivateThematicLine: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="app-layout">
       <PageHeader />
-      <div className="deactivate-form-container">
-        <h2>RF-016: Eliminar Línea Temática</h2>
+      <div className="main-content">
+        <div className="form-container">
+        <h2>Eliminación de Líneas Temáticas</h2>
 
         {!showConfirmation ? (
           <>
@@ -344,6 +341,7 @@ const DeactivateThematicLine: React.FC = () => {
           >
             Volver
           </button>
+        </div>
         </div>
       </div>
     </div>

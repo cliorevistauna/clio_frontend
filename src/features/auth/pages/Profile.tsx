@@ -6,17 +6,16 @@ import { getUserRoleName } from '../../../shared/utils';
 import PageHeader from '../../../shared/components/PageHeader';
 import { AppLayout } from '../../../shared/components/layout';
 import { Button } from '../../../shared/components/ui';
-import './Profile.css';
 
 const Container = styled.div`
   padding: 20px;
 `;
 
 const InfoCard = styled.div`
-  background: white;
-  border-radius: 8px;
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
   padding: 30px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 20px;
 `;
 
@@ -36,20 +35,20 @@ const InfoRow = styled.div`
 const InfoLabel = styled.span`
   font-weight: bold;
   width: 200px;
-  color: #034991;
+  color: var(--color-primary);
   font-family: "Frutiger", Arial, sans-serif;
 `;
 
 const InfoValue = styled.span`
-  color: #333;
+  color: var(--color-text);
   flex: 1;
 `;
 
 const PasswordForm = styled.form`
-  background: white;
-  border-radius: 8px;
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
   padding: 30px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 `;
 
 const FormGroup = styled.div`
@@ -60,29 +59,29 @@ const Label = styled.label`
   display: block;
   margin-bottom: 8px;
   font-weight: bold;
-  color: #034991;
+  color: var(--color-primary);
   font-family: "Frutiger", Arial, sans-serif;
 `;
 
 const Input = styled.input<{ hasError?: boolean }>`
   width: 100%;
   padding: 12px;
-  border: 2px solid ${props => props.hasError ? '#dc3545' : '#ddd'};
-  border-radius: 8px;
+  border: 2px solid ${props => props.hasError ? 'var(--color-error)' : 'var(--color-border)'};
+  border-radius: var(--border-radius-md);
   font-size: 16px;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #034991;
+    border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(3, 73, 145, 0.1);
   }
 `;
 
 const ErrorMessage = styled.span`
   display: block;
-  color: #dc3545;
+  color: var(--color-error);
   font-size: 14px;
   margin-top: 8px;
 `;
@@ -114,23 +113,23 @@ const ConfirmDialog = styled.div`
 `;
 
 const DialogContent = styled.div`
-  background: white;
+  background: var(--color-white);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   max-width: 500px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-lg);
 
   h3 {
     margin-bottom: 20px;
-    color: #034991;
+    color: var(--color-primary);
     font-family: "Frutiger", Arial, sans-serif;
   }
 
   p {
     margin-bottom: 25px;
-    color: #666;
+    color: var(--color-text-light);
     line-height: 1.5;
   }
 `;
@@ -142,9 +141,9 @@ const DialogButtons = styled.div`
 `;
 
 const Alert = styled.div<{ variant?: 'error' | 'success' }>`
-  color: #fff;
-  background: ${props => props.variant === 'success' ? '#28a745' : '#dc3545'};
-  border-radius: 8px;
+  color: var(--color-white);
+  background: ${props => props.variant === 'success' ? 'var(--color-success)' : 'var(--color-error)'};
+  border-radius: var(--border-radius-md);
   padding: 15px;
   margin: 20px 0;
   text-align: center;

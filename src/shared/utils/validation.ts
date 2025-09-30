@@ -56,7 +56,7 @@ export const validateOrcid = (orcid: string): string => {
 export const validatePhone = (phone: string): string => {
   if (!phone) return "";
 
-  const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+  const phoneRegex = /^\+?[\d\s\-()]+$/;
   if (!phoneRegex.test(phone)) {
     return "Formato de teléfono inválido";
   }

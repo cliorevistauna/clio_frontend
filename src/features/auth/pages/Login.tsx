@@ -9,11 +9,11 @@ import { ROUTES } from "../../../shared/constants";
 import { LoginCredentials } from "../types/User";
 
 const Alert = styled.div`
-  color: #fff;
-  background: #dc3545;
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+  color: var(--color-white);
+  background: var(--color-error);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
   text-align: center;
 `;
 
@@ -21,10 +21,10 @@ const LinksRow = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 0.95rem;
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
 
   a {
-    color: #034991;
+    color: var(--color-primary);
     text-decoration: none;
 
     &:hover {

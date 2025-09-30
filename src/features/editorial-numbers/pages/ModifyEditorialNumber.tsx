@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { EditorialNumber, UpdateEditorialNumberRequest } from "../types";
-import "./CreateEditorialNumber.css";
 
 /**
  * RF-009: Modificación de Números Editoriales
@@ -26,6 +25,8 @@ const ModifyEditorialNumber: React.FC = () => {
   // Estados para la edición - el mismo formulario que creación pero adaptado
   const [selectedEditorial, setSelectedEditorial] = useState<EditorialNumber | null>(null);
   const [searchResults, setSearchResults] = useState<EditorialNumber[]>([]);
+  const [numero, setNumero] = useState("");
+  const [anio, setAnio] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [comentarios, setComentarios] = useState("");
@@ -89,6 +90,8 @@ const ModifyEditorialNumber: React.FC = () => {
     console.log("Precargando formulario con:", editorial); // Debug
 
     setSelectedEditorial(editorial);
+    setNumero(editorial.numero.toString());
+    setAnio(editorial.anio.toString());
     setFechaInicio(editorial.fecha_inicio || "");
     setFechaFin(editorial.fecha_final || "");
     setComentarios(editorial.comentarios || "");
@@ -97,6 +100,8 @@ const ModifyEditorialNumber: React.FC = () => {
   // Limpiar formulario
   const clearForm = () => {
     setSelectedEditorial(null);
+    setNumero("");
+    setAnio("");
     setFechaInicio("");
     setFechaFin("");
     setComentarios("");
@@ -121,9 +126,23 @@ const ModifyEditorialNumber: React.FC = () => {
       return;
     }
 
-    // RF-009: Validaciones
-    if (!fechaInicio || !fechaFin) {
-      alert("Las fechas de inicio y finalización son obligatorias.");
+    // Validaciones
+    if (!numero || !anio || !fechaInicio || !fechaFin) {
+      alert("Debe completar todos los campos obligatorios.");
+      return;
+    }
+
+    // Validar que número y año sean números válidos
+    const numeroInt = parseInt(numero);
+    const anioInt = parseInt(anio);
+
+    if (isNaN(numeroInt) || numeroInt <= 0) {
+      alert("El número debe ser un valor positivo.");
+      return;
+    }
+
+    if (isNaN(anioInt) || anioInt < 1990 || anioInt > new Date().getFullYear() + 10) {
+      alert("Ingrese un año válido.");
       return;
     }
 
@@ -144,6 +163,8 @@ const ModifyEditorialNumber: React.FC = () => {
     try {
       const updateRequest: UpdateEditorialNumberRequest = {
         id: selectedEditorial.id,
+        numero: numeroInt,
+        anio: anioInt,
         fecha_inicio: fechaInicio,
         fecha_final: fechaFin,
         comentarios: comentarios || "",
@@ -164,10 +185,16 @@ const ModifyEditorialNumber: React.FC = () => {
       let errorMessage = "Error al modificar el número de publicación.";
       if (error?.details && typeof error.details === 'object') {
         const details = error.details;
-        if (details.fecha_inicio && Array.isArray(details.fecha_inicio)) {
+        if (details.numero && Array.isArray(details.numero)) {
+          errorMessage = details.numero[0];
+        } else if (details.anio && Array.isArray(details.anio)) {
+          errorMessage = details.anio[0];
+        } else if (details.fecha_inicio && Array.isArray(details.fecha_inicio)) {
           errorMessage = details.fecha_inicio[0];
         } else if (details.fecha_final && Array.isArray(details.fecha_final)) {
           errorMessage = details.fecha_final[0];
+        } else if (details.non_field_errors && Array.isArray(details.non_field_errors)) {
+          errorMessage = details.non_field_errors[0];
         } else if (details.message) {
           errorMessage = details.message;
         }
@@ -404,41 +431,32 @@ const ModifyEditorialNumber: React.FC = () => {
   const renderEditForm = () => {
     return (
       <div>
-        <div style={{
-          backgroundColor: '#e9ecef',
-          padding: '15px',
-          borderRadius: '5px',
-          marginBottom: '20px'
-        }}>
-          <h3>Modificando: Número {selectedEditorial!.numero}-{selectedEditorial!.anio}</h3>
-          <p><strong>Número de Publicación:</strong> {selectedEditorial!.numero} (no modificable)</p>
-          <p><strong>Año:</strong> {selectedEditorial!.anio} (no modificable)</p>
-          <p><strong>Estado actual:</strong> {selectedEditorial!.estado}</p>
-        </div>
-
         <form onSubmit={handleUpdate}>
-          {/* RF-009: Campos bloqueados - solo mostramos información */}
           <div className="form-group">
-            <label>Número de Publicación (no modificable)</label>
+            <label>Número de Publicación *</label>
             <input
               type="number"
-              value={selectedEditorial!.numero}
-              disabled
-              style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+              value={numero}
+              onChange={(e) => setNumero(e.target.value)}
+              min="1"
+              required
+              disabled={isUpdating}
             />
           </div>
 
           <div className="form-group">
-            <label>Año (no modificable)</label>
+            <label>Año *</label>
             <input
               type="number"
-              value={selectedEditorial!.anio}
-              disabled
-              style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+              value={anio}
+              onChange={(e) => setAnio(e.target.value)}
+              min="1990"
+              max={new Date().getFullYear() + 10}
+              required
+              disabled={isUpdating}
             />
           </div>
 
-          {/* RF-009: Campos editables */}
           <div className="form-group">
             <label>Fecha de Inicio *</label>
             <input

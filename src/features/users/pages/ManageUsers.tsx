@@ -5,7 +5,7 @@ import { AppLayout } from "../../../shared/components/layout";
 import { Button } from "../../../shared/components/ui";
 import { useAuth } from "../../auth/hooks";
 import { useUserManagement } from "../hooks";
-import { User, Role } from "../../auth/types";
+import { User } from "../../auth/types";
 import { getUserRoleName } from "../../../shared/utils";
 
 const Container = styled.div`
@@ -13,17 +13,17 @@ const Container = styled.div`
 `;
 
 const Alert = styled.div<{ variant?: 'error' | 'success' | 'warning' }>`
-  color: #fff;
+  color: var(--color-white);
   background: ${props => {
     switch (props.variant) {
-      case 'success': return '#28a745';
-      case 'warning': return '#ffc107';
-      default: return '#dc3545';
+      case 'success': return 'var(--color-success)';
+      case 'warning': return 'var(--color-warning)';
+      default: return 'var(--color-error)';
     }
   }};
-  border-radius: 8px;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
   text-align: center;
 `;
 
@@ -31,20 +31,20 @@ const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  background: white;
-  border-radius: 8px;
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-sm);
 
   th, td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border);
   }
 
   th {
-    background-color: #034991;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-white);
     font-weight: bold;
   }
 
@@ -53,13 +53,13 @@ const Table = styled.table`
   }
 
   tr:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-light);
   }
 `;
 
 const StatusBadge = styled.span<{ status: string }>`
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
@@ -114,8 +114,8 @@ const ActionButton = styled(Button)<{ variant?: 'enable' | 'disable' | 'role' }>
 
 const Select = styled.select`
   padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
   font-size: 12px;
   margin-right: 8px;
 `;
@@ -134,21 +134,21 @@ const ConfirmDialog = styled.div`
 `;
 
 const DialogContent = styled.div`
-  background: white;
+  background: var(--color-white);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   max-width: 400px;
   width: 90%;
   text-align: center;
 
   h3 {
     margin-bottom: 15px;
-    color: #034991;
+    color: var(--color-primary);
   }
 
   p {
     margin-bottom: 20px;
-    color: #666;
+    color: var(--color-text-light);
   }
 `;
 
@@ -167,8 +167,8 @@ interface ConfirmationData {
 }
 
 const ManageUsers: React.FC = () => {
-  const { user: currentUser, logout } = useAuth();
-  const { users, roles, isLoading, isUpdating, error, updateUserStatus, updateUserRole, clearError } = useUserManagement();
+  const { logout } = useAuth();
+  const { users, roles, isLoading, isUpdating, error, updateUserStatus, updateUserRole } = useUserManagement();
 
   const [confirmation, setConfirmation] = useState<ConfirmationData | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
@@ -250,7 +250,6 @@ const ManageUsers: React.FC = () => {
       <PageHeader onLogout={handleLogout} />
       <Container>
         <h1>Gestionar Usuarios</h1>
-        <p>RF-005 y RF-006: Habilitación/Deshabilitación y Gestión de Roles de Usuarios</p>
 
         {/* Mostrar mensajes */}
         {error && <Alert variant="error">{error}</Alert>}
