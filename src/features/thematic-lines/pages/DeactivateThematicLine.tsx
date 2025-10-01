@@ -80,7 +80,7 @@ const DeactivateThematicLine: React.FC = () => {
       setSearchResults(results);
 
       if (results.length === 0) {
-        alert("No se encontraron líneas temáticas activas con ese nombre.");
+        alert("No se encuentra línea temática con ese nombre.");
       }
     } catch (error) {
       console.error("Error en la búsqueda:", error);
@@ -137,8 +137,7 @@ const DeactivateThematicLine: React.FC = () => {
       <PageHeader />
       <div className="main-content">
         <div className="form-container">
-        <h2>Eliminación de Líneas Temáticas</h2>
-
+ 
         {!showConfirmation ? (
           <>
             {/* Pestañas */}
@@ -161,7 +160,6 @@ const DeactivateThematicLine: React.FC = () => {
             {activeTab === 'search' && (
               <div className="tab-content">
                 <div className="search-section">
-                  <h3>Buscar Línea Temática</h3>
                   <form onSubmit={handleSearch} className="search-form">
                     <div className="form-group">
                       <label htmlFor="search">Nombre de la línea temática:</label>

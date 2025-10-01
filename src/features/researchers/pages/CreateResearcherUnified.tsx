@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
+import LanguageSelector from "../../../shared/components/LanguageSelector";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../shared/constants";
 import { useAuth } from "../../auth/hooks";
-import { researcherService } from "../services";
-import { CreateResearcherRequest } from "../types";
 
-const CreateEvaluator: React.FC = () => {
+const CreateResearcher: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [orcid, setOrcid] = useState("");
@@ -19,10 +18,9 @@ const CreateEvaluator: React.FC = () => {
   const [pais, setPais] = useState("");
   const [lugarTrabajo, setLugarTrabajo] = useState("");
   const [correo, setCorreo] = useState("");
-  const [lineas, setLineas] = useState<string[]>([]);
-  const [idioma, setIdioma] = useState("");
+  const [idiomas, setIdiomas] = useState<number[]>([]);
+  const [lineasTematicas, setLineasTematicas] = useState<number[]>([]);
   const [telefono, setTelefono] = useState("");
-  const [estado, setEstado] = useState("activo");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogout = async () => {
@@ -37,67 +35,7 @@ const CreateEvaluator: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validaciones básicas
-    if (!orcid || !nombre || !apellido1 || !apellido2 || !correo) {
-      alert("Debe completar todos los campos obligatorios (ORCID, nombre, apellidos y correo).");
-      return;
-    }
-
-    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regexCorreo.test(correo)) {
-      alert("Formato de correo inválido.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const evaluatorData: CreateResearcherRequest = {
-        orcid,
-        name: `${nombre} ${apellido1} ${apellido2}`,
-        affiliation: afiliacion,
-        academicDegree: gradoAcademico,
-        country: pais,
-        email: correo,
-        languages: idioma,
-        phones: {
-          mobile: telefono,
-          home: '',
-          university: ''
-        },
-        status: estado === 'activo' ? 'active' : estado === 'inactivo' ? 'inactive' : 'pending',
-        thematicLines: lineas,
-      };
-
-      console.log("Creando evaluador:", evaluatorData);
-
-      const response = await researcherService.create(evaluatorData);
-      console.log("Evaluador creado:", response);
-
-      alert("Evaluador creado exitosamente.");
-
-      // Limpiar formulario
-      setOrcid("");
-      setNombre("");
-      setApellido1("");
-      setApellido2("");
-      setAfiliacion("");
-      setGradoAcademico("");
-      setPais("");
-      setLugarTrabajo("");
-      setCorreo("");
-      setLineas([]);
-      setIdioma("");
-      setTelefono("");
-      setEstado("activo");
-
-    } catch (error) {
-      console.error("Error al registrar evaluador:", error);
-      alert("Error al registrar el evaluador. Por favor, intente nuevamente.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    alert("Esta funcionalidad no está implementada en este momento.");
   };
 
   return (
@@ -108,7 +46,7 @@ const CreateEvaluator: React.FC = () => {
       {/* Contenido principal */}
       <main className="main-content">
         <div className="form-container">
-          <h2>Creación de Evaluador</h2>
+          <h2>Formulario de Registro</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>ORCID *</label>
@@ -206,17 +144,11 @@ const CreateEvaluator: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <ThematicLineSelector selected={lineas} onChange={setLineas} />
+              <LanguageSelector selected={idiomas} onChange={setIdiomas} />
             </div>
 
             <div className="form-group">
-              <label>Idioma(s)</label>
-              <input
-                type="text"
-                value={idioma}
-                onChange={(e) => setIdioma(e.target.value)}
-                disabled={isSubmitting}
-              />
+              <ThematicLineSelector selected={lineasTematicas} onChange={setLineasTematicas} />
             </div>
 
             <div className="form-group">
@@ -229,17 +161,8 @@ const CreateEvaluator: React.FC = () => {
               />
             </div>
 
-            <div className="form-group">
-              <label>Estado</label>
-              <select value={estado} onChange={(e) => setEstado(e.target.value)} disabled={isSubmitting}>
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-                <option value="pendiente">Pendiente</option>
-              </select>
-            </div>
-
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Registrando..." : "Registrar Evaluador"}
+              {isSubmitting ? "Registrando..." : "Registrar"}
             </button>
           </form>
         </div>
@@ -248,4 +171,4 @@ const CreateEvaluator: React.FC = () => {
   );
 };
 
-export default CreateEvaluator;
+export default CreateResearcher;

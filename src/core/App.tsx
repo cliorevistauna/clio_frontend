@@ -4,7 +4,7 @@ import { Login, RecoverPassword, Register, ResetPassword, Profile } from "../fea
 import Home from "./Home";
 import BuildDefault from "./BuildDefault";
 import { CreateEditorialNumber, ModifyEditorialNumber } from "../features/editorial-numbers/pages";
-import { CreateResearcher, CreateAuthor, CreateEvaluator } from "../features/researchers/pages";
+import { CreateResearcher, ModifyResearcher } from "../features/researchers/pages";
 import { ManageUsers } from "../features/users/pages";
 import { CreateArticle } from "../features/articles/pages";
 import { CreateThematicLine, ModifyThematicLine, DeactivateThematicLine } from "../features/thematic-lines/pages";
@@ -75,18 +75,10 @@ const App: React.FC = () => {
           }
         />
         <Route
-          path={ROUTES.CREATE_AUTHOR}
+          path={ROUTES.MODIFY_RESEARCHER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <CreateAuthor />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path={ROUTES.CREATE_EVALUATOR}
-          element={
-            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <CreateEvaluator />
+              <ModifyResearcher />
             </ProtectedRoute>
           }
         />

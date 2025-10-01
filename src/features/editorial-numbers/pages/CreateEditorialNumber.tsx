@@ -119,7 +119,7 @@ const CreateEditorialNumber: React.FC = () => {
       {/* Contenido principal */}
       <main className="main-content">
         <div className="form-container">
-          <h2>Creación de Números de Publicación</h2>
+          <h2>Formulario de Registro</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Número de Publicación *</label>
@@ -179,7 +179,7 @@ const CreateEditorialNumber: React.FC = () => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={isLoading}>
-              {isLoading ? "Registrando..." : "Registrar Número de Publicación"}
+              {isLoading ? "Registrando..." : "Registrar"}
             </button>
           </form>
         </div>

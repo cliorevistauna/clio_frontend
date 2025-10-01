@@ -249,19 +249,11 @@ const ManageUsers: React.FC = () => {
     <AppLayout>
       <PageHeader onLogout={handleLogout} />
       <Container>
-        <h1>Gestionar Usuarios</h1>
+        <h1>Usuarios del Sistema</h1>
 
         {/* Mostrar mensajes */}
         {error && <Alert variant="error">{error}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
-
-        {/* Debug info - temporal */}
-        {process.env.NODE_ENV === 'development' && (
-          <div style={{ background: '#f8f9fa', padding: '10px', marginBottom: '10px', fontSize: '12px' }}>
-            <strong>Debug Info:</strong> Usuarios: {users.length}, Roles: {Array.isArray(roles) ? roles.length : 'No es array'}
-            {!Array.isArray(roles) && <span> - Tipo: {typeof roles}</span>}
-          </div>
-        )}
 
         {/* Tabla de usuarios */}
         <Table>

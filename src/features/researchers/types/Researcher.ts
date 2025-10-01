@@ -7,8 +7,8 @@ export interface Researcher {
   country: string;
   email: string;
   alternativeEmail?: string;
-  thematicLines: string[];
-  languages?: string;
+  thematicLines: number[]; // Array de IDs de líneas temáticas
+  languages?: number[] | string; // Array de IDs de idiomas o string para backward compatibility
   phones: {
     mobile?: string;
     home?: string;
@@ -21,14 +21,17 @@ export interface Researcher {
 
 export interface CreateResearcherRequest {
   orcid: string;
-  name: string;
+  nombre: string;
+  apellido1: string;
+  apellido2: string;
   affiliation: string;
   academicDegree: string;
   country: string;
+  workPlace?: string; // Lugar de trabajo
   email: string;
   alternativeEmail?: string;
-  thematicLines: string[];
-  languages?: string;
+  thematicLines: number[]; // Array de IDs de líneas temáticas
+  languages?: number[]; // Array de IDs de idiomas
   phones: {
     mobile?: string;
     home?: string;

@@ -49,9 +49,10 @@ export const useResearchers = (params?: PaginationParams) => {
       setIsLoading(true);
       setError(null);
 
-      const updatedResearcher = await researcherService.update(data);
+      const { id, ...updateData } = data;
+      const updatedResearcher = await researcherService.update(id, updateData);
       setResearchers(prev =>
-        prev.map(r => r.id === data.id ? updatedResearcher : r)
+        prev.map(r => r.id === id ? updatedResearcher : r)
       );
 
       return updatedResearcher;

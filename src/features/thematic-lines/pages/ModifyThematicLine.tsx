@@ -84,7 +84,7 @@ const ModifyThematicLine: React.FC = () => {
       setSearchResults(results);
 
       if (results.length === 0) {
-        alert("No se encontraron líneas temáticas con ese nombre.");
+        alert("No se encuentra línea temática con ese nombre.");
       }
     } catch (error) {
       console.error("Error en la búsqueda:", error);
@@ -161,7 +161,6 @@ const ModifyThematicLine: React.FC = () => {
       <PageHeader />
       <div className="main-content">
         <div className="form-container">
-        <h2>Modificación de Líneas Temáticas</h2>
 
         {/* Pestañas */}
         <div className="tabs">
@@ -183,7 +182,6 @@ const ModifyThematicLine: React.FC = () => {
         {activeTab === 'search' && (
           <div className="tab-content">
             <div className="search-section">
-              <h3>Buscar Línea Temática</h3>
               <form onSubmit={handleSearch} className="search-form">
                 <div className="form-group">
                   <label htmlFor="search">Nombre de la línea temática:</label>

@@ -19,36 +19,40 @@ export class ResearcherService {
     if (params?.sortBy) queryParams.append('ordering', params.sortBy);
 
     const queryString = queryParams.toString();
-    const endpoint = queryString ? `${this.endpoint}/researchers/?${queryString}` : `${this.endpoint}/researchers/`;
+    const endpoint = queryString ? `${this.endpoint}/?${queryString}` : `${this.endpoint}/`;
 
     const response = await apiClient.get<any>(endpoint);
-    return response.results || response;
+    const results = response.results || response;
+    return results.map((r: any) => this.mapDjangoToFrontend(r));
   }
 
   async getById(id: string): Promise<Researcher> {
-    return apiClient.get<Researcher>(`${this.endpoint}/researchers/${id}/`);
+    return apiClient.get<Researcher>(`${this.endpoint}/${id}/`);
   }
 
   async create(data: CreateResearcherRequest): Promise<Researcher> {
     // Mapear los datos del frontend al formato esperado por Django
+    // Usa el endpoint del ViewSet que acepta ResearcherSerializer completo
     const djangoData = {
       orcid: data.orcid,
-      nombre: data.name.split(' ')[0], // Primer nombre
-      apellido1: data.name.split(' ')[1] || '', // Primer apellido
-      apellido2: data.name.split(' ')[2] || '', // Segundo apellido
+      nombre: data.nombre,
+      apellido1: data.apellido1,
+      apellido2: data.apellido2,
       afiliacion: data.affiliation,
       grado_academico: data.academicDegree,
       pais: data.country,
-      lugar_trabajo: '', // Campo nuevo en Django
-      idioma: data.languages,
+      lugar_trabajo: data.workPlace || '',
       telefono: data.phones.mobile || data.phones.home || data.phones.university || '',
       correo: data.email,
-      estado: data.status === 'active' ? 'activo' : data.status === 'inactive' ? 'inactivo' : 'pendiente',
-      lineas_tematicas: data.thematicLines
+      estado: 'activo',
+      idiomas: data.languages || [],
+      lineas_tematicas: data.thematicLines || []
     };
 
-    const response = await apiClient.post<any>(`${this.endpoint}/researchers/create/`, djangoData);
-    return this.mapDjangoToFrontend(response.researcher || response);
+    console.log('Datos enviados al backend:', djangoData);
+
+    const response = await apiClient.post<any>(`${this.endpoint}/`, djangoData);
+    return this.mapDjangoToFrontend(response);
   }
 
   // Mapear respuesta de Django al formato del frontend
@@ -62,8 +66,8 @@ export class ResearcherService {
       country: djangoData.pais || '',
       email: djangoData.correo,
       alternativeEmail: '',
-      thematicLines: djangoData.lineas_tematicas || [],
-      languages: djangoData.idioma || '',
+      thematicLines: djangoData.lineas_tematicas || [], // Array de IDs
+      languages: djangoData.idiomas || [], // Array de IDs
       phones: {
         mobile: djangoData.telefono || '',
         home: '',
@@ -75,14 +79,43 @@ export class ResearcherService {
     };
   }
 
-  async update(data: UpdateResearcherRequest): Promise<Researcher> {
-    const { id, ...updateData } = data;
-    const updatedData = {
-      ...updateData,
-      updatedAt: new Date().toISOString(),
+  async update(id: string, data: any): Promise<Researcher> {
+    // Mapear datos del frontend al formato Django
+    const djangoData = {
+      orcid: data.orcid,
+      nombre: data.nombre,
+      apellido1: data.apellido1,
+      apellido2: data.apellido2,
+      afiliacion: data.afiliacion,
+      grado_academico: data.grado_academico,
+      pais: data.pais,
+      lugar_trabajo: data.lugar_trabajo || '',
+      idiomas: data.idiomas, // Array de IDs de idiomas
+      telefono: data.telefono,
+      correo: data.correo,
+      estado: data.estado,
+      lineas_tematicas: data.lineas_tematicas
     };
 
-    return apiClient.patch<Researcher>(`${this.endpoint}/${id}`, updatedData);
+    const response = await apiClient.put<any>(`${this.endpoint}/${id}/`, djangoData);
+    return this.mapDjangoToFrontend(response);
+  }
+
+  // Buscar researchers por ORCID, nombre o correo
+  async search(searchTerm: string): Promise<Researcher[]> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('search', searchTerm);
+
+    const response = await apiClient.get<any>(`${this.endpoint}/?${queryParams.toString()}`);
+    const results = response.results || response;
+    return results.map((r: any) => this.mapDjangoToFrontend(r));
+  }
+
+  // Buscar por ORCID específico
+  async searchByOrcid(orcid: string): Promise<Researcher[]> {
+    const response = await apiClient.get<any>(`${this.endpoint}/?search=${orcid}`);
+    const results = response.results || response;
+    return results.map((r: any) => this.mapDjangoToFrontend(r));
   }
 
   async delete(id: string): Promise<void> {
@@ -96,6 +129,33 @@ export class ResearcherService {
   async getActiveThematicLines(): Promise<ThematicLine[]> {
     const lines = await this.getThematicLines();
     return lines.filter(line => line.isActive);
+  }
+
+  async getLanguages(): Promise<Array<{ id: number; nombre: string }>> {
+    // Endpoint con autenticación requerida por el backend
+    try {
+      const response = await apiClient.get<Array<{ id: number; nombre: string }>>('/researchers/languages/');
+      return response;
+    } catch (error: any) {
+      console.error('Error fetching languages:', error);
+
+      // Fallback: lista hardcodeada de idiomas mientras el backend no tenga endpoint público
+      // Los IDs coinciden con los de la BD después de ejecutar la migración 0005_populate_languages
+      return [
+        { id: 1, nombre: 'Español' },
+        { id: 2, nombre: 'Inglés' },
+        { id: 3, nombre: 'Francés' },
+        { id: 4, nombre: 'Portugués' },
+        { id: 5, nombre: 'Alemán' },
+        { id: 6, nombre: 'Italiano' },
+        { id: 7, nombre: 'Catalán' },
+        { id: 8, nombre: 'Náhuatl' },
+        { id: 9, nombre: 'Quechua' },
+        { id: 10, nombre: 'Latín' },
+        { id: 11, nombre: 'Holandés' },
+        { id: 12, nombre: 'Japonés' }
+      ];
+    }
   }
 }
 

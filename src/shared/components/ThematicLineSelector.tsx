@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { thematicLinesService, ThematicLine } from "../../features/thematic-lines/services/thematicLinesService";
 
 interface ThematicLineSelector {
-  selected: string[];
-  onChange: (values: string[]) => void;
+  selected: number[];
+  onChange: (values: number[]) => void;
 }
 
 const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onChange }) => {
@@ -36,16 +36,21 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
   const filteredOptions = availableLines.filter(
     (line) =>
       line.nombre.toLowerCase().includes(search.toLowerCase()) &&
-      !selected.includes(line.nombre)
+      !selected.includes(line.id)
   );
 
-  const addLinea = (linea: string) => {
-    onChange([...selected, linea]);
+  const addLinea = (lineaId: number) => {
+    onChange([...selected, lineaId]);
     setSearch("");
   };
 
-  const removeLinea = (linea: string) => {
-    onChange(selected.filter((l) => l !== linea));
+  const removeLinea = (lineaId: number) => {
+    onChange(selected.filter((id) => id !== lineaId));
+  };
+
+  const getLineaName = (lineaId: number): string => {
+    const line = availableLines.find(l => l.id === lineaId);
+    return line ? line.nombre : `ID: ${lineaId}`;
   };
 
   if (loading) {
@@ -72,7 +77,7 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
         <ul className="options-list">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((line) => (
-              <li key={line.id} onClick={() => addLinea(line.nombre)}>
+              <li key={line.id} onClick={() => addLinea(line.id)}>
                 {line.nombre}
               </li>
             ))
@@ -83,10 +88,10 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
       )}
 
       <div className="selected-items">
-        {selected.map((linea) => (
-          <span key={linea} className="selected-chip">
-            {linea}
-            <button onClick={() => removeLinea(linea)}>x</button>
+        {selected.map((lineaId) => (
+          <span key={lineaId} className="selected-chip">
+            {getLineaName(lineaId)}
+            <button onClick={() => removeLinea(lineaId)}>x</button>
           </span>
         ))}
       </div>

@@ -80,10 +80,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                 {showSubmenu && (
                   <div className="submenu">
                     <Link to={ROUTES.CREATE_ARTICLE} className="submenu-link">
-                      Registrar Artículo
+                      Registrar
                     </Link>
                     <Link to={ROUTES.ARTICLES} className="submenu-link">
-                      Lista de Artículos
+                      Mostrar Lista
                     </Link>
                   </div>
                 )}
@@ -99,25 +99,26 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                 Gestión Administrativa
                 {showAdminSubmenu && (
                   <div className="submenu">
+                    <div className="submenu-divider">Control de Usuarios</div>
                     <Link to={ROUTES.MANAGE_USERS} className="submenu-link">
-                      Gestionar Usuarios
+                      Gestionar
                     </Link>
                     <div className="submenu-divider">Números de Publicación</div>
                     <Link to={ROUTES.CREATE_EDITORIAL_NUMBER} className="submenu-link">
-                      Registrar Número de Publicación
+                      Registrar
                     </Link>
                     <Link to={ROUTES.MODIFY_EDITORIAL_NUMBER} className="submenu-link">
-                      Modificar Número de Publicación
+                      Modificar
                     </Link>
                     <div className="submenu-divider">Líneas Temáticas</div>
                     <Link to={ROUTES.CREATE_THEMATIC_LINE} className="submenu-link">
-                      Registrar Línea Temática
+                      Registrar
                     </Link>
                     <Link to={ROUTES.MODIFY_THEMATIC_LINE} className="submenu-link">
-                      Modificar Línea Temática
+                      Modificar
                     </Link>
                     <Link to={ROUTES.DEACTIVATE_THEMATIC_LINE} className="submenu-link">
-                      Eliminar Línea Temática
+                      Eliminar
                     </Link>
                   </div>
                 )}
@@ -133,11 +134,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                 Autores y Evaluadores
                 {showResearcherSubmenu && (
                   <div className="submenu">
-                    <Link to={ROUTES.CREATE_AUTHOR} className="submenu-link">
-                      Registrar Autor
+                    <Link to={ROUTES.CREATE_RESEARCHER} className="submenu-link">
+                      Registrar
                     </Link>
-                    <Link to={ROUTES.CREATE_EVALUATOR} className="submenu-link">
-                      Registrar Evaluador
+                    <Link to={ROUTES.MODIFY_RESEARCHER} className="submenu-link">
+                      Actualizar
                     </Link>
                   </div>
                 )}

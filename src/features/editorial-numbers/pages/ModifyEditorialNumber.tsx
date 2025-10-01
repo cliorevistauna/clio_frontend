@@ -261,7 +261,6 @@ const ModifyEditorialNumber: React.FC = () => {
 
     return (
       <div>
-        <h3>Buscar Número de Publicación Específico</h3>
         <form onSubmit={handleSearch}>
           <div className="form-group">
             <label>Número de Publicación *</label>
@@ -338,12 +337,12 @@ const ModifyEditorialNumber: React.FC = () => {
 
         {/* Buscador en tiempo real */}
         <div className="form-group" style={{ marginBottom: '20px' }}>
-          <label>Buscar en la tabla:</label>
+          <label>Filtrar en la tabla:</label>
           <input
             type="text"
             value={tableFilter}
             onChange={(e) => setTableFilter(e.target.value)}
-            placeholder="Buscar por número, año, estado, comentarios o fechas..."
+            placeholder="Filtrar por número, año, estado, comentarios o fechas..."
             style={{ width: '100%' }}
           />
         </div>
@@ -354,7 +353,7 @@ const ModifyEditorialNumber: React.FC = () => {
           </div>
         ) : (
           <div>
-            <p><small>Mostrando {filteredNumbers.length} de {allEditorialNumbers.length} números de publicación</small></p>
+            <p><small>Mostrando {filteredNumbers.length} de {allEditorialNumbers.length} registros.</small></p>
 
             <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '5px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -514,8 +513,6 @@ const ModifyEditorialNumber: React.FC = () => {
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Modificación de Números de Publicación</h2>
-
           {/* Pestañas */}
           <div style={{
             display: 'flex',

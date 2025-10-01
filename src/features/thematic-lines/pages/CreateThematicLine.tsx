@@ -40,7 +40,6 @@ const CreateThematicLine: React.FC = () => {
       <PageHeader />
       <main className="main-content">
         <div className="form-container">
-          <h2>Registro de Líneas Temáticas</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Nombre de la Línea Temática *</label>
@@ -56,7 +55,7 @@ const CreateThematicLine: React.FC = () => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Registrando..." : "Registrar Línea Temática"}
+              {isSubmitting ? "Registrando..." : "Registrar"}
             </button>
           </form>
         </div>

@@ -16,8 +16,7 @@ export const ROUTES = {
   // Researchers
   RESEARCHERS: '/researchers',
   CREATE_RESEARCHER: '/researchers/create',
-  CREATE_AUTHOR: '/researchers/create-author',
-  CREATE_EVALUATOR: '/researchers/create-evaluator',
+  MODIFY_RESEARCHER: '/researchers/modify',
   EDIT_RESEARCHER: '/researchers/:id/edit',
 
   // Articles
