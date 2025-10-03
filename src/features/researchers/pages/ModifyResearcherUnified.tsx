@@ -7,6 +7,8 @@ import { ROUTES } from "../../../shared/constants";
 import { useAuth } from "../../auth/hooks";
 import { researcherService } from "../services";
 import { Researcher } from "../types";
+import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
+import { Language } from "../../../shared/components/LanguageSelector";
 
 /**
  * RF-020: Modificar Investigadores
@@ -19,9 +21,15 @@ const ModifyResearcher: React.FC = () => {
   // Estado para controlar qué pestaña está activa
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
 
-  // Estados para la búsqueda específica
-  const [searchTerm, setSearchTerm] = useState("");
+  // Estados para la búsqueda específica con filtros múltiples
+  const [keywordSearch, setKeywordSearch] = useState(""); // Búsqueda por palabra clave
+  const [filterTerm, setFilterTerm] = useState(""); // Término para agregar filtros
+  const [searchFilters, setSearchFilters] = useState<Array<{ type: string, value: string, label: string }>>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Datos para búsqueda inteligente de tags
+  const [thematicLines, setThematicLines] = useState<ThematicLine[]>([]);
+  const [languages, setLanguages] = useState<Language[]>([]);
 
   // Estados para la tabla
   const [allAuthors, setAllAuthors] = useState<Researcher[]>([]);
@@ -47,6 +55,23 @@ const ModifyResearcher: React.FC = () => {
   const [estado, setEstado] = useState("activo");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Cargar líneas temáticas e idiomas al montar
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const [lines, langs] = await Promise.all([
+          thematicLinesService.getThematicLines(false),
+          researcherService.getLanguages()
+        ]);
+        setThematicLines(lines);
+        setLanguages(langs);
+      } catch (error) {
+        console.error("Error al cargar filtros:", error);
+      }
+    };
+    loadFilters();
+  }, []);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -57,20 +82,97 @@ const ModifyResearcher: React.FC = () => {
     }
   };
 
+  const handleAddFilter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && filterTerm.trim()) {
+      e.preventDefault();
+      const term = filterTerm.trim();
+
+      // Intentar identificar automáticamente el tipo de filtro
+      let filterType = 'país'; // Por defecto es país si no coincide con otros
+      let filterValue = term; // Valor que se enviará al backend
+      let filterLabel = `País: ${term}`;
+
+      // 1. Buscar si coincide con algún idioma
+      const idiomaMatch = languages.find(l =>
+        l.nombre.toLowerCase().includes(term.toLowerCase()) ||
+        term.toLowerCase().includes(l.nombre.toLowerCase())
+      );
+
+      if (idiomaMatch) {
+        filterType = 'idioma';
+        filterValue = idiomaMatch.id.toString(); // Guardar el ID para el backend
+        filterLabel = `Idioma: ${idiomaMatch.nombre}`;
+      } else {
+        // 2. Buscar si coincide con alguna línea temática
+        const lineaMatch = thematicLines.find(l =>
+          l.nombre.toLowerCase().includes(term.toLowerCase()) ||
+          term.toLowerCase().includes(l.nombre.toLowerCase())
+        );
+
+        if (lineaMatch) {
+          filterType = 'línea_temática';
+          filterValue = lineaMatch.id.toString(); // Guardar el ID para el backend
+          filterLabel = `Línea: ${lineaMatch.nombre}`;
+        }
+        // Si no coincide con idioma ni línea, se queda como país
+      }
+
+      setSearchFilters([...searchFilters, {
+        type: filterType,
+        value: filterValue,
+        label: filterLabel
+      }]);
+
+      setFilterTerm("");
+    }
+  };
+
+  const handleRemoveFilter = (index: number) => {
+    setSearchFilters(searchFilters.filter((_, i) => i !== index));
+  };
+
   // Buscar y precargar datos del investigador
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!searchTerm.trim()) {
-      alert("Ingrese un término de búsqueda (ORCID, nombre, apellido o correo).");
+    if (searchFilters.length === 0 && !keywordSearch.trim()) {
+      alert("Agregue al menos un criterio de búsqueda o palabra clave.");
       return;
     }
 
     setIsSearching(true);
     try {
-      const results = await researcherService.search(searchTerm.trim());
+      const advancedFilters: any = {};
 
-      console.log("Resultados de búsqueda:", results);
+      // Procesar cada filtro según su tipo
+      for (const filter of searchFilters) {
+        if (filter.type === 'idioma') {
+          // El valor ya contiene el ID del idioma
+          advancedFilters.idiomas = parseInt(filter.value);
+          console.log(`Filtro idioma con ID: ${filter.value}`);
+        } else if (filter.type === 'línea_temática') {
+          // El valor ya contiene el ID de la línea temática
+          advancedFilters.lineas_tematicas = parseInt(filter.value);
+          console.log(`Filtro línea temática con ID: ${filter.value}`);
+        } else if (filter.type === 'país') {
+          // País se envía directamente como texto
+          advancedFilters.pais = filter.value;
+          console.log(`Filtro país: ${filter.value}`);
+        }
+      }
+
+      // Usar keywordSearch para búsqueda general (nombre, apellido, afiliación)
+      const searchKeyword = keywordSearch.trim() || undefined;
+
+      console.log('Búsqueda por palabra clave:', searchKeyword);
+      console.log('Filtros aplicados:', advancedFilters);
+
+      const results = await researcherService.search(
+        searchKeyword,
+        advancedFilters
+      );
+
+      console.log(`Resultados encontrados: ${results.length}`);
 
       if (results.length === 0) {
         alert("No se encuentra autor o evaluador bajo estos filtros.");
@@ -154,6 +256,9 @@ const ModifyResearcher: React.FC = () => {
   const cancelEdit = () => {
     clearForm();
     setSearchResults([]);
+    setSearchFilters([]);
+    setKeywordSearch("");
+    setFilterTerm("");
     if (activeTab === 'table') {
       loadAllAuthors();
     }
@@ -204,7 +309,7 @@ const ModifyResearcher: React.FC = () => {
 
       // Limpiar formulario y búsqueda
       clearForm();
-      setSearchTerm("");
+      setSearchFilters([]);
 
     } catch (error: any) {
       console.error("Error al actualizar:", error);
@@ -282,17 +387,85 @@ const ModifyResearcher: React.FC = () => {
     return (
       <div>
         <form onSubmit={handleSearch}>
-          <div className="form-group">
-            <label>Buscar por ORCID, Nombre, Apellido o Correo *</label>
+          {/* Campo de palabra clave */}
+          <div className="form-group" style={{ marginBottom: '15px' }}>
+            <label style={{ fontWeight: 'bold' }}>Búsqueda por palabra clave (ORCID, Nombre, Apellidos, Afiliación)</label>
             <input
               type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Ej: 0000-0001-2345-6789, Juan Pérez, juan@example.com"
-              required
+              value={keywordSearch}
+              onChange={(e) => setKeywordSearch(e.target.value)}
+              placeholder="Ej: Juan Pérez, 0000-0000-0000-0000, Universidad Central..."
               disabled={isSearching}
+              style={{ width: '100%', padding: '8px' }}
             />
+            <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '12px' }}>
+              💡 Busca en ORCID, nombre, apellidos, afiliación, correo y lugar de trabajo
+            </small>
           </div>
+
+          {/* Campo de filtros */}
+          <div className="form-group" style={{ marginBottom: '15px' }}>
+            <label style={{ fontWeight: 'bold' }}>Filtros (Idioma, Línea Temática, País)</label>
+            <input
+              type="text"
+              value={filterTerm}
+              onChange={(e) => setFilterTerm(e.target.value)}
+              onKeyDown={handleAddFilter}
+              placeholder="Escriba filtro y presione Enter: Francés, Historia, México..."
+              disabled={isSearching}
+              style={{ width: '100%', padding: '8px' }}
+            />
+            <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '12px' }}>
+              💡 Presione Enter para agregar filtros. Se detectan automáticamente idiomas, líneas temáticas o países.
+            </small>
+          </div>
+
+          {/* Filtros activos */}
+          {searchFilters.length > 0 && (
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              marginTop: '10px',
+              marginBottom: '10px',
+              padding: '10px',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '4px'
+            }}>
+              <small style={{ width: '100%', color: '#6c757d', marginBottom: '5px' }}>
+                Filtros de búsqueda:
+              </small>
+              {searchFilters.map((filter, index) => (
+                <span key={index} style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '5px 10px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  borderRadius: '15px',
+                  fontSize: '14px',
+                  gap: '8px'
+                }}>
+                  {filter.label}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFilter(index)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      padding: '0',
+                      lineHeight: '1'
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
 
           <button type="submit" className="submit-btn" disabled={isSearching}>
             {isSearching ? "Buscando..." : "Buscar"}

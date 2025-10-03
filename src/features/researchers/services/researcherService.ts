@@ -101,10 +101,37 @@ export class ResearcherService {
     return this.mapDjangoToFrontend(response);
   }
 
-  // Buscar researchers por ORCID, nombre o correo
-  async search(searchTerm: string): Promise<Researcher[]> {
+  // Buscar researchers por ORCID, nombre o correo con filtros opcionales
+  async search(
+    searchTerm?: string,
+    filters?: {
+      lineas_tematicas?: number;
+      pais?: string;
+      grado_academico?: string;
+      estado?: string;
+      idiomas?: number;
+    }
+  ): Promise<Researcher[]> {
     const queryParams = new URLSearchParams();
-    queryParams.append('search', searchTerm);
+
+    if (searchTerm) {
+      queryParams.append('search', searchTerm);
+    }
+    if (filters?.lineas_tematicas) {
+      queryParams.append('lineas_tematicas', filters.lineas_tematicas.toString());
+    }
+    if (filters?.pais) {
+      queryParams.append('pais', filters.pais);
+    }
+    if (filters?.grado_academico) {
+      queryParams.append('grado_academico', filters.grado_academico);
+    }
+    if (filters?.estado) {
+      queryParams.append('estado', filters.estado);
+    }
+    if (filters?.idiomas) {
+      queryParams.append('idiomas', filters.idiomas.toString());
+    }
 
     const response = await apiClient.get<any>(`${this.endpoint}/?${queryParams.toString()}`);
     const results = response.results || response;

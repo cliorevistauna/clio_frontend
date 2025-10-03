@@ -22,10 +22,17 @@ export const ROUTES = {
   // Articles
   ARTICLES: '/articles',
   CREATE_ARTICLE: '/articles/create',
+  MODIFY_ARTICLE: '/articles/modify',
   EDIT_ARTICLE: '/articles/:id/edit',
 
   // Reports
   REPORTS: '/reports',
+  EVALUATOR_HISTORY_REPORT: '/reports/evaluator-history',
+  EVALUATORS_BY_THEME_REPORT: '/reports/evaluators-by-theme',
+  EVALUATOR_WORKLOAD_REPORT: '/reports/evaluator-workload',
+  INVITATIONS_BY_ISSUE_REPORT: '/reports/invitations-by-issue',
+  PARTICIPATION_BY_ARTICLE_REPORT: '/reports/participation-by-article',
+  PREVIOUS_PARTICIPATION_REPORT: '/reports/previous-participation',
 
   // Thematic Lines
   CREATE_THEMATIC_LINE: '/thematic-lines/create',

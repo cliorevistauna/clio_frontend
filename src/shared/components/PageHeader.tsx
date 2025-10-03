@@ -18,6 +18,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
   const [showSubmenu, setShowSubmenu] = useState(false);
   const [showAdminSubmenu, setShowAdminSubmenu] = useState(false);
   const [showResearcherSubmenu, setShowResearcherSubmenu] = useState(false);
+  const [showReportsSubmenu, setShowReportsSubmenu] = useState(false);
 
   // RF-002: Menú dinámico basado en el rol del usuario
   const getMenuByRole = (roleName: string): string[] => {
@@ -82,8 +83,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     <Link to={ROUTES.CREATE_ARTICLE} className="submenu-link">
                       Registrar
                     </Link>
-                    <Link to={ROUTES.ARTICLES} className="submenu-link">
-                      Mostrar Lista
+                    <Link to={ROUTES.MODIFY_ARTICLE} className="submenu-link">
+                      Actualizar
                     </Link>
                   </div>
                 )}
@@ -139,6 +140,38 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     </Link>
                     <Link to={ROUTES.MODIFY_RESEARCHER} className="submenu-link">
                       Actualizar
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ) : item === "Reportes" ? (
+              <div
+                key={index}
+                className="nav-link submenu-container"
+                onMouseEnter={() => setShowReportsSubmenu(true)}
+                onMouseLeave={() => setShowReportsSubmenu(false)}
+                tabIndex={0}
+              >
+                Reportes
+                {showReportsSubmenu && (
+                  <div className="submenu">
+                    <Link to={ROUTES.EVALUATOR_HISTORY_REPORT} className="submenu-link">
+                      Histórico de evaluaciones por evaluador
+                    </Link>
+                    <Link to={ROUTES.EVALUATORS_BY_THEME_REPORT} className="submenu-link">
+                      Estadísticas por línea temática
+                    </Link>
+                    <Link to={ROUTES.EVALUATOR_WORKLOAD_REPORT} className="submenu-link">
+                      Carga de trabajo de evaluadores
+                    </Link>
+                    <Link to={ROUTES.INVITATIONS_BY_ISSUE_REPORT} className="submenu-link">
+                      Invitaciones por número editorial
+                    </Link>
+                    <Link to={ROUTES.PARTICIPATION_BY_ARTICLE_REPORT} className="submenu-link">
+                      Participación por artículo
+                    </Link>
+                    <Link to={ROUTES.PREVIOUS_PARTICIPATION_REPORT} className="submenu-link">
+                      Participación en números anteriores
                     </Link>
                   </div>
                 )}

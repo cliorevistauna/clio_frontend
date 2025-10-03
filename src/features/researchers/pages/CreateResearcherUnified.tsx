@@ -5,6 +5,8 @@ import ThematicLineSelector from "../../../shared/components/ThematicLineSelecto
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../shared/constants";
 import { useAuth } from "../../auth/hooks";
+import { researcherService } from "../services/researcherService";
+import { CreateResearcherRequest } from "../types/Researcher";
 
 const CreateResearcher: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +37,90 @@ const CreateResearcher: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Esta funcionalidad no está implementada en este momento.");
+
+    // Validaciones básicas
+    if (!orcid || !nombre || !apellido1 || !apellido2 || !correo) {
+      alert("Por favor, complete todos los campos obligatorios (ORCID, Nombre, Apellidos y Correo).");
+      return;
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+      alert("Por favor, ingrese un correo electrónico válido.");
+      return;
+    }
+
+    // Validar formato ORCID básico (0000-0000-0000-0000)
+    const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
+    if (!orcidRegex.test(orcid)) {
+      alert("El ORCID debe tener el formato: 0000-0000-0000-0000");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const createRequest: CreateResearcherRequest = {
+        orcid,
+        nombre,
+        apellido1,
+        apellido2,
+        affiliation: afiliacion,
+        academicDegree: gradoAcademico,
+        country: pais,
+        workPlace: lugarTrabajo,
+        email: correo,
+        thematicLines: lineasTematicas,
+        languages: idiomas,
+        phones: {
+          mobile: telefono,
+        },
+        status: "active",
+      };
+
+      await researcherService.create(createRequest);
+
+      alert("Investigador registrado exitosamente.");
+
+      // Limpiar formulario
+      setOrcid("");
+      setNombre("");
+      setApellido1("");
+      setApellido2("");
+      setAfiliacion("");
+      setGradoAcademico("");
+      setPais("");
+      setLugarTrabajo("");
+      setCorreo("");
+      setIdiomas([]);
+      setLineasTematicas([]);
+      setTelefono("");
+
+    } catch (error: any) {
+      console.error("Error al registrar investigador:", error);
+
+      let errorMessage = "Error al registrar el investigador.";
+      if (error?.details && typeof error.details === 'object') {
+        const details = error.details;
+        if (details.orcid && Array.isArray(details.orcid)) {
+          errorMessage = details.orcid[0];
+        } else if (details.correo && Array.isArray(details.correo)) {
+          errorMessage = details.correo[0];
+        } else if (details.nombre && Array.isArray(details.nombre)) {
+          errorMessage = details.nombre[0];
+        } else if (details.non_field_errors && Array.isArray(details.non_field_errors)) {
+          errorMessage = details.non_field_errors[0];
+        } else if (details.message) {
+          errorMessage = details.message;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

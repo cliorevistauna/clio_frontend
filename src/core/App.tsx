@@ -6,8 +6,16 @@ import BuildDefault from "./BuildDefault";
 import { CreateEditorialNumber, ModifyEditorialNumber } from "../features/editorial-numbers/pages";
 import { CreateResearcher, ModifyResearcher } from "../features/researchers/pages";
 import { ManageUsers } from "../features/users/pages";
-import { CreateArticle } from "../features/articles/pages";
+import { CreateArticle, UpdateArticle, ModifyArticle } from "../features/articles/pages";
 import { CreateThematicLine, ModifyThematicLine, DeactivateThematicLine } from "../features/thematic-lines/pages";
+import {
+  EvaluatorHistoryReport,
+  EvaluatorsByThemeReport,
+  EvaluatorWorkloadReport,
+  InvitationsByIssueReport,
+  ParticipationByArticleReport,
+  PreviousParticipationReport
+} from "../features/reports/pages";
 import { ROUTES } from "../shared/constants";
 import { useAuth } from "../features/auth/hooks";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
@@ -107,6 +115,22 @@ const App: React.FC = () => {
           }
         />
         <Route
+          path={ROUTES.MODIFY_ARTICLE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
+              <ModifyArticle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EDIT_ARTICLE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
+              <UpdateArticle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path={ROUTES.CREATE_THEMATIC_LINE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
@@ -127,6 +151,54 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
               <DeactivateThematicLine />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EVALUATOR_HISTORY_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <EvaluatorHistoryReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EVALUATORS_BY_THEME_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <EvaluatorsByThemeReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.EVALUATOR_WORKLOAD_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <EvaluatorWorkloadReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.INVITATIONS_BY_ISSUE_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <InvitationsByIssueReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.PARTICIPATION_BY_ARTICLE_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <ParticipationByArticleReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.PREVIOUS_PARTICIPATION_REPORT}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
+              <PreviousParticipationReport />
             </ProtectedRoute>
           }
         />

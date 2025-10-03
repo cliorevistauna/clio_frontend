@@ -1,71 +1,408 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { CurrentEditorialNumberDisplay } from "../../editorial-numbers/components";
+import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
+import { SearchAuthorModal, SearchEvaluatorModal } from "../components";
+import { articleService } from "../services";
+import { ResearcherSearchResult } from "../types";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/hooks";
+import { ROUTES } from "../../../shared/constants";
+import { editorialNumberService } from "../../editorial-numbers/services";
+import { EditorialNumber } from "../../editorial-numbers/types";
 
 /**
- * RF-010: Ejemplo de formulario que muestra automáticamente el número editorial vigente
+ * RF-017: Creación de Artículos
+ *
+ * Permite a Administradores y Editores crear nuevos artículos.
+ * - Autor obligatorio (buscar o crear nuevo)
+ * - Mínimo 1 línea temática
+ * - Evaluadores opcionales al crear
+ * - Número editorial se asigna automáticamente si no se proporciona
+ * - Estado inicial "Recibido" (asignado automáticamente por el backend)
+ * - Si se agregan evaluadores, el backend cambiará automáticamente a "Asignado"
  */
 const CreateArticle: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Campos del formulario
+  const [titulo, setTitulo] = useState("");
+  const [procedencia, setProcedencia] = useState("");
+  const [fechaRecepcion, setFechaRecepcion] = useState("");
+  const [fechaAceptacion, setFechaAceptacion] = useState("");
+  const [fechaPublicacion, setFechaPublicacion] = useState("");
+  const [lineasTematicas, setLineasTematicas] = useState<number[]>([]);
+
+  // Número editorial
+  const [editorialNumbers, setEditorialNumbers] = useState<EditorialNumber[]>([]);
+  const [selectedEditorialNumber, setSelectedEditorialNumber] = useState<number | null>(null);
+  const [currentEditorialNumber, setCurrentEditorialNumber] = useState<EditorialNumber | null>(null);
+
+  // Autores y evaluadores
+  const [selectedAuthor, setSelectedAuthor] = useState<ResearcherSearchResult | null>(null);
+  const [selectedEvaluators, setSelectedEvaluators] = useState<ResearcherSearchResult[]>([]);
+
+  // Modales
+  const [showAuthorModal, setShowAuthorModal] = useState(false);
+  const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
+
+  // Estado de envío
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Cargar números editoriales disponibles
+  useEffect(() => {
+    const loadEditorialNumbers = async () => {
+      try {
+        const [all, current] = await Promise.all([
+          editorialNumberService.getAll(),
+          editorialNumberService.getCurrentEditorialNumber()
+        ]);
+        setEditorialNumbers(all);
+        setCurrentEditorialNumber(current);
+        if (current) {
+          setSelectedEditorialNumber(current.id);
+        }
+      } catch (error) {
+        console.error("Error al cargar números editoriales:", error);
+      }
+    };
+    loadEditorialNumbers();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate(ROUTES.LOGIN);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      navigate(ROUTES.LOGIN);
+    }
+  };
+
+  const handleSelectAuthor = (author: ResearcherSearchResult) => {
+    setSelectedAuthor(author);
+  };
+
+  const handleRemoveAuthor = () => {
+    setSelectedAuthor(null);
+  };
+
+  const handleSelectEvaluators = (evaluators: ResearcherSearchResult[]) => {
+    setSelectedEvaluators(evaluators);
+  };
+
+  const handleRemoveEvaluator = (id: number) => {
+    setSelectedEvaluators(selectedEvaluators.filter(e => e.id !== id));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Artículo creado:", { title, content });
-    alert("Artículo creado (ejemplo - no implementado completamente)");
+
+    // Validaciones RF-017
+    if (!titulo || !procedencia || !fechaRecepcion) {
+      alert("Por favor, complete todos los campos obligatorios.");
+      return;
+    }
+
+    if (!selectedAuthor) {
+      alert("Es obligatorio ingresar un autor. Use el botón 'Seleccionar Autor'.");
+      return;
+    }
+
+    if (lineasTematicas.length === 0) {
+      alert("Se debe seleccionar al menos una línea temática.");
+      return;
+    }
+
+    // Los evaluadores son opcionales al crear
+    // No se requiere mínimo de evaluadores
+
+    setIsSubmitting(true);
+    try {
+      const articleData = {
+        titulo,
+        procedencia,
+        fecha_recepcion: fechaRecepcion,
+        fecha_aceptacion: fechaAceptacion || undefined,
+        fecha_publicacion: fechaPublicacion || undefined,
+        numero_editorial: selectedEditorialNumber || undefined,
+        lineas_tematicas: lineasTematicas,
+        autores: [selectedAuthor.id],
+        evaluadores_data: selectedEvaluators.map(ev => ({
+          investigador: ev.id,
+          estado_comunicacion: 'invitado' as const,
+        })),
+      };
+
+      console.log("Datos del artículo a crear:", articleData);
+
+      await articleService.create(articleData);
+
+      alert("Artículo registrado exitosamente.");
+
+      // Limpiar formulario
+      setTitulo("");
+      setProcedencia("");
+      setFechaRecepcion("");
+      setFechaAceptacion("");
+      setFechaPublicacion("");
+      setLineasTematicas([]);
+      setSelectedAuthor(null);
+      setSelectedEvaluators([]);
+
+    } catch (error: any) {
+      console.error("Error al registrar artículo:", error);
+
+      let errorMessage = "Error al registrar el artículo.";
+      if (error?.details && typeof error.details === 'object') {
+        errorMessage = JSON.stringify(error.details);
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="app-layout">
-      <PageHeader onLogout={() => console.log("Logout")} />
+      <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Registrar Artículo</h2>
+          <h2>Formulario de Registro</h2>
 
-          {/* RF-010: Mostrar número editorial vigente precargado automáticamente */}
-          <div style={{
-            marginBottom: '20px',
-            padding: '15px',
-            backgroundColor: '#f8f9fa',
-            border: '1px solid #dee2e6',
-            borderRadius: '5px'
-          }}>
-            <CurrentEditorialNumberDisplay showLabel={true} />
+          {/* Número de Publicación - Editable */}
+          <div className="form-group">
+            <label>Número de Publicación</label>
+            <select
+              value={selectedEditorialNumber || ''}
+              onChange={(e) => setSelectedEditorialNumber(e.target.value ? parseInt(e.target.value) : null)}
+              disabled={isSubmitting}
+              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
+            >
+              <option value="">Sin asignar</option>
+              {editorialNumbers.map(en => (
+                <option key={en.id} value={en.id}>
+                  Número {en.numero} - Año {en.anio} ({en.estado})
+                  {currentEditorialNumber?.id === en.id ? ' (Actual)' : ''}
+                </option>
+              ))}
+            </select>
+            <small style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+              Por defecto se asigna el número de publicación vigente, pero puede cambiarlo
+            </small>
           </div>
 
           <form onSubmit={handleSubmit}>
+            {/* Título del Artículo */}
             <div className="form-group">
               <label>Título del Artículo *</label>
               <input
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
                 required
+                disabled={isSubmitting}
+                placeholder="Ingrese el título del artículo"
+              />
+            </div>
+
+            {/* Procedencia */}
+            <div className="form-group">
+              <label>Procedencia *</label>
+              <input
+                type="text"
+                value={procedencia}
+                onChange={(e) => setProcedencia(e.target.value)}
+                required
+                disabled={isSubmitting}
+                placeholder="Ejemplo: Universidad Nacional"
+              />
+            </div>
+
+            {/* Líneas Temáticas */}
+            <div className="form-group">
+              <ThematicLineSelector
+                selected={lineasTematicas}
+                onChange={setLineasTematicas}
+              />
+              {lineasTematicas.length === 0 && (
+                <small style={{ color: '#dc3545' }}>
+                  * Se debe seleccionar al menos una línea temática
+                </small>
+              )}
+            </div>
+
+            {/* Fechas */}
+            <div className="form-group">
+              <label>Fecha de Recepción *</label>
+              <input
+                type="date"
+                value={fechaRecepcion}
+                onChange={(e) => setFechaRecepcion(e.target.value)}
+                required
+                disabled={isSubmitting}
               />
             </div>
 
             <div className="form-group">
-              <label>Contenido</label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={6}
+              <label>Fecha de Aceptación</label>
+              <input
+                type="date"
+                value={fechaAceptacion}
+                onChange={(e) => setFechaAceptacion(e.target.value)}
+                disabled={isSubmitting}
               />
             </div>
 
-            <button type="submit" className="submit-btn">
-              Registrar Artículo
+            <div className="form-group">
+              <label>Fecha de Publicación</label>
+              <input
+                type="date"
+                value={fechaPublicacion}
+                onChange={(e) => setFechaPublicacion(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Autor - RF-019 y RF-020 */}
+            <div className="form-group">
+              <label>Autor *</label>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAuthorModal(true)}
+                  disabled={isSubmitting}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {selectedAuthor ? 'Cambiar Autor' : 'Seleccionar Autor'}
+                </button>
+
+                {selectedAuthor && (
+                  <div style={{
+                    flex: 1,
+                    padding: '10px',
+                    backgroundColor: '#d4edda',
+                    border: '1px solid #c3e6cb',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>
+                      <strong>{selectedAuthor.nombre} {selectedAuthor.apellido1} {selectedAuthor.apellido2}</strong>
+                      {' '}- {selectedAuthor.afiliacion}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAuthor}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#721c24',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        padding: '0 10px'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Evaluadores - RF-021 */}
+            <div className="form-group">
+              <label>Evaluadores (Opcional)</label>
+
+              {selectedEvaluators.length > 0 && (
+                <div style={{
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '4px'
+                }}>
+                  <strong>Seleccionados:</strong>
+                  <ul style={{ marginTop: '10px', marginBottom: 0 }}>
+                    {selectedEvaluators.map(ev => (
+                      <li key={ev.id} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '5px 0'
+                      }}>
+                        <span>
+                          {ev.nombre} {ev.apellido1} {ev.apellido2} - {ev.afiliacion}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEvaluator(ev.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#dc3545',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              <button
+                type="button"
+                onClick={() => setShowEvaluatorModal(true)}
+                disabled={isSubmitting}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginBottom: '10px'
+                }}
+              >
+                Seleccionar Evaluadores ({selectedEvaluators.length})
+              </button>
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? "Registrando..." : "Registrar Artículo"}
             </button>
           </form>
-
-          <div style={{ marginTop: '20px', color: '#6c757d', fontSize: '14px' }}>
-            <strong>Nota:</strong> Este formulario demuestra la implementación del RF-010.
-            El número de publicación vigente se carga automáticamente y se actualiza
-            en tiempo real durante la sesión activa.
-          </div>
         </div>
       </main>
+
+      {/* Modales */}
+      <SearchAuthorModal
+        isOpen={showAuthorModal}
+        onClose={() => setShowAuthorModal(false)}
+        onSelectAuthor={handleSelectAuthor}
+      />
+
+      <SearchEvaluatorModal
+        isOpen={showEvaluatorModal}
+        onClose={() => setShowEvaluatorModal(false)}
+        onSelectEvaluators={handleSelectEvaluators}
+        alreadySelected={selectedEvaluators.map(e => e.id)}
+      />
     </div>
   );
 };
