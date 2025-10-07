@@ -13,7 +13,8 @@ export const useUserManagement = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const usersData = await userManagementService.getAllUsers();
+      // Siempre obtener TODOS los usuarios (incluyendo deshabilitados)
+      const usersData = await userManagementService.getAllUsers(true);
       setUsers(usersData);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error al cargar usuarios');

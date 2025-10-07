@@ -158,6 +158,79 @@ const DialogButtons = styled.div`
   justify-content: center;
 `;
 
+const FilterSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+`;
+
+const FilterLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 20px;
+`;
+
+const PageInfo = styled.div`
+  font-size: 14px;
+  color: var(--color-text-light);
+`;
+
+const PageButtons = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const PageButton = styled.button<{ active?: boolean }>`
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  background: ${props => props.active ? 'var(--color-primary)' : 'var(--color-white)'};
+  color: ${props => props.active ? 'var(--color-white)' : 'var(--color-text)'};
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover:not(:disabled) {
+    background: ${props => props.active ? 'var(--color-primary)' : 'var(--color-background-light)'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PerPageSelect = styled.select`
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+`;
+
 interface ConfirmationData {
   type: 'status' | 'role';
   userId: number;
@@ -172,6 +245,9 @@ const ManageUsers: React.FC = () => {
 
   const [confirmation, setConfirmation] = useState<ConfirmationData | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [showDisabled, setShowDisabled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleLogout = async () => {
     await logout();
@@ -233,6 +309,28 @@ const ManageUsers: React.FC = () => {
     }
   };
 
+  // Filtrar usuarios según el checkbox de "Mostrar deshabilitados"
+  const filteredUsers = showDisabled
+    ? users
+    : users.filter(user => user.estado !== 'deshabilitado');
+
+  // Paginación
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Resetear a página 1 cuando cambia el filtro o items por página
+  const handleShowDisabledChange = (checked: boolean) => {
+    setShowDisabled(checked);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (value: number) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -255,6 +353,32 @@ const ManageUsers: React.FC = () => {
         {error && <Alert variant="error">{error}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
+        {/* Filtros y controles */}
+        <FilterSection>
+          <FilterLeft>
+            <CheckboxLabel>
+              <input
+                type="checkbox"
+                checked={showDisabled}
+                onChange={(e) => handleShowDisabledChange(e.target.checked)}
+              />
+              Mostrar usuarios deshabilitados
+            </CheckboxLabel>
+          </FilterLeft>
+          <FilterLeft>
+            <span style={{ fontSize: '14px' }}>Mostrar:</span>
+            <PerPageSelect
+              value={itemsPerPage}
+              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </PerPageSelect>
+            <span style={{ fontSize: '14px' }}>por página</span>
+          </FilterLeft>
+        </FilterSection>
+
         {/* Tabla de usuarios */}
         <Table>
           <thead>
@@ -268,7 +392,7 @@ const ManageUsers: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {currentUsers.map(user => (
               <tr key={user.id}>
                 <td>{user.nombre}</td>
                 <td>{user.correo}</td>
@@ -320,8 +444,72 @@ const ManageUsers: React.FC = () => {
           </tbody>
         </Table>
 
-        {users.length === 0 && (
-          <Alert variant="warning">No se encontraron usuarios en el sistema.</Alert>
+        {filteredUsers.length === 0 && (
+          <Alert variant="warning">
+            {showDisabled
+              ? "No se encontraron usuarios en el sistema."
+              : "No se encontraron usuarios habilitados o pendientes."}
+          </Alert>
+        )}
+
+        {/* Controles de paginación */}
+        {filteredUsers.length > 0 && (
+          <PaginationControls>
+            <PageInfo>
+              Mostrando {startIndex + 1} a {Math.min(endIndex, filteredUsers.length)} de {filteredUsers.length} usuarios
+            </PageInfo>
+            <PageButtons>
+              <PageButton
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                Primera
+              </PageButton>
+              <PageButton
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </PageButton>
+
+              {/* Mostrar números de página */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => {
+                  // Mostrar siempre primera y última página
+                  if (page === 1 || page === totalPages) return true;
+                  // Mostrar páginas cerca de la actual
+                  return Math.abs(page - currentPage) <= 2;
+                })
+                .map((page, index, array) => {
+                  // Agregar "..." si hay saltos
+                  const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                  return (
+                    <React.Fragment key={page}>
+                      {showEllipsis && <span style={{ padding: '8px' }}>...</span>}
+                      <PageButton
+                        active={currentPage === page}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </PageButton>
+                    </React.Fragment>
+                  );
+                })}
+
+              <PageButton
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Siguiente
+              </PageButton>
+              <PageButton
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                Última
+              </PageButton>
+            </PageButtons>
+          </PaginationControls>
         )}
       </Container>
 
