@@ -10,12 +10,43 @@ const CreateEditorialNumber: React.FC = () => {
   const [fechaFin, setFechaFin] = useState("");
   const [comentarios, setComentarios] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [usarHoyInicio, setUsarHoyInicio] = useState(false);
+  const [usarHoyFin, setUsarHoyFin] = useState(false);
 
   // RF-008: El año vigente debe cargarse automáticamente
   useEffect(() => {
     const currentYear = new Date().getFullYear();
     setAnio(currentYear.toString());
   }, []);
+
+  // Función para obtener fecha actual en formato YYYY-MM-DD
+  const getFechaActual = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de inicio
+  const handleUsarHoyInicio = (checked: boolean) => {
+    setUsarHoyInicio(checked);
+    if (checked) {
+      setFechaInicio(getFechaActual());
+    } else {
+      setFechaInicio("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de fin
+  const handleUsarHoyFin = (checked: boolean) => {
+    setUsarHoyFin(checked);
+    if (checked) {
+      setFechaFin(getFechaActual());
+    } else {
+      setFechaFin("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,10 +101,12 @@ const CreateEditorialNumber: React.FC = () => {
 
       // Limpiar el formulario
       setNumero("");
-      setAnio("");
+      setAnio(new Date().getFullYear().toString()); // Mantener el año actual
       setFechaInicio("");
       setFechaFin("");
       setComentarios("");
+      setUsarHoyInicio(false);
+      setUsarHoyFin(false);
 
     } catch (error: any) {
       console.error("Error al crear número editorial:", error);
@@ -148,24 +181,48 @@ const CreateEditorialNumber: React.FC = () => {
 
             <div className="form-group">
               <label>Fecha de Inicio *</label>
-              <input
-                type="date"
-                value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="date"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  required
+                  disabled={isLoading || usarHoyInicio}
+                  style={{ flex: 1 }}
+                />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyInicio}
+                    onChange={(e) => handleUsarHoyInicio(e.target.checked)}
+                    disabled={isLoading}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Fecha de Finalización *</label>
-              <input
-                type="date"
-                value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
-                required
-                disabled={isLoading}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="date"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  required
+                  disabled={isLoading || usarHoyFin}
+                  style={{ flex: 1 }}
+                />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyFin}
+                    onChange={(e) => handleUsarHoyFin(e.target.checked)}
+                    disabled={isLoading}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
