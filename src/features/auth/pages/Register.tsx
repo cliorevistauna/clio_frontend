@@ -39,7 +39,8 @@ const Register: React.FC = () => {
     getFieldProps,
     handleSubmit,
     isSubmitting,
-    errors
+    errors,
+    values
   } = useForm({
     initialValues: {
       nombre: "",
@@ -90,6 +91,21 @@ const Register: React.FC = () => {
     }
   });
 
+  // Validación en tiempo real para el campo de email
+  const getEmailError = () => {
+    if (!values.correo) return "";
+    if (!values.correo.includes("@")) {
+      return "El correo electrónico debe contener un @";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(values.correo)) {
+      return "El correo electrónico debe tener formato válido (ejemplo: usuario@dominio.com).";
+    }
+    return "";
+  };
+
+  const emailRealtimeError = getEmailError();
+
   // Si el registro fue exitoso
   if (registrationSuccess) {
     return (
@@ -111,7 +127,7 @@ const Register: React.FC = () => {
       <FormContainer>
         <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Registro de Usuario</h2>
         <form onSubmit={handleSubmit}>
-          <FormField label="Nombre completo" required>
+          <FormField label="Nombre completo" required error={errors.nombre}>
             <Input
               type="text"
               placeholder="Ingrese su nombre completo"
@@ -119,21 +135,15 @@ const Register: React.FC = () => {
             />
           </FormField>
 
-          {/* Mostrar errores de validación de nombre */}
-          {errors.nombre && <Alert>{errors.nombre}</Alert>}
-
-          <FormField label="Correo electrónico" required>
+          <FormField label="Correo electrónico" required error={emailRealtimeError || errors.correo}>
             <Input
-              type="email"
+              type="text"
               placeholder="usuario@dominio.com"
               {...getFieldProps("correo")}
             />
           </FormField>
 
-          {/* Mostrar errores de validación de email */}
-          {errors.correo && <Alert>{errors.correo}</Alert>}
-
-          <FormField label="Contraseña" required>
+          <FormField label="Contraseña" required error={errors.password}>
             <Input
               type="password"
               placeholder="Mínimo 8 caracteres, incluir letras y números"
@@ -141,19 +151,13 @@ const Register: React.FC = () => {
             />
           </FormField>
 
-          {/* Mostrar errores de validación de contraseña */}
-          {errors.password && <Alert>{errors.password}</Alert>}
-
-          <FormField label="Confirmación de contraseña" required>
+          <FormField label="Confirmación de contraseña" required error={errors.confirmPassword}>
             <Input
               type="password"
               placeholder="Repita su contraseña"
               {...getFieldProps("confirmPassword")}
             />
           </FormField>
-
-          {/* Mostrar errores de confirmación de contraseña */}
-          {errors.confirmPassword && <Alert>{errors.confirmPassword}</Alert>}
 
           {/* Mostrar errores del servidor */}
           {registrationError && <Alert>{registrationError}</Alert>}

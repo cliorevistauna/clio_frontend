@@ -39,7 +39,8 @@ const RecoverPassword: React.FC = () => {
     getFieldProps,
     handleSubmit,
     isSubmitting,
-    errors
+    errors,
+    values
   } = useForm({
     initialValues: {
       email: ""
@@ -66,6 +67,21 @@ const RecoverPassword: React.FC = () => {
     }
   });
 
+  // Validación en tiempo real para el campo de email
+  const getEmailError = () => {
+    if (!values.email) return "";
+    if (!values.email.includes("@")) {
+      return "El correo electrónico debe contener un @";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(values.email)) {
+      return "El correo ingresado debe tener formato válido.";
+    }
+    return "";
+  };
+
+  const emailRealtimeError = getEmailError();
+
   if (submitted) {
     return (
       <AppLayout>
@@ -86,16 +102,13 @@ const RecoverPassword: React.FC = () => {
       <FormContainer>
         <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Recuperar Contraseña</h2>
         <form onSubmit={handleSubmit}>
-          <FormField label="Correo electrónico" required>
+          <FormField label="Correo electrónico" required error={emailRealtimeError || errors.email}>
             <Input
-              type="email"
+              type="text"
               placeholder="Introduce tu correo electrónico"
               {...getFieldProps("email")}
             />
           </FormField>
-
-          {/* Mostrar errores de validación */}
-          {errors.email && <Alert>{errors.email}</Alert>}
 
           {/* Mostrar errores del servidor */}
           {resetError && <Alert>{resetError}</Alert>}

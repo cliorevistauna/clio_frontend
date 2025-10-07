@@ -6,6 +6,7 @@ interface FormFieldProps {
   label?: string;
   required?: boolean;
   className?: string;
+  error?: string;
 }
 
 const FieldWrapper = styled.div`
@@ -26,11 +27,19 @@ const RequiredIndicator = styled.span`
   margin-left: 0.25rem;
 `;
 
+const ErrorMessage = styled.span`
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+`;
+
 export const FormField: React.FC<FormFieldProps> = ({
   children,
   label,
   required = false,
-  className
+  className,
+  error
 }) => {
   return (
     <FieldWrapper className={className}>
@@ -41,6 +50,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         </Label>
       )}
       {children}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </FieldWrapper>
   );
 };

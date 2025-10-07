@@ -42,7 +42,8 @@ const Login: React.FC = () => {
     getFieldProps,
     handleSubmit,
     isSubmitting,
-    errors
+    errors,
+    values
   } = useForm({
     initialValues: {
       email: "",
@@ -80,13 +81,33 @@ const Login: React.FC = () => {
     }
   });
 
+  // Validación en tiempo real para el campo de email
+  const getEmailError = () => {
+    if (!values.email) return "";
+    if (!values.email.includes("@")) {
+      return "El correo electrónico debe contener un @";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(values.email)) {
+      return "El correo electrónico debe tener formato válido (ejemplo: usuario@dominio.com).";
+    }
+    return "";
+  };
+
+  const emailRealtimeError = getEmailError();
+
   return (
     <AppLayout>
       <FormContainer>
         <form onSubmit={handleSubmit}>
-          <FormField label="Correo electrónico" required>
+          <FormField
+            label="Correo electrónico"
+            required
+            error={emailRealtimeError || errors.email}
+          >
             <Input
-              type="email"
+              type="text"
+              placeholder="usuario@dominio.com"
               {...getFieldProps("email")}
             />
           </FormField>
