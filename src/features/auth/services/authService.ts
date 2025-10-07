@@ -56,11 +56,15 @@ export class AuthService {
       });
       return response;
     } catch (error: any) {
+      // Manejo específico de errores del backend
       if (error.details?.correo) {
         throw new Error('Este correo ya está registrado.');
       }
       if (error.details?.password) {
         throw new Error('La contraseña no cumple con los requisitos de seguridad.');
+      }
+      if (error.details?.password_confirm) {
+        throw new Error('Las contraseñas no coinciden.');
       }
       if (error.details?.nombre) {
         throw new Error('El nombre es obligatorio.');
@@ -68,7 +72,12 @@ export class AuthService {
       if (error.details?.non_field_errors) {
         throw new Error(error.details.non_field_errors[0]);
       }
-      throw error;
+      // Si hay un mensaje de error general del backend
+      if (error.message && error.message !== 'HTTP 400') {
+        throw new Error(error.message);
+      }
+      // Error genérico como fallback
+      throw new Error('Error al registrar usuario. Por favor, intente nuevamente.');
     }
   }
 
