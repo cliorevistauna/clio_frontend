@@ -76,8 +76,19 @@ export class AuthService {
     try {
       await apiClient.post('/auth/forgot-password/', { email });
     } catch (error: any) {
+      // Error 404: correo no encontrado
       if (error.status === 404) {
         throw new Error('No se encontró un usuario con ese correo electrónico.');
+      }
+      // Si el backend devuelve un mensaje específico
+      if (error.details?.email) {
+        throw new Error(error.details.email);
+      }
+      if (error.details?.error) {
+        throw new Error(error.details.error);
+      }
+      if (error.details?.message) {
+        throw new Error(error.details.message);
       }
       throw new Error('Error al enviar el correo de recuperación');
     }
