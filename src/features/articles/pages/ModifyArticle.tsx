@@ -5,6 +5,7 @@ import { useAuth } from "../../auth/hooks";
 import { ROUTES } from "../../../shared/constants";
 import { articleService } from "../services";
 import { Article } from "../types";
+import { backendToFrontendDate } from "../../../shared/utils/dateUtils";
 import "./ModifyArticle.css";
 
 /**
@@ -153,7 +154,7 @@ const ModifyArticle: React.FC = () => {
                               {formatEstado(article.estado)}
                             </span>
                           </td>
-                          <td>{new Date(article.fecha_recepcion).toLocaleDateString('es-ES')}</td>
+                          <td>{backendToFrontendDate(article.fecha_recepcion)}</td>
                           <td>
                             {article.numero_editorial_info
                               ? `${article.numero_editorial_info.numero}-${article.numero_editorial_info.anio}`

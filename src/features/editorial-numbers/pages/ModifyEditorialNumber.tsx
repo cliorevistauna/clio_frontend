@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { EditorialNumber, UpdateEditorialNumberRequest } from "../types";
+import {
+  backendToFrontendDate,
+  frontendToBackendDate,
+  isValidFrontendDateFormat
+} from "../../../shared/utils/dateUtils";
+import { DateInput } from "../../../shared/components/ui";
 
 /**
  * RF-009: Modificación de Números Editoriales
@@ -92,8 +98,9 @@ const ModifyEditorialNumber: React.FC = () => {
     setSelectedEditorial(editorial);
     setNumero(editorial.numero.toString());
     setAnio(editorial.anio.toString());
-    setFechaInicio(editorial.fecha_inicio || "");
-    setFechaFin(editorial.fecha_final || "");
+    // Convertir fechas de formato backend (YYYY-MM-DD) a frontend (DD-MM-YYYY)
+    setFechaInicio(editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : "");
+    setFechaFin(editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : "");
     setComentarios(editorial.comentarios || "");
   };
 
@@ -146,15 +153,18 @@ const ModifyEditorialNumber: React.FC = () => {
       return;
     }
 
-    // Validar formato de fecha (YYYY-MM-DD para el backend)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(fechaInicio) || !dateRegex.test(fechaFin)) {
-      alert("Las fechas deben estar en formato YYYY-MM-DD.");
+    // Validar formato de fecha (DD-MM-YYYY en frontend)
+    if (!isValidFrontendDateFormat(fechaInicio) || !isValidFrontendDateFormat(fechaFin)) {
+      alert("Las fechas deben estar en formato DD-MM-YYYY.");
       return;
     }
 
+    // Convertir fechas a formato backend para comparación y envío
+    const fechaInicioBackend = frontendToBackendDate(fechaInicio);
+    const fechaFinBackend = frontendToBackendDate(fechaFin);
+
     // Validar que la fecha de inicio sea anterior a la de fin
-    if (new Date(fechaInicio) >= new Date(fechaFin)) {
+    if (new Date(fechaInicioBackend) >= new Date(fechaFinBackend)) {
       alert("La fecha de inicio debe ser anterior a la fecha de finalización.");
       return;
     }
@@ -165,8 +175,8 @@ const ModifyEditorialNumber: React.FC = () => {
         id: selectedEditorial.id,
         numero: numeroInt,
         anio: anioInt,
-        fecha_inicio: fechaInicio,
-        fecha_final: fechaFin,
+        fecha_inicio: fechaInicioBackend, // Enviar en formato YYYY-MM-DD al backend
+        fecha_final: fechaFinBackend, // Enviar en formato YYYY-MM-DD al backend
         comentarios: comentarios || "",
       };
 
@@ -312,7 +322,7 @@ const ModifyEditorialNumber: React.FC = () => {
                   <strong>Número {editorial.numero}-{editorial.anio}</strong><br />
                   <small>
                     Estado: {editorial.estado} |
-                    Fechas: {editorial.fecha_inicio} a {editorial.fecha_final}
+                    Fechas: {editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : '-'} a {editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : '-'}
                     {editorial.comentarios && ` | ${editorial.comentarios}`}
                   </small>
                 </div>
@@ -391,8 +401,8 @@ const ModifyEditorialNumber: React.FC = () => {
                             {editorial.estado}
                           </span>
                         </td>
-                        <td style={{ padding: '10px' }}>{editorial.fecha_inicio || '-'}</td>
-                        <td style={{ padding: '10px' }}>{editorial.fecha_final || '-'}</td>
+                        <td style={{ padding: '10px' }}>{editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : '-'}</td>
+                        <td style={{ padding: '10px' }}>{editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : '-'}</td>
                         <td style={{ padding: '10px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={editorial.comentarios}>
                           {editorial.comentarios || '-'}
                         </td>
@@ -458,23 +468,21 @@ const ModifyEditorialNumber: React.FC = () => {
 
           <div className="form-group">
             <label>Fecha de Inicio *</label>
-            <input
-              type="date"
+            <DateInput
               value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              required
+              onChange={setFechaInicio}
               disabled={isUpdating}
+              required
             />
           </div>
 
           <div className="form-group">
             <label>Fecha de Finalización *</label>
-            <input
-              type="date"
+            <DateInput
               value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              required
+              onChange={setFechaFin}
               disabled={isUpdating}
+              required
             />
           </div>
 

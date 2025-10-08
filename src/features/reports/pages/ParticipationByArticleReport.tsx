@@ -6,6 +6,7 @@ import { ROUTES } from '../../../shared/constants';
 import { reportService } from '../services/reportService';
 import { ParticipationByArticleResponse } from '../types';
 import { articleService } from '../../articles/services/articleService';
+import { backendToFrontendDate } from '../../../shared/utils/dateUtils';
 
 /**
  * RF-026: Reporte de participación por artículo
@@ -327,7 +328,7 @@ const ParticipationByArticleReport: React.FC = () => {
                           <td style={{ padding: '12px' }}>{evaluador.estado_dictamen}</td>
                           <td style={{ padding: '12px' }}>
                             {evaluador.fecha_entrega_dictamen
-                              ? new Date(evaluador.fecha_entrega_dictamen).toLocaleDateString('es-ES')
+                              ? backendToFrontendDate(evaluador.fecha_entrega_dictamen)
                               : 'N/A'}
                           </td>
                         </tr>
