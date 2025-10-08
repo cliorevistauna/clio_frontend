@@ -7,6 +7,7 @@ import {
   frontendToBackendDate,
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
+import { DateInput } from "../../../shared/components/ui";
 
 /**
  * RF-009: Modificación de Números Editoriales
@@ -467,25 +468,21 @@ const ModifyEditorialNumber: React.FC = () => {
 
           <div className="form-group">
             <label>Fecha de Inicio *</label>
-            <input
-              type="text"
+            <DateInput
               value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              placeholder="DD-MM-YYYY"
-              required
+              onChange={setFechaInicio}
               disabled={isUpdating}
+              required
             />
           </div>
 
           <div className="form-group">
             <label>Fecha de Finalización *</label>
-            <input
-              type="text"
+            <DateInput
               value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              placeholder="DD-MM-YYYY"
-              required
+              onChange={setFechaFin}
               disabled={isUpdating}
+              required
             />
           </div>
 

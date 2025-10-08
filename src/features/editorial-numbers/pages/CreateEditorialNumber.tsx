@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { CreateEditorialNumberRequest } from "../types";
+import { DateInput } from "../../../shared/components/ui";
 import {
   getCurrentDateFrontend,
   frontendToBackendDate,
@@ -181,15 +182,14 @@ const CreateEditorialNumber: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Inicio *</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="text"
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                  placeholder="DD-MM-YYYY"
-                  required
-                  disabled={isLoading || usarHoyInicio}
-                  style={{ flex: 1 }}
-                />
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaInicio}
+                    onChange={setFechaInicio}
+                    disabled={isLoading || usarHoyInicio}
+                    required
+                  />
+                </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"
@@ -205,15 +205,14 @@ const CreateEditorialNumber: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Finalización *</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <input
-                  type="text"
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                  placeholder="DD-MM-YYYY"
-                  required
-                  disabled={isLoading || usarHoyFin}
-                  style={{ flex: 1 }}
-                />
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaFin}
+                    onChange={setFechaFin}
+                    disabled={isLoading || usarHoyFin}
+                    required
+                  />
+                </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"

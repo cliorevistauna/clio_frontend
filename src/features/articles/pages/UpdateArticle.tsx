@@ -14,6 +14,7 @@ import {
   backendToFrontendDate,
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
+import { DateInput } from "../../../shared/components/ui";
 
 interface EvaluatorWithState {
   researcher: ResearcherSearchResult;
@@ -407,34 +408,28 @@ const UpdateArticle: React.FC = () => {
             {/* Fechas */}
             <div className="form-group">
               <label>Fecha de Recepción *</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaRecepcion}
-                onChange={(e) => setFechaRecepcion(e.target.value)}
-                placeholder="DD-MM-YYYY"
-                required
+                onChange={setFechaRecepcion}
                 disabled={isSubmitting}
+                required
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Aceptación</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaAceptacion}
-                onChange={(e) => setFechaAceptacion(e.target.value)}
-                placeholder="DD-MM-YYYY"
+                onChange={setFechaAceptacion}
                 disabled={isSubmitting}
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Publicación</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaPublicacion}
-                onChange={(e) => setFechaPublicacion(e.target.value)}
-                placeholder="DD-MM-YYYY"
+                onChange={setFechaPublicacion}
                 disabled={isSubmitting}
               />
             </div>
@@ -563,48 +558,39 @@ const UpdateArticle: React.FC = () => {
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha de Envío de Dictamen:
                               </label>
-                              <input
-                                type="text"
+                              <DateInput
                                 value={ev.fecha_envio_dictamen || ''}
-                                onChange={(e) => handleUpdateEvaluatorState(
+                                onChange={(value) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_envio_dictamen',
-                                  e.target.value || null
+                                  value || null
                                 )}
-                                placeholder="DD-MM-YYYY"
-                                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>
                             <div style={{ marginTop: '10px' }}>
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha Límite de Dictamen:
                               </label>
-                              <input
-                                type="text"
+                              <DateInput
                                 value={ev.fecha_limite_dictamen || ''}
-                                onChange={(e) => handleUpdateEvaluatorState(
+                                onChange={(value) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_limite_dictamen',
-                                  e.target.value || null
+                                  value || null
                                 )}
-                                placeholder="DD-MM-YYYY"
-                                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>
                             <div style={{ marginTop: '10px' }}>
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha de Entrega de Dictamen:
                               </label>
-                              <input
-                                type="text"
+                              <DateInput
                                 value={ev.fecha_entrega_dictamen || ''}
-                                onChange={(e) => handleUpdateEvaluatorState(
+                                onChange={(value) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_entrega_dictamen',
-                                  e.target.value || null
+                                  value || null
                                 )}
-                                placeholder="DD-MM-YYYY"
-                                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>
                           </>

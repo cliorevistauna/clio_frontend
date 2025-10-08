@@ -13,6 +13,7 @@ import {
   frontendToBackendDate,
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
+import { DateInput } from "../../../shared/components/ui";
 
 /**
  * RF-017: Creación de Artículos
@@ -259,34 +260,28 @@ const CreateArticle: React.FC = () => {
             {/* Fechas */}
             <div className="form-group">
               <label>Fecha de Recepción *</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaRecepcion}
-                onChange={(e) => setFechaRecepcion(e.target.value)}
-                placeholder="DD-MM-YYYY"
-                required
+                onChange={setFechaRecepcion}
                 disabled={isSubmitting}
+                required
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Aceptación</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaAceptacion}
-                onChange={(e) => setFechaAceptacion(e.target.value)}
-                placeholder="DD-MM-YYYY"
+                onChange={setFechaAceptacion}
                 disabled={isSubmitting}
               />
             </div>
 
             <div className="form-group">
               <label>Fecha de Publicación</label>
-              <input
-                type="text"
+              <DateInput
                 value={fechaPublicacion}
-                onChange={(e) => setFechaPublicacion(e.target.value)}
-                placeholder="DD-MM-YYYY"
+                onChange={setFechaPublicacion}
                 disabled={isSubmitting}
               />
             </div>
