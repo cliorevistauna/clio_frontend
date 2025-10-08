@@ -9,6 +9,7 @@ import { researcherService } from "../../researchers/services";
 import { Researcher } from "../../researchers/types";
 import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
+import { backendToFrontendDate } from "../../../shared/utils/dateUtils";
 
 /**
  * RF-022: Reporte histórico de evaluaciones por evaluador
@@ -200,7 +201,7 @@ const EvaluatorHistoryReport: React.FC = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('es-ES');
+    return backendToFrontendDate(dateString);
   };
 
   const getEstadoComunicacionLabel = (estado: string) => {

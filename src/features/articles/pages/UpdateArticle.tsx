@@ -9,6 +9,11 @@ import { useAuth } from "../../auth/hooks";
 import { ROUTES } from "../../../shared/constants";
 import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
+import {
+  frontendToBackendDate,
+  backendToFrontendDate,
+  isValidFrontendDateFormat
+} from "../../../shared/utils/dateUtils";
 
 interface EvaluatorWithState {
   researcher: ResearcherSearchResult;
@@ -88,9 +93,9 @@ const UpdateArticle: React.FC = () => {
         setTitulo(data.titulo);
         setProcedencia(data.procedencia);
         setEstado(data.estado);
-        setFechaRecepcion(data.fecha_recepcion);
-        setFechaAceptacion(data.fecha_aceptacion || "");
-        setFechaPublicacion(data.fecha_publicacion || "");
+        setFechaRecepcion(backendToFrontendDate(data.fecha_recepcion));
+        setFechaAceptacion(data.fecha_aceptacion ? backendToFrontendDate(data.fecha_aceptacion) : "");
+        setFechaPublicacion(data.fecha_publicacion ? backendToFrontendDate(data.fecha_publicacion) : "");
 
         // Precargar líneas temáticas
         const lineasIds = data.lineas_tematicas_info?.map(lt => lt.id) || [];
@@ -139,9 +144,9 @@ const UpdateArticle: React.FC = () => {
             },
             estado_comunicacion: ev.estado_comunicacion,
             estado_dictamen: ev.estado_dictamen,
-            fecha_envio_dictamen: ev.fecha_envio_dictamen,
-            fecha_limite_dictamen: ev.fecha_limite_dictamen,
-            fecha_entrega_dictamen: ev.fecha_entrega_dictamen
+            fecha_envio_dictamen: ev.fecha_envio_dictamen ? backendToFrontendDate(ev.fecha_envio_dictamen) : null,
+            fecha_limite_dictamen: ev.fecha_limite_dictamen ? backendToFrontendDate(ev.fecha_limite_dictamen) : null,
+            fecha_entrega_dictamen: ev.fecha_entrega_dictamen ? backendToFrontendDate(ev.fecha_entrega_dictamen) : null
           }));
           setEvaluatorsWithState(evalWithState);
         }
@@ -227,6 +232,38 @@ const UpdateArticle: React.FC = () => {
       return;
     }
 
+    // Validar formato de fechas
+    if (!isValidFrontendDateFormat(fechaRecepcion)) {
+      alert("La fecha de recepción debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
+    if (fechaAceptacion && !isValidFrontendDateFormat(fechaAceptacion)) {
+      alert("La fecha de aceptación debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
+    if (fechaPublicacion && !isValidFrontendDateFormat(fechaPublicacion)) {
+      alert("La fecha de publicación debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
+    // Validar fechas de dictámenes
+    for (const ev of evaluatorsWithState) {
+      if (ev.fecha_envio_dictamen && !isValidFrontendDateFormat(ev.fecha_envio_dictamen)) {
+        alert(`La fecha de envío de dictamen del evaluador ${ev.researcher.nombre} ${ev.researcher.apellido1} debe tener el formato DD-MM-YYYY.`);
+        return;
+      }
+      if (ev.fecha_limite_dictamen && !isValidFrontendDateFormat(ev.fecha_limite_dictamen)) {
+        alert(`La fecha límite de dictamen del evaluador ${ev.researcher.nombre} ${ev.researcher.apellido1} debe tener el formato DD-MM-YYYY.`);
+        return;
+      }
+      if (ev.fecha_entrega_dictamen && !isValidFrontendDateFormat(ev.fecha_entrega_dictamen)) {
+        alert(`La fecha de entrega de dictamen del evaluador ${ev.researcher.nombre} ${ev.researcher.apellido1} debe tener el formato DD-MM-YYYY.`);
+        return;
+      }
+    }
+
     // Los evaluadores son opcionales
     // No se requiere mínimo de evaluadores
 
@@ -236,9 +273,9 @@ const UpdateArticle: React.FC = () => {
         titulo,
         procedencia,
         estado,
-        fecha_recepcion: fechaRecepcion,
-        fecha_aceptacion: fechaAceptacion || null,
-        fecha_publicacion: fechaPublicacion || null,
+        fecha_recepcion: frontendToBackendDate(fechaRecepcion),
+        fecha_aceptacion: fechaAceptacion ? frontendToBackendDate(fechaAceptacion) : null,
+        fecha_publicacion: fechaPublicacion ? frontendToBackendDate(fechaPublicacion) : null,
         numero_editorial: selectedEditorialNumber || undefined,
         lineas_tematicas: lineasTematicas,
         autores: [selectedAuthor.id],
@@ -246,9 +283,9 @@ const UpdateArticle: React.FC = () => {
           investigador: ev.researcher.id,
           estado_comunicacion: ev.estado_comunicacion,
           estado_dictamen: ev.estado_dictamen,
-          fecha_envio_dictamen: ev.fecha_envio_dictamen || null,
-          fecha_limite_dictamen: ev.fecha_limite_dictamen || null,
-          fecha_entrega_dictamen: ev.fecha_entrega_dictamen || null
+          fecha_envio_dictamen: ev.fecha_envio_dictamen ? frontendToBackendDate(ev.fecha_envio_dictamen) : null,
+          fecha_limite_dictamen: ev.fecha_limite_dictamen ? frontendToBackendDate(ev.fecha_limite_dictamen) : null,
+          fecha_entrega_dictamen: ev.fecha_entrega_dictamen ? frontendToBackendDate(ev.fecha_entrega_dictamen) : null
         }))
       };
 
@@ -371,9 +408,10 @@ const UpdateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Recepción *</label>
               <input
-                type="date"
+                type="text"
                 value={fechaRecepcion}
                 onChange={(e) => setFechaRecepcion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 required
                 disabled={isSubmitting}
               />
@@ -382,9 +420,10 @@ const UpdateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Aceptación</label>
               <input
-                type="date"
+                type="text"
                 value={fechaAceptacion}
                 onChange={(e) => setFechaAceptacion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 disabled={isSubmitting}
               />
             </div>
@@ -392,9 +431,10 @@ const UpdateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Publicación</label>
               <input
-                type="date"
+                type="text"
                 value={fechaPublicacion}
                 onChange={(e) => setFechaPublicacion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 disabled={isSubmitting}
               />
             </div>
@@ -524,13 +564,14 @@ const UpdateArticle: React.FC = () => {
                                 Fecha de Envío de Dictamen:
                               </label>
                               <input
-                                type="date"
+                                type="text"
                                 value={ev.fecha_envio_dictamen || ''}
                                 onChange={(e) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_envio_dictamen',
                                   e.target.value || null
                                 )}
+                                placeholder="DD-MM-YYYY"
                                 style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>
@@ -539,13 +580,14 @@ const UpdateArticle: React.FC = () => {
                                 Fecha Límite de Dictamen:
                               </label>
                               <input
-                                type="date"
+                                type="text"
                                 value={ev.fecha_limite_dictamen || ''}
                                 onChange={(e) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_limite_dictamen',
                                   e.target.value || null
                                 )}
+                                placeholder="DD-MM-YYYY"
                                 style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>
@@ -554,13 +596,14 @@ const UpdateArticle: React.FC = () => {
                                 Fecha de Entrega de Dictamen:
                               </label>
                               <input
-                                type="date"
+                                type="text"
                                 value={ev.fecha_entrega_dictamen || ''}
                                 onChange={(e) => handleUpdateEvaluatorState(
                                   ev.researcher.id,
                                   'fecha_entrega_dictamen',
                                   e.target.value || null
                                 )}
+                                placeholder="DD-MM-YYYY"
                                 style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ced4da' }}
                               />
                             </div>

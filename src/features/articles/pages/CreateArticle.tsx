@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
-import { CurrentEditorialNumberDisplay } from "../../editorial-numbers/components";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { SearchAuthorModal, SearchEvaluatorModal } from "../components";
 import { articleService } from "../services";
@@ -10,6 +9,10 @@ import { useAuth } from "../../auth/hooks";
 import { ROUTES } from "../../../shared/constants";
 import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
+import {
+  frontendToBackendDate,
+  isValidFrontendDateFormat
+} from "../../../shared/utils/dateUtils";
 
 /**
  * RF-017: Creación de Artículos
@@ -115,6 +118,22 @@ const CreateArticle: React.FC = () => {
       return;
     }
 
+    // Validar formato de fechas
+    if (!isValidFrontendDateFormat(fechaRecepcion)) {
+      alert("La fecha de recepción debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
+    if (fechaAceptacion && !isValidFrontendDateFormat(fechaAceptacion)) {
+      alert("La fecha de aceptación debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
+    if (fechaPublicacion && !isValidFrontendDateFormat(fechaPublicacion)) {
+      alert("La fecha de publicación debe tener el formato DD-MM-YYYY.");
+      return;
+    }
+
     // Los evaluadores son opcionales al crear
     // No se requiere mínimo de evaluadores
 
@@ -123,9 +142,9 @@ const CreateArticle: React.FC = () => {
       const articleData = {
         titulo,
         procedencia,
-        fecha_recepcion: fechaRecepcion,
-        fecha_aceptacion: fechaAceptacion || undefined,
-        fecha_publicacion: fechaPublicacion || undefined,
+        fecha_recepcion: frontendToBackendDate(fechaRecepcion),
+        fecha_aceptacion: fechaAceptacion ? frontendToBackendDate(fechaAceptacion) : undefined,
+        fecha_publicacion: fechaPublicacion ? frontendToBackendDate(fechaPublicacion) : undefined,
         numero_editorial: selectedEditorialNumber || undefined,
         lineas_tematicas: lineasTematicas,
         autores: [selectedAuthor.id],
@@ -241,9 +260,10 @@ const CreateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Recepción *</label>
               <input
-                type="date"
+                type="text"
                 value={fechaRecepcion}
                 onChange={(e) => setFechaRecepcion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 required
                 disabled={isSubmitting}
               />
@@ -252,9 +272,10 @@ const CreateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Aceptación</label>
               <input
-                type="date"
+                type="text"
                 value={fechaAceptacion}
                 onChange={(e) => setFechaAceptacion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 disabled={isSubmitting}
               />
             </div>
@@ -262,9 +283,10 @@ const CreateArticle: React.FC = () => {
             <div className="form-group">
               <label>Fecha de Publicación</label>
               <input
-                type="date"
+                type="text"
                 value={fechaPublicacion}
                 onChange={(e) => setFechaPublicacion(e.target.value)}
+                placeholder="DD-MM-YYYY"
                 disabled={isSubmitting}
               />
             </div>

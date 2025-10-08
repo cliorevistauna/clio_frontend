@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { CreateEditorialNumberRequest } from "../types";
+import {
+  getCurrentDateFrontend,
+  frontendToBackendDate,
+  isValidFrontendDateFormat
+} from "../../../shared/utils/dateUtils";
 
 const CreateEditorialNumber: React.FC = () => {
   const [numero, setNumero] = useState("");
@@ -19,20 +24,11 @@ const CreateEditorialNumber: React.FC = () => {
     setAnio(currentYear.toString());
   }, []);
 
-  // Función para obtener fecha actual en formato YYYY-MM-DD
-  const getFechaActual = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   // Manejar cambio de checkbox "Hoy" para fecha de inicio
   const handleUsarHoyInicio = (checked: boolean) => {
     setUsarHoyInicio(checked);
     if (checked) {
-      setFechaInicio(getFechaActual());
+      setFechaInicio(getCurrentDateFrontend());
     } else {
       setFechaInicio("");
     }
@@ -42,7 +38,7 @@ const CreateEditorialNumber: React.FC = () => {
   const handleUsarHoyFin = (checked: boolean) => {
     setUsarHoyFin(checked);
     if (checked) {
-      setFechaFin(getFechaActual());
+      setFechaFin(getCurrentDateFrontend());
     } else {
       setFechaFin("");
     }
@@ -71,15 +67,18 @@ const CreateEditorialNumber: React.FC = () => {
       return;
     }
 
-    // Validar formato de fecha (YYYY-MM-DD para el backend)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(fechaInicio) || !dateRegex.test(fechaFin)) {
-      alert("Las fechas deben estar en formato YYYY-MM-DD.");
+    // Validar formato de fecha (DD-MM-YYYY en frontend)
+    if (!isValidFrontendDateFormat(fechaInicio) || !isValidFrontendDateFormat(fechaFin)) {
+      alert("Las fechas deben estar en formato DD-MM-YYYY.");
       return;
     }
 
+    // Convertir fechas a formato backend para comparación
+    const fechaInicioBackend = frontendToBackendDate(fechaInicio);
+    const fechaFinBackend = frontendToBackendDate(fechaFin);
+
     // Validar que la fecha de inicio sea anterior a la de fin
-    if (new Date(fechaInicio) >= new Date(fechaFin)) {
+    if (new Date(fechaInicioBackend) >= new Date(fechaFinBackend)) {
       alert("La fecha de inicio debe ser anterior a la fecha de finalización.");
       return;
     }
@@ -90,8 +89,8 @@ const CreateEditorialNumber: React.FC = () => {
       const request: CreateEditorialNumberRequest = {
         numero: numeroInt,
         anio: anioInt,
-        fecha_inicio: fechaInicio,
-        fecha_final: fechaFin,
+        fecha_inicio: fechaInicioBackend, // Enviar en formato YYYY-MM-DD al backend
+        fecha_final: fechaFinBackend, // Enviar en formato YYYY-MM-DD al backend
         comentarios: comentarios || "",
       };
 
@@ -183,9 +182,10 @@ const CreateEditorialNumber: React.FC = () => {
               <label>Fecha de Inicio *</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input
-                  type="date"
+                  type="text"
                   value={fechaInicio}
                   onChange={(e) => setFechaInicio(e.target.value)}
+                  placeholder="DD-MM-YYYY"
                   required
                   disabled={isLoading || usarHoyInicio}
                   style={{ flex: 1 }}
@@ -206,9 +206,10 @@ const CreateEditorialNumber: React.FC = () => {
               <label>Fecha de Finalización *</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input
-                  type="date"
+                  type="text"
                   value={fechaFin}
                   onChange={(e) => setFechaFin(e.target.value)}
+                  placeholder="DD-MM-YYYY"
                   required
                   disabled={isLoading || usarHoyFin}
                   style={{ flex: 1 }}
