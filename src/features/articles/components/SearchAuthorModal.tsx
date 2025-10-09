@@ -27,6 +27,10 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
   const [searchResults, setSearchResults] = useState<ResearcherSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   // Datos para búsqueda inteligente de tags
   const [thematicLines, setThematicLines] = useState<ThematicLine[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -183,6 +187,7 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
 
       console.log(`Resultados encontrados: ${results.length}`);
       setSearchResults(results);
+      setCurrentPage(1); // Resetear a la primera página al hacer una nueva búsqueda
 
       if (results.length === 0) {
         alert("No se encontraron autores con los criterios ingresados.");
@@ -297,6 +302,8 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
     setFilterTerm("");
     setSearchFilters([]);
     setSearchResults([]);
+    setCurrentPage(1);
+    setItemsPerPage(10);
     setOrcid("");
     setNombre("");
     setApellido1("");
@@ -310,6 +317,17 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
     setIdiomas([]);
     setLineasTematicas([]);
     onClose();
+  };
+
+  // Lógica de paginación
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentResults = searchResults.slice(startIndex, endIndex);
+
+  const handleItemsPerPageChange = (value: number) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -424,37 +442,171 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
               )}
 
               {searchResults.length > 0 && (
-                <div className="results-table">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Nombre Completo</th>
-                        <th>Afiliación</th>
-                        <th>País</th>
-                        <th>Correo</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {searchResults.map((author) => (
-                        <tr key={author.id}>
-                          <td>{`${author.nombre} ${author.apellido1} ${author.apellido2}`}</td>
-                          <td>{author.afiliacion}</td>
-                          <td>{author.pais}</td>
-                          <td>{author.correo}</td>
-                          <td>
-                            <button
-                              className="select-btn"
-                              onClick={() => handleSelectAuthor(author)}
-                            >
-                              Seleccionar
-                            </button>
-                          </td>
+                <>
+                  {/* Controles de paginación superior */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    padding: '10px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '4px'
+                  }}>
+                    <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                      Mostrando {startIndex + 1} a {Math.min(endIndex, searchResults.length)} de {searchResults.length} autores
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                        style={{
+                          padding: '5px 8px',
+                          border: '1px solid #ced4da',
+                          borderRadius: '4px',
+                          fontSize: '14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                      </select>
+                      <span style={{ fontSize: '14px' }}>por página</span>
+                    </div>
+                  </div>
+
+                  <div className="results-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Nombre Completo</th>
+                          <th>Afiliación</th>
+                          <th>País</th>
+                          <th>Correo</th>
+                          <th>Acción</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {currentResults.map((author) => (
+                          <tr key={author.id}>
+                            <td>{`${author.nombre} ${author.apellido1} ${author.apellido2}`}</td>
+                            <td>{author.afiliacion}</td>
+                            <td>{author.pais}</td>
+                            <td>{author.correo}</td>
+                            <td>
+                              <button
+                                className="select-btn"
+                                onClick={() => handleSelectAuthor(author)}
+                              >
+                                Seleccionar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Controles de paginación inferior */}
+                  {totalPages > 1 && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: '15px',
+                      gap: '8px'
+                    }}>
+                      <button
+                        onClick={() => setCurrentPage(1)}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ced4da',
+                          background: currentPage === 1 ? '#e9ecef' : 'white',
+                          borderRadius: '4px',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Primera
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ced4da',
+                          background: currentPage === 1 ? '#e9ecef' : 'white',
+                          borderRadius: '4px',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Anterior
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter(page => {
+                          if (page === 1 || page === totalPages) return true;
+                          return Math.abs(page - currentPage) <= 2;
+                        })
+                        .map((page, index, array) => {
+                          const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && <span style={{ padding: '8px' }}>...</span>}
+                              <button
+                                onClick={() => setCurrentPage(page)}
+                                style={{
+                                  padding: '8px 12px',
+                                  border: '1px solid #ced4da',
+                                  background: currentPage === page ? '#007bff' : 'white',
+                                  color: currentPage === page ? 'white' : '#495057',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '14px',
+                                  fontWeight: currentPage === page ? 'bold' : 'normal'
+                                }}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ced4da',
+                          background: currentPage === totalPages ? '#e9ecef' : 'white',
+                          borderRadius: '4px',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Siguiente
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #ced4da',
+                          background: currentPage === totalPages ? '#e9ecef' : 'white',
+                          borderRadius: '4px',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Última
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : (

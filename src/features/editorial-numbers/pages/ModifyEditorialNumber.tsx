@@ -27,6 +27,11 @@ const ModifyEditorialNumber: React.FC = () => {
   const [filteredNumbers, setFilteredNumbers] = useState<EditorialNumber[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [confirmLoadTable, setConfirmLoadTable] = useState(false);
+
+  // Estados para paginación de la tabla
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Estados para la edición - el mismo formulario que creación pero adaptado
   const [selectedEditorial, setSelectedEditorial] = useState<EditorialNumber | null>(null);
@@ -231,12 +236,7 @@ const ModifyEditorialNumber: React.FC = () => {
     }
   };
 
-  // Efecto para cargar datos cuando se cambia a la pestaña de tabla
-  useEffect(() => {
-    if (activeTab === 'table' && allEditorialNumbers.length === 0) {
-      loadAllEditorialNumbers();
-    }
-  }, [activeTab, allEditorialNumbers.length]);
+  // Efecto removido - ahora se carga manualmente con confirmación del usuario
 
   // Filtrar números en tiempo real
   useEffect(() => {
@@ -261,6 +261,17 @@ const ModifyEditorialNumber: React.FC = () => {
   // Seleccionar editorial desde la tabla
   const selectFromTable = (editorial: EditorialNumber) => {
     preloadForm(editorial);
+  };
+
+  // Lógica de paginación para la tabla
+  const totalPages = Math.ceil(filteredNumbers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentNumbers = filteredNumbers.slice(startIndex, endIndex);
+
+  const handleItemsPerPageChange = (value: number) => {
+    setItemsPerPage(value);
+    setCurrentPage(1);
   };
 
   // Renderizar pestaña de búsqueda específica
@@ -345,48 +356,138 @@ const ModifyEditorialNumber: React.FC = () => {
       <div>
         <h3>Todos los Números de Publicación</h3>
 
-        {/* Buscador en tiempo real */}
-        <div className="form-group" style={{ marginBottom: '20px' }}>
-          <label>Filtrar en la tabla:</label>
-          <input
-            type="text"
-            value={tableFilter}
-            onChange={(e) => setTableFilter(e.target.value)}
-            placeholder="Filtrar por número, año, estado, comentarios o fechas..."
-            style={{ width: '100%' }}
-          />
-        </div>
+        {/* Advertencia antes de cargar */}
+        {allEditorialNumbers.length === 0 && !isLoadingTable && (
+          <>
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#fff3cd',
+              border: '1px solid #ffc107',
+              borderRadius: '4px',
+              marginBottom: '10px',
+              color: '#856404'
+            }}>
+              ⚠️ <strong>Advertencia:</strong> Cargar todos los números editoriales consume más recursos del sistema.
+            </div>
 
-        {isLoadingTable ? (
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              marginBottom: '10px'
+            }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={confirmLoadTable}
+                  onChange={(e) => setConfirmLoadTable(e.target.checked)}
+                  style={{ marginRight: '10px', cursor: 'pointer' }}
+                />
+                <span>Entiendo que cargar todos los números editoriales puede afectar el rendimiento del sistema</span>
+              </label>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadAllEditorialNumbers}
+              disabled={!confirmLoadTable}
+              style={{
+                width: '100%',
+                padding: '10px',
+                backgroundColor: confirmLoadTable ? '#28a745' : '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: confirmLoadTable ? 'pointer' : 'not-allowed',
+                fontWeight: 'bold',
+                marginBottom: '10px',
+                opacity: confirmLoadTable ? 1 : 0.6
+              }}
+            >
+              Cargar Todos los Números Editoriales
+            </button>
+          </>
+        )}
+
+        {isLoadingTable && (
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <p>Cargando números de publicación...</p>
+            <div style={{ fontSize: '1.2rem', color: '#007bff' }}>Cargando...</div>
+            <small style={{ color: '#6c757d' }}>Por favor espere mientras se cargan los datos</small>
           </div>
-        ) : (
-          <div>
-            <p><small>Mostrando {filteredNumbers.length} de {allEditorialNumbers.length} registros.</small></p>
+        )}
 
-            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '5px' }}>
+        {!isLoadingTable && allEditorialNumbers.length > 0 && (
+          <div>
+            <div className="form-group" style={{ marginBottom: '20px' }}>
+              <label>Filtrar en la tabla:</label>
+              <input
+                type="text"
+                value={tableFilter}
+                onChange={(e) => {
+                  setTableFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Filtrar por número, año, estado, comentarios o fechas..."
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
+              padding: '10px',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '4px'
+            }}>
+              <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                Mostrando {startIndex + 1} a {Math.min(endIndex, filteredNumbers.length)} de {filteredNumbers.length} números editoriales
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                  style={{
+                    padding: '5px 8px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span style={{ fontSize: '14px' }}>por página</span>
+              </div>
+            </div>
+
+            <div style={{ border: '1px solid #ddd', borderRadius: '5px', overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ backgroundColor: '#f8f9fa', position: 'sticky', top: 0 }}>
+                <thead style={{ backgroundColor: '#f8f9fa' }}>
                   <tr>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Número</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Año</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Estado</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Fecha Inicio</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Fecha Fin</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #ddd' }}>Comentarios</th>
-                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '1px solid #ddd' }}>Acciones</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Número</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Año</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Estado</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Fecha Inicio</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Fecha Fin</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Comentarios</th>
+                    <th style={{ padding: '12px', textAlign: 'center', borderBottom: '2px solid #ddd' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredNumbers.length === 0 ? (
+                  {currentNumbers.length === 0 ? (
                     <tr>
                       <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-                        {allEditorialNumbers.length === 0 ? 'No hay números de publicación' : 'No se encontraron resultados'}
+                        No se encontraron resultados
                       </td>
                     </tr>
                   ) : (
-                    filteredNumbers.map((editorial) => (
+                    currentNumbers.map((editorial) => (
                       <tr key={editorial.id} style={{ borderBottom: '1px solid #eee' }}>
                         <td style={{ padding: '10px' }}>{editorial.numero}</td>
                         <td style={{ padding: '10px' }}>{editorial.anio}</td>
@@ -430,6 +531,25 @@ const ModifyEditorialNumber: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: '15px',
+                gap: '8px'
+              }}>
+                <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2).map((page, index, array) => {
+                  const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                  return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === page ? '#007bff' : 'white', color: currentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: currentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                })}
+                <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === totalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === totalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+              </div>
+            )}
           </div>
         )}
       </div>

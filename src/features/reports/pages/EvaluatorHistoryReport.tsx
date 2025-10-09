@@ -39,6 +39,18 @@ const EvaluatorHistoryReport: React.FC = () => {
   const [isLoadingTable, setIsLoadingTable] = useState(false);
   const [confirmLoadTable, setConfirmLoadTable] = useState(false);
 
+  // Estados para paginación de búsqueda de evaluadores
+  const [evaluatorCurrentPage, setEvaluatorCurrentPage] = useState(1);
+  const [evaluatorItemsPerPage, setEvaluatorItemsPerPage] = useState(10);
+
+  // Estados para paginación de búsqueda específica
+  const [searchCurrentPage, setSearchCurrentPage] = useState(1);
+  const [searchItemsPerPage, setSearchItemsPerPage] = useState(10);
+
+  // Estados para paginación de la tabla
+  const [tableCurrentPage, setTableCurrentPage] = useState(1);
+  const [tableItemsPerPage, setTableItemsPerPage] = useState(10);
+
   // Resultados del reporte
   const [reportData, setReportData] = useState<EvaluatorHistoryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +92,7 @@ const EvaluatorHistoryReport: React.FC = () => {
         setEditorialSearchResults([]);
       } else {
         setEditorialSearchResults(results);
+        setSearchCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
         if (results.length === 1) {
           alert(`Se encontró el número de publicación ${results[0].numero}-${results[0].anio}`);
         } else {
@@ -93,6 +106,39 @@ const EvaluatorHistoryReport: React.FC = () => {
     } finally {
       setIsSearchingEditorial(false);
     }
+  };
+
+  // Lógica de paginación para búsqueda de evaluadores
+  const evaluatorTotalPages = Math.ceil(searchResults.length / evaluatorItemsPerPage);
+  const evaluatorStartIndex = (evaluatorCurrentPage - 1) * evaluatorItemsPerPage;
+  const evaluatorEndIndex = evaluatorStartIndex + evaluatorItemsPerPage;
+  const currentEvaluatorResults = searchResults.slice(evaluatorStartIndex, evaluatorEndIndex);
+
+  const handleEvaluatorItemsPerPageChange = (value: number) => {
+    setEvaluatorItemsPerPage(value);
+    setEvaluatorCurrentPage(1);
+  };
+
+  // Lógica de paginación para búsqueda específica
+  const searchTotalPages = Math.ceil(editorialSearchResults.length / searchItemsPerPage);
+  const searchStartIndex = (searchCurrentPage - 1) * searchItemsPerPage;
+  const searchEndIndex = searchStartIndex + searchItemsPerPage;
+  const currentSearchResults = editorialSearchResults.slice(searchStartIndex, searchEndIndex);
+
+  const handleSearchItemsPerPageChange = (value: number) => {
+    setSearchItemsPerPage(value);
+    setSearchCurrentPage(1);
+  };
+
+  // Lógica de paginación para la tabla
+  const tableTotalPages = Math.ceil(allEditorialNumbers.length / tableItemsPerPage);
+  const tableStartIndex = (tableCurrentPage - 1) * tableItemsPerPage;
+  const tableEndIndex = tableStartIndex + tableItemsPerPage;
+  const currentTableNumbers = allEditorialNumbers.slice(tableStartIndex, tableEndIndex);
+
+  const handleTableItemsPerPageChange = (value: number) => {
+    setTableItemsPerPage(value);
+    setTableCurrentPage(1);
   };
 
   const handleLogout = async () => {
@@ -116,6 +162,7 @@ const EvaluatorHistoryReport: React.FC = () => {
       const results = await researcherService.search(searchTerm);
       console.log('Resultados de búsqueda de evaluadores:', results);
       setSearchResults(results);
+      setEvaluatorCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
 
       if (results.length === 0) {
         alert("No se encontraron evaluadores con ese criterio.");
@@ -298,31 +345,86 @@ const EvaluatorHistoryReport: React.FC = () => {
 
             {/* Resultados de búsqueda */}
             {searchResults.length > 0 && (
-              <div style={{
-                marginTop: '10px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                border: '1px solid #dee2e6',
-                borderRadius: '4px'
-              }}>
-                {searchResults.map((researcher) => (
-                  <div
-                    key={researcher.id}
-                    onClick={() => handleSelectEvaluator(researcher)}
-                    style={{
-                      padding: '10px',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid #dee2e6',
-                      backgroundColor: 'white'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                  >
-                    <strong>{researcher.name}</strong>
-                    <br />
-                    <small>{researcher.orcid} - {researcher.affiliation}</small>
+              <div>
+                {/* Controles de paginación superior */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '10px',
+                  marginBottom: '10px',
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '4px'
+                }}>
+                  <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                    Mostrando {evaluatorStartIndex + 1} a {Math.min(evaluatorEndIndex, searchResults.length)} de {searchResults.length} evaluadores
                   </div>
-                ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                    <select
+                      value={evaluatorItemsPerPage}
+                      onChange={(e) => handleEvaluatorItemsPerPageChange(Number(e.target.value))}
+                      style={{
+                        padding: '5px 8px',
+                        border: '1px solid #ced4da',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                    </select>
+                    <span style={{ fontSize: '14px' }}>por página</span>
+                  </div>
+                </div>
+
+                <div style={{
+                  border: '1px solid #dee2e6',
+                  borderRadius: '4px',
+                  marginBottom: '10px'
+                }}>
+                  {currentEvaluatorResults.map((researcher) => (
+                    <div
+                      key={researcher.id}
+                      onClick={() => handleSelectEvaluator(researcher)}
+                      style={{
+                        padding: '10px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #dee2e6',
+                        backgroundColor: 'white'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                    >
+                      <strong>{researcher.name}</strong>
+                      <br />
+                      <small>{researcher.orcid} - {researcher.affiliation}</small>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Controles de paginación inferior */}
+                {evaluatorTotalPages > 1 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    gap: '8px'
+                  }}>
+                    <button onClick={() => setEvaluatorCurrentPage(1)} disabled={evaluatorCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: evaluatorCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: evaluatorCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                    <button onClick={() => setEvaluatorCurrentPage(prev => Math.max(1, prev - 1))} disabled={evaluatorCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: evaluatorCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: evaluatorCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                    {Array.from({ length: evaluatorTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === evaluatorTotalPages || Math.abs(page - evaluatorCurrentPage) <= 2).map((page, index, array) => {
+                      const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                      return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setEvaluatorCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: evaluatorCurrentPage === page ? '#007bff' : 'white', color: evaluatorCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: evaluatorCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                    })}
+                    <button onClick={() => setEvaluatorCurrentPage(prev => Math.min(evaluatorTotalPages, prev + 1))} disabled={evaluatorCurrentPage === evaluatorTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: evaluatorCurrentPage === evaluatorTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: evaluatorCurrentPage === evaluatorTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                    <button onClick={() => setEvaluatorCurrentPage(evaluatorTotalPages)} disabled={evaluatorCurrentPage === evaluatorTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: evaluatorCurrentPage === evaluatorTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: evaluatorCurrentPage === evaluatorTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -404,24 +506,80 @@ const EvaluatorHistoryReport: React.FC = () => {
 
                 {/* Resultados de búsqueda */}
                 {editorialSearchResults.length > 0 && (
-                  <div style={{
-                    padding: '10px',
-                    backgroundColor: '#f8f9fa',
-                    borderRadius: '4px',
-                    marginBottom: '10px'
-                  }}>
-                    <strong>Resultados de búsqueda:</strong>
-                    {editorialSearchResults.map(en => (
-                      <label key={en.id} style={{ display: 'block', marginTop: '8px' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedEditorialNumbers.includes(en.id)}
-                          onChange={() => handleToggleEditorialNumber(en.id)}
-                          style={{ marginRight: '10px' }}
-                        />
-                        Número {en.numero} - Año {en.anio} ({en.estado})
-                      </label>
-                    ))}
+                  <div>
+                    {/* Controles de paginación superior */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '10px',
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      borderRadius: '4px'
+                    }}>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                        Mostrando {searchStartIndex + 1} a {Math.min(searchEndIndex, editorialSearchResults.length)} de {editorialSearchResults.length} resultados
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                        <select
+                          value={searchItemsPerPage}
+                          onChange={(e) => handleSearchItemsPerPageChange(Number(e.target.value))}
+                          style={{
+                            padding: '5px 8px',
+                            border: '1px solid #ced4da',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span style={{ fontSize: '14px' }}>por página</span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      borderRadius: '4px',
+                      marginBottom: '10px'
+                    }}>
+                      <strong>Resultados de búsqueda:</strong>
+                      {currentSearchResults.map(en => (
+                        <label key={en.id} style={{ display: 'block', marginTop: '8px' }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedEditorialNumbers.includes(en.id)}
+                            onChange={() => handleToggleEditorialNumber(en.id)}
+                            style={{ marginRight: '10px' }}
+                          />
+                          Número {en.numero} - Año {en.anio} ({en.estado})
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Controles de paginación inferior */}
+                    {searchTotalPages > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: '10px',
+                        gap: '8px'
+                      }}>
+                        <button onClick={() => setSearchCurrentPage(1)} disabled={searchCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: searchCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: searchCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                        <button onClick={() => setSearchCurrentPage(prev => Math.max(1, prev - 1))} disabled={searchCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: searchCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: searchCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                        {Array.from({ length: searchTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === searchTotalPages || Math.abs(page - searchCurrentPage) <= 2).map((page, index, array) => {
+                          const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setSearchCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: searchCurrentPage === page ? '#007bff' : 'white', color: searchCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: searchCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                        })}
+                        <button onClick={() => setSearchCurrentPage(prev => Math.min(searchTotalPages, prev + 1))} disabled={searchCurrentPage === searchTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: searchCurrentPage === searchTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: searchCurrentPage === searchTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                        <button onClick={() => setSearchCurrentPage(searchTotalPages)} disabled={searchCurrentPage === searchTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: searchCurrentPage === searchTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: searchCurrentPage === searchTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -490,25 +648,80 @@ const EvaluatorHistoryReport: React.FC = () => {
                     <small style={{ color: '#6c757d' }}>Por favor espere mientras se cargan los datos</small>
                   </div>
                 ) : allEditorialNumbers.length > 0 ? (
-                  <div style={{
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    border: '1px solid #ced4da',
-                    borderRadius: '4px',
-                    padding: '10px',
-                    backgroundColor: '#f8f9fa'
-                  }}>
-                    {allEditorialNumbers.map(en => (
-                      <label key={en.id} style={{ display: 'block', marginBottom: '5px' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedEditorialNumbers.includes(en.id)}
-                          onChange={() => handleToggleEditorialNumber(en.id)}
-                          style={{ marginRight: '10px' }}
-                        />
-                        Número {en.numero} - Año {en.anio} ({en.estado})
-                      </label>
-                    ))}
+                  <div>
+                    {/* Controles de paginación superior */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '10px',
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      borderRadius: '4px'
+                    }}>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                        Mostrando {tableStartIndex + 1} a {Math.min(tableEndIndex, allEditorialNumbers.length)} de {allEditorialNumbers.length} números editoriales
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                        <select
+                          value={tableItemsPerPage}
+                          onChange={(e) => handleTableItemsPerPageChange(Number(e.target.value))}
+                          style={{
+                            padding: '5px 8px',
+                            border: '1px solid #ced4da',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span style={{ fontSize: '14px' }}>por página</span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      border: '1px solid #ced4da',
+                      borderRadius: '4px',
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      marginBottom: '10px'
+                    }}>
+                      {currentTableNumbers.map(en => (
+                        <label key={en.id} style={{ display: 'block', marginBottom: '5px' }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedEditorialNumbers.includes(en.id)}
+                            onChange={() => handleToggleEditorialNumber(en.id)}
+                            style={{ marginRight: '10px' }}
+                          />
+                          Número {en.numero} - Año {en.anio} ({en.estado})
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Controles de paginación inferior */}
+                    {tableTotalPages > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: '10px',
+                        gap: '8px'
+                      }}>
+                        <button onClick={() => setTableCurrentPage(1)} disabled={tableCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: tableCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: tableCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                        <button onClick={() => setTableCurrentPage(prev => Math.max(1, prev - 1))} disabled={tableCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: tableCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: tableCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                        {Array.from({ length: tableTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === tableTotalPages || Math.abs(page - tableCurrentPage) <= 2).map((page, index, array) => {
+                          const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setTableCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: tableCurrentPage === page ? '#007bff' : 'white', color: tableCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: tableCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                        })}
+                        <button onClick={() => setTableCurrentPage(prev => Math.min(tableTotalPages, prev + 1))} disabled={tableCurrentPage === tableTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: tableCurrentPage === tableTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: tableCurrentPage === tableTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                        <button onClick={() => setTableCurrentPage(tableTotalPages)} disabled={tableCurrentPage === tableTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: tableCurrentPage === tableTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: tableCurrentPage === tableTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </div>

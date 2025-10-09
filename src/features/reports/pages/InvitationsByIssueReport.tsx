@@ -27,6 +27,14 @@ const InvitationsByIssueReport: React.FC = () => {
   const [articuloSearchResults, setArticuloSearchResults] = useState<any[]>([]);
   const [selectedArticulo, setSelectedArticulo] = useState<any>(null);
 
+  // Estados para paginación de números editoriales
+  const [numeroCurrentPage, setNumeroCurrentPage] = useState(1);
+  const [numeroItemsPerPage, setNumeroItemsPerPage] = useState(10);
+
+  // Estados para paginación de artículos
+  const [articuloCurrentPage, setArticuloCurrentPage] = useState(1);
+  const [articuloItemsPerPage, setArticuloItemsPerPage] = useState(10);
+
   const [reportData, setReportData] = useState<InvitationsByIssueResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +61,7 @@ const InvitationsByIssueReport: React.FC = () => {
         parseInt(anioSearchQuery)
       );
       setNumeroSearchResults(results);
+      setNumeroCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
       if (results.length === 0) {
         alert('No se encontraron números editoriales con esos criterios');
       }
@@ -88,6 +97,7 @@ const InvitationsByIssueReport: React.FC = () => {
         numero_editorial: parseInt(numeroEditorialId)
       });
       setArticuloSearchResults(results);
+      setArticuloCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
       if (results.length === 0) {
         alert('No se encontraron artículos en ese número editorial con ese título');
       }
@@ -95,6 +105,28 @@ const InvitationsByIssueReport: React.FC = () => {
       console.error('Error buscando artículo:', err);
       alert('Error al buscar artículo');
     }
+  };
+
+  // Lógica de paginación para números editoriales
+  const numeroTotalPages = Math.ceil(numeroSearchResults.length / numeroItemsPerPage);
+  const numeroStartIndex = (numeroCurrentPage - 1) * numeroItemsPerPage;
+  const numeroEndIndex = numeroStartIndex + numeroItemsPerPage;
+  const currentNumeroResults = numeroSearchResults.slice(numeroStartIndex, numeroEndIndex);
+
+  const handleNumeroItemsPerPageChange = (value: number) => {
+    setNumeroItemsPerPage(value);
+    setNumeroCurrentPage(1);
+  };
+
+  // Lógica de paginación para artículos
+  const articuloTotalPages = Math.ceil(articuloSearchResults.length / articuloItemsPerPage);
+  const articuloStartIndex = (articuloCurrentPage - 1) * articuloItemsPerPage;
+  const articuloEndIndex = articuloStartIndex + articuloItemsPerPage;
+  const currentArticuloResults = articuloSearchResults.slice(articuloStartIndex, articuloEndIndex);
+
+  const handleArticuloItemsPerPageChange = (value: number) => {
+    setArticuloItemsPerPage(value);
+    setArticuloCurrentPage(1);
   };
 
   const handleSelectArticulo = (articulo: any) => {
@@ -245,29 +277,84 @@ const InvitationsByIssueReport: React.FC = () => {
                 </div>
 
                 {numeroSearchResults.length > 0 && (
-                  <div style={{
-                    marginTop: '10px',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    border: '1px solid #dee2e6',
-                    borderRadius: '4px'
-                  }}>
-                    {numeroSearchResults.map((numero) => (
-                      <div
-                        key={numero.id}
-                        onClick={() => handleSelectNumero(numero)}
-                        style={{
-                          padding: '10px',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid #dee2e6',
-                          backgroundColor: 'white'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                      >
-                        <strong>{numero.numero}-{numero.anio}</strong>
+                  <div>
+                    {/* Controles de paginación superior */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginTop: '10px',
+                      marginBottom: '10px',
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      borderRadius: '4px'
+                    }}>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                        Mostrando {numeroStartIndex + 1} a {Math.min(numeroEndIndex, numeroSearchResults.length)} de {numeroSearchResults.length} números
                       </div>
-                    ))}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                        <select
+                          value={numeroItemsPerPage}
+                          onChange={(e) => handleNumeroItemsPerPageChange(Number(e.target.value))}
+                          style={{
+                            padding: '5px 8px',
+                            border: '1px solid #ced4da',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span style={{ fontSize: '14px' }}>por página</span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      border: '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      marginBottom: '10px'
+                    }}>
+                      {currentNumeroResults.map((numero) => (
+                        <div
+                          key={numero.id}
+                          onClick={() => handleSelectNumero(numero)}
+                          style={{
+                            padding: '10px',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #dee2e6',
+                            backgroundColor: 'white'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        >
+                          <strong>{numero.numero}-{numero.anio}</strong>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Controles de paginación inferior */}
+                    {numeroTotalPages > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: '10px',
+                        gap: '8px'
+                      }}>
+                        <button onClick={() => setNumeroCurrentPage(1)} disabled={numeroCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                        <button onClick={() => setNumeroCurrentPage(prev => Math.max(1, prev - 1))} disabled={numeroCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                        {Array.from({ length: numeroTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === numeroTotalPages || Math.abs(page - numeroCurrentPage) <= 2).map((page, index, array) => {
+                          const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setNumeroCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === page ? '#007bff' : 'white', color: numeroCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: numeroCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                        })}
+                        <button onClick={() => setNumeroCurrentPage(prev => Math.min(numeroTotalPages, prev + 1))} disabled={numeroCurrentPage === numeroTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === numeroTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === numeroTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                        <button onClick={() => setNumeroCurrentPage(numeroTotalPages)} disabled={numeroCurrentPage === numeroTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === numeroTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === numeroTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
@@ -344,29 +431,84 @@ const InvitationsByIssueReport: React.FC = () => {
                 </div>
 
                 {articuloSearchResults.length > 0 && (
-                  <div style={{
-                    marginTop: '10px',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    border: '1px solid #dee2e6',
-                    borderRadius: '4px'
-                  }}>
-                    {articuloSearchResults.map((articulo) => (
-                      <div
-                        key={articulo.id}
-                        onClick={() => handleSelectArticulo(articulo)}
-                        style={{
-                          padding: '10px',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid #dee2e6',
-                          backgroundColor: 'white'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-                      >
-                        <strong>{articulo.titulo}</strong>
+                  <div>
+                    {/* Controles de paginación superior */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginTop: '10px',
+                      marginBottom: '10px',
+                      padding: '10px',
+                      backgroundColor: '#f8f9fa',
+                      borderRadius: '4px'
+                    }}>
+                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                        Mostrando {articuloStartIndex + 1} a {Math.min(articuloEndIndex, articuloSearchResults.length)} de {articuloSearchResults.length} artículos
                       </div>
-                    ))}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                        <select
+                          value={articuloItemsPerPage}
+                          onChange={(e) => handleArticuloItemsPerPageChange(Number(e.target.value))}
+                          style={{
+                            padding: '5px 8px',
+                            border: '1px solid #ced4da',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span style={{ fontSize: '14px' }}>por página</span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      border: '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      marginBottom: '10px'
+                    }}>
+                      {currentArticuloResults.map((articulo) => (
+                        <div
+                          key={articulo.id}
+                          onClick={() => handleSelectArticulo(articulo)}
+                          style={{
+                            padding: '10px',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #dee2e6',
+                            backgroundColor: 'white'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                        >
+                          <strong>{articulo.titulo}</strong>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Controles de paginación inferior */}
+                    {articuloTotalPages > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: '10px',
+                        gap: '8px'
+                      }}>
+                        <button onClick={() => setArticuloCurrentPage(1)} disabled={articuloCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
+                        <button onClick={() => setArticuloCurrentPage(prev => Math.max(1, prev - 1))} disabled={articuloCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                        {Array.from({ length: articuloTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === articuloTotalPages || Math.abs(page - articuloCurrentPage) <= 2).map((page, index, array) => {
+                          const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setArticuloCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === page ? '#007bff' : 'white', color: articuloCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: articuloCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                        })}
+                        <button onClick={() => setArticuloCurrentPage(prev => Math.min(articuloTotalPages, prev + 1))} disabled={articuloCurrentPage === articuloTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === articuloTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === articuloTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
+                        <button onClick={() => setArticuloCurrentPage(articuloTotalPages)} disabled={articuloCurrentPage === articuloTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === articuloTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === articuloTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
