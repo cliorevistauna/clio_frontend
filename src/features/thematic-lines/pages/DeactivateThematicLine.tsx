@@ -1,8 +1,122 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import PageHeader from "../../../shared/components/PageHeader";
 import { thematicLinesService, ThematicLine } from "../services/thematicLinesService";
+import { Button } from "../../../shared/components/ui";
 import "./ThematicLines.css";
+
+// Styled components para el diálogo de confirmación
+const ConfirmDialog = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background: var(--color-white);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+  h3 {
+    margin-bottom: 15px;
+    color: var(--color-primary);
+  }
+
+  p {
+    margin-bottom: 15px;
+    color: var(--color-text-light);
+    line-height: 1.5;
+  }
+`;
+
+const DialogButtons = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+const LineInfoBox = styled.div`
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: var(--border-radius-sm);
+  padding: 15px;
+  margin: 15px 0;
+  text-align: left;
+
+  strong {
+    color: var(--color-text);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  span {
+    color: var(--color-text-light);
+    font-size: 14px;
+  }
+`;
+
+const WarningText = styled.p`
+  color: #856404;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--border-radius-sm);
+  padding: 10px;
+  font-size: 14px;
+  text-align: left;
+  margin: 15px 0;
+
+  em {
+    font-style: normal;
+  }
+`;
+
+const ActionButton = styled(Button)<{ variant?: 'danger' | 'secondary' }>`
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+
+  ${props => {
+    switch (props.variant) {
+      case 'danger':
+        return 'background-color: #dc3545; border-color: #dc3545;';
+      case 'secondary':
+        return 'background-color: #6c757d; border-color: #6c757d;';
+      default:
+        return '';
+    }
+  }}
+
+  &:hover:not(:disabled) {
+    ${props => {
+      switch (props.variant) {
+        case 'danger':
+          return 'background-color: #c82333; border-color: #c82333;';
+        case 'secondary':
+          return 'background-color: #5a6268; border-color: #5a6268;';
+        default:
+          return '';
+      }
+    }}
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
 
 const DeactivateThematicLine: React.FC = () => {
   const navigate = useNavigate();
@@ -165,24 +279,21 @@ const DeactivateThematicLine: React.FC = () => {
       <PageHeader />
       <div className="main-content">
         <div className="form-container">
- 
-        {!showConfirmation ? (
-          <>
-            {/* Pestañas */}
-            <div className="tabs">
-              <button
-                className={`tab ${activeTab === 'search' ? 'active' : ''}`}
-                onClick={() => setActiveTab('search')}
-              >
-                Buscar Específica
-              </button>
-              <button
-                className={`tab ${activeTab === 'table' ? 'active' : ''}`}
-                onClick={() => setActiveTab('table')}
-              >
-                Mostrar Todas
-              </button>
-            </div>
+          {/* Pestañas */}
+          <div className="tabs">
+            <button
+              className={`tab ${activeTab === 'search' ? 'active' : ''}`}
+              onClick={() => setActiveTab('search')}
+            >
+              Buscar Específica
+            </button>
+            <button
+              className={`tab ${activeTab === 'table' ? 'active' : ''}`}
+              onClick={() => setActiveTab('table')}
+            >
+              Mostrar Todas
+            </button>
+          </div>
 
             {/* Pestaña de Búsqueda */}
             {activeTab === 'search' && (
@@ -497,44 +608,49 @@ const DeactivateThematicLine: React.FC = () => {
                 </div>
               </div>
             )}
-          </>
-        ) : (
-          /* Confirmación de eliminación */
-          <div className="confirmation-section">
-            <h3>Confirmar Eliminación</h3>
-            <div className="confirmation-message">
-              <p>
-                <strong>¿Está seguro de que desea eliminar la siguiente línea temática?</strong>
-              </p>
-              <div className="line-to-delete">
-                <strong>Nombre:</strong> {selectedLine?.nombre}
-              </div>
-              <p className="warning-text">
-                <em>Nota: La línea temática será desactivada y no estará disponible para nuevos artículos, pero se mantendrá en el sistema para preservar el historial.</em>
-              </p>
-            </div>
+        </div>
+      </div>
 
-            <div className="form-actions">
-              <button
+      {/* Diálogo de Confirmación Modal */}
+      {showConfirmation && selectedLine && (
+        <ConfirmDialog>
+          <DialogContent>
+            <h3>Confirmar Eliminación</h3>
+            <p>
+              ¿Está seguro de que desea eliminar la siguiente línea temática?
+            </p>
+
+            <LineInfoBox>
+              <strong>Nombre de la línea temática:</strong>
+              <span>{selectedLine.nombre}</span>
+            </LineInfoBox>
+
+            <WarningText>
+              <em>
+                <strong>Nota:</strong> La línea temática será desactivada y no estará disponible para nuevos artículos,
+                pero se mantendrá en el sistema para preservar el historial.
+              </em>
+            </WarningText>
+
+            <DialogButtons>
+              <ActionButton
+                variant="secondary"
+                onClick={cancelDeactivation}
+                disabled={isDeactivating}
+              >
+                Cancelar
+              </ActionButton>
+              <ActionButton
+                variant="danger"
                 onClick={confirmDeactivation}
-                className="btn-danger"
                 disabled={isDeactivating}
               >
                 {isDeactivating ? "Eliminando..." : "Sí, Eliminar"}
-              </button>
-
-              <button
-                onClick={cancelDeactivation}
-                className="btn-secondary"
-                disabled={isDeactivating}
-              >
-                No, Cancelar
-              </button>
-            </div>
-          </div>
-        )}
-        </div>
-      </div>
+              </ActionButton>
+            </DialogButtons>
+          </DialogContent>
+        </ConfirmDialog>
+      )}
     </div>
   );
 };
