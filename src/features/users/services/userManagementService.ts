@@ -12,17 +12,10 @@ export interface UserUpdateRolePayload {
 export class UserManagementService {
   async getAllUsers(includeDisabled: boolean = true): Promise<User[]> {
     try {
-      // CONFIGURACIÓN: Cambiar aquí el parámetro que use el backend
-      // Opciones comunes:
-      // 1. ?all=true
-      // 2. ?include_disabled=true
-      // 3. ?estado=all
-      // 4. ?is_active=all
-      // 5. Sin parámetros (el backend devuelve todos por defecto)
-
-      // Por ahora usar el endpoint sin parámetros
-      // El backend deberá devolver TODOS los usuarios por defecto
-      let endpoint = '/users/';
+      // Usar el parámetro include_inactive que el backend espera
+      // - include_inactive=true: Trae TODOS los usuarios (habilitados, pendientes Y deshabilitados)
+      // - include_inactive=false (o sin parámetro): Solo habilitados y pendientes
+      let endpoint = `/users/?include_inactive=${includeDisabled}`;
 
       console.log('🔍 Solicitando usuarios con endpoint:', endpoint);
       const response = await apiClient.get<{ results: User[] }>(endpoint);

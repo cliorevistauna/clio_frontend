@@ -158,6 +158,45 @@ const DialogButtons = styled.div`
   justify-content: center;
 `;
 
+const DialogButton = styled(Button)<{ variant?: 'primary' | 'secondary' | 'danger' | 'warning' }>`
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+
+  ${props => {
+    switch (props.variant) {
+      case 'danger':
+        return 'background-color: #dc3545; border-color: #dc3545;';
+      case 'warning':
+        return 'background-color: #ffc107; border-color: #ffc107; color: #000;';
+      case 'secondary':
+        return 'background-color: #6c757d; border-color: #6c757d;';
+      default:
+        return '';
+    }
+  }}
+
+  &:hover:not(:disabled) {
+    ${props => {
+      switch (props.variant) {
+        case 'danger':
+          return 'background-color: #c82333; border-color: #c82333;';
+        case 'warning':
+          return 'background-color: #e0a800; border-color: #e0a800;';
+        case 'secondary':
+          return 'background-color: #5a6268; border-color: #5a6268;';
+        default:
+          return '';
+      }
+    }}
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
 const FilterSection = styled.div`
   display: flex;
   justify-content: space-between;
@@ -525,16 +564,20 @@ const ManageUsers: React.FC = () => {
               }
             </p>
             <DialogButtons>
-              <Button onClick={() => setConfirmation(null)}>
-                Cancelar
-              </Button>
-              <ActionButton
-                variant={confirmation.type === 'status' ? 'disable' : 'role'}
-                onClick={executeConfirmation}
-                loading={isUpdating}
+              <DialogButton
+                variant="secondary"
+                onClick={() => setConfirmation(null)}
+                disabled={isUpdating}
               >
-                Confirmar
-              </ActionButton>
+                Cancelar
+              </DialogButton>
+              <DialogButton
+                variant={confirmation.type === 'status' ? 'danger' : 'warning'}
+                onClick={executeConfirmation}
+                disabled={isUpdating}
+              >
+                {isUpdating ? 'Procesando...' : 'Confirmar'}
+              </DialogButton>
             </DialogButtons>
           </DialogContent>
         </ConfirmDialog>
