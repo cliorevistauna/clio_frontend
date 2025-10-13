@@ -5,7 +5,8 @@ import { EditorialNumber, UpdateEditorialNumberRequest } from "../types";
 import {
   backendToFrontendDate,
   frontendToBackendDate,
-  isValidFrontendDateFormat
+  isValidFrontendDateFormat,
+  getCurrentDateFrontend
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
 
@@ -27,7 +28,7 @@ const ModifyEditorialNumber: React.FC = () => {
   const [filteredNumbers, setFilteredNumbers] = useState<EditorialNumber[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [confirmLoadTable, setConfirmLoadTable] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   // Estados para paginación de la tabla
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,6 +43,28 @@ const ModifyEditorialNumber: React.FC = () => {
   const [fechaFin, setFechaFin] = useState("");
   const [comentarios, setComentarios] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [usarHoyInicio, setUsarHoyInicio] = useState(false);
+  const [usarHoyFin, setUsarHoyFin] = useState(false);
+
+  // Manejar cambio de checkbox "Hoy" para fecha de inicio
+  const handleUsarHoyInicio = (checked: boolean) => {
+    setUsarHoyInicio(checked);
+    if (checked) {
+      setFechaInicio(getCurrentDateFrontend());
+    } else {
+      setFechaInicio("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de fin
+  const handleUsarHoyFin = (checked: boolean) => {
+    setUsarHoyFin(checked);
+    if (checked) {
+      setFechaFin(getCurrentDateFrontend());
+    } else {
+      setFechaFin("");
+    }
+  };
 
   // RF-009: Buscar y precargar datos del número editorial
   const handleSearch = async (e: React.FormEvent) => {
@@ -107,6 +130,9 @@ const ModifyEditorialNumber: React.FC = () => {
     setFechaInicio(editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : "");
     setFechaFin(editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : "");
     setComentarios(editorial.comentarios || "");
+    // Resetear checkboxes "Hoy" al cargar datos existentes
+    setUsarHoyInicio(false);
+    setUsarHoyFin(false);
   };
 
   // Limpiar formulario
@@ -117,6 +143,8 @@ const ModifyEditorialNumber: React.FC = () => {
     setFechaInicio("");
     setFechaFin("");
     setComentarios("");
+    setUsarHoyInicio(false);
+    setUsarHoyFin(false);
   };
 
   // Cancelar edición y volver a búsqueda
@@ -176,6 +204,23 @@ const ModifyEditorialNumber: React.FC = () => {
 
     setIsUpdating(true);
     try {
+      // Validar solapamiento de fechas antes de enviar
+      const conflictingNumber = await editorialNumberService.checkDateOverlap(
+        fechaInicioBackend,
+        fechaFinBackend,
+        selectedEditorial.id // Excluir el número actual de la verificación
+      );
+
+      if (conflictingNumber) {
+        alert(
+          `Las fechas se solapan con el número editorial ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
+          `(vigente desde ${backendToFrontendDate(conflictingNumber.fecha_inicio || '')} hasta ${backendToFrontendDate(conflictingNumber.fecha_final || '')}).\n\n` +
+          `No pueden existir dos números de publicación vigentes simultáneamente.\n` +
+          `Por favor, ajuste las fechas para evitar el solapamiento.`
+        );
+        setIsUpdating(false);
+        return;
+      }
       const updateRequest: UpdateEditorialNumberRequest = {
         id: selectedEditorial.id,
         numero: numeroInt,
@@ -193,6 +238,11 @@ const ModifyEditorialNumber: React.FC = () => {
       clearForm();
       setSearchNumero("");
       setSearchAnio("");
+
+      // Si estamos en la pestaña de tabla, recargar la tabla
+      if (activeTab === 'table' && allEditorialNumbers.length > 0) {
+        loadAllEditorialNumbers();
+      }
 
     } catch (error: any) {
       console.error("Error al modificar número editorial:", error);
@@ -225,7 +275,7 @@ const ModifyEditorialNumber: React.FC = () => {
   const loadAllEditorialNumbers = async () => {
     setIsLoadingTable(true);
     try {
-      const numbers = await editorialNumberService.getAll();
+      const numbers = await editorialNumberService.getAll({ includeInactive: showInactive });
       setAllEditorialNumbers(numbers);
       setFilteredNumbers(numbers);
     } catch (error) {
@@ -237,6 +287,13 @@ const ModifyEditorialNumber: React.FC = () => {
   };
 
   // Efecto removido - ahora se carga manualmente con confirmación del usuario
+
+  // Recargar cuando cambie el estado de showInactive (si ya hay datos cargados)
+  useEffect(() => {
+    if (allEditorialNumbers.length > 0) {
+      loadAllEditorialNumbers();
+    }
+  }, [showInactive]);
 
   // Filtrar números en tiempo real
   useEffect(() => {
@@ -361,13 +418,13 @@ const ModifyEditorialNumber: React.FC = () => {
           <>
             <div style={{
               padding: '10px',
-              backgroundColor: '#fff3cd',
-              border: '1px solid #ffc107',
+              backgroundColor: '#e7f3ff',
+              border: '1px solid #b3d9ff',
               borderRadius: '4px',
               marginBottom: '10px',
-              color: '#856404'
+              color: '#004085'
             }}>
-              ⚠️ <strong>Advertencia:</strong> Cargar todos los números editoriales consume más recursos del sistema.
+              ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
             </div>
 
             <div style={{
@@ -380,32 +437,30 @@ const ModifyEditorialNumber: React.FC = () => {
               <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
-                  checked={confirmLoadTable}
-                  onChange={(e) => setConfirmLoadTable(e.target.checked)}
-                  style={{ marginRight: '10px', cursor: 'pointer' }}
+                  checked={showInactive}
+                  onChange={(e) => setShowInactive(e.target.checked)}
+                  style={{ marginRight: '10px', cursor: 'pointer', width: '18px', height: '18px' }}
                 />
-                <span>Entiendo que cargar todos los números editoriales puede afectar el rendimiento del sistema</span>
+                <span>Mostrar Inactivos</span>
               </label>
             </div>
 
             <button
               type="button"
               onClick={loadAllEditorialNumbers}
-              disabled={!confirmLoadTable}
               style={{
                 width: '100%',
                 padding: '10px',
-                backgroundColor: confirmLoadTable ? '#28a745' : '#6c757d',
+                backgroundColor: '#28a745',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: confirmLoadTable ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
                 fontWeight: 'bold',
-                marginBottom: '10px',
-                opacity: confirmLoadTable ? 1 : 0.6
+                marginBottom: '10px'
               }}
             >
-              Cargar Todos los Números Editoriales
+              Cargar Todos los Números de Publicación
             </button>
           </>
         )}
@@ -431,6 +486,21 @@ const ModifyEditorialNumber: React.FC = () => {
                 placeholder="Filtrar por número, año, estado, comentarios o fechas..."
                 style={{ width: '100%' }}
               />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={(e) => {
+                    setShowInactive(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  style={{ marginRight: '8px', cursor: 'pointer', width: '18px', height: '18px' }}
+                />
+                <span>Mostrar Inactivos</span>
+              </label>
             </div>
 
             <div style={{
@@ -588,22 +658,48 @@ const ModifyEditorialNumber: React.FC = () => {
 
           <div className="form-group">
             <label>Fecha de Inicio *</label>
-            <DateInput
-              value={fechaInicio}
-              onChange={setFechaInicio}
-              disabled={isUpdating}
-              required
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <DateInput
+                  value={fechaInicio}
+                  onChange={setFechaInicio}
+                  disabled={isUpdating || usarHoyInicio}
+                  required
+                />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                <input
+                  type="checkbox"
+                  checked={usarHoyInicio}
+                  onChange={(e) => handleUsarHoyInicio(e.target.checked)}
+                  disabled={isUpdating}
+                />
+                Hoy
+              </label>
+            </div>
           </div>
 
           <div className="form-group">
             <label>Fecha de Finalización *</label>
-            <DateInput
-              value={fechaFin}
-              onChange={setFechaFin}
-              disabled={isUpdating}
-              required
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <DateInput
+                  value={fechaFin}
+                  onChange={setFechaFin}
+                  disabled={isUpdating || usarHoyFin}
+                  required
+                />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                <input
+                  type="checkbox"
+                  checked={usarHoyFin}
+                  onChange={(e) => handleUsarHoyFin(e.target.checked)}
+                  disabled={isUpdating}
+                />
+                Hoy
+              </label>
+            </div>
           </div>
 
           <div className="form-group">

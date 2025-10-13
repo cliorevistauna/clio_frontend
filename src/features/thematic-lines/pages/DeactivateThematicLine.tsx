@@ -134,7 +134,6 @@ const DeactivateThematicLine: React.FC = () => {
   const [filteredLines, setFilteredLines] = useState<ThematicLine[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [confirmLoadTable, setConfirmLoadTable] = useState(false);
 
   // Estados para paginación de la tabla
   const [currentPage, setCurrentPage] = useState(1);
@@ -429,48 +428,28 @@ const DeactivateThematicLine: React.FC = () => {
                     <>
                       <div style={{
                         padding: '10px',
-                        backgroundColor: '#fff3cd',
-                        border: '1px solid #ffc107',
+                        backgroundColor: '#e7f3ff',
+                        border: '1px solid #b3d9ff',
                         borderRadius: '4px',
                         marginBottom: '10px',
-                        color: '#856404'
+                        color: '#004085'
                       }}>
-                        ⚠️ <strong>Advertencia:</strong> Cargar todas las líneas temáticas consume más recursos del sistema.
-                      </div>
-
-                      <div style={{
-                        padding: '10px',
-                        backgroundColor: '#f8f9fa',
-                        border: '1px solid #ced4da',
-                        borderRadius: '4px',
-                        marginBottom: '10px'
-                      }}>
-                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={confirmLoadTable}
-                            onChange={(e) => setConfirmLoadTable(e.target.checked)}
-                            style={{ marginRight: '10px', cursor: 'pointer' }}
-                          />
-                          <span>Entiendo que cargar todas las líneas temáticas puede afectar el rendimiento del sistema</span>
-                        </label>
+                        ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
                       </div>
 
                       <button
                         type="button"
                         onClick={loadAllThematicLines}
-                        disabled={!confirmLoadTable}
                         style={{
                           width: '100%',
                           padding: '10px',
-                          backgroundColor: confirmLoadTable ? '#28a745' : '#6c757d',
+                          backgroundColor: '#28a745',
                           color: 'white',
                           border: 'none',
                           borderRadius: '4px',
-                          cursor: confirmLoadTable ? 'pointer' : 'not-allowed',
+                          cursor: 'pointer',
                           fontSize: '1rem',
                           fontWeight: '500',
-                          transition: 'background-color 0.2s',
                           marginBottom: '10px'
                         }}
                       >
@@ -499,13 +478,6 @@ const DeactivateThematicLine: React.FC = () => {
                             placeholder="Escriba para filtrar..."
                           />
                         </div>
-                        <button
-                          onClick={loadAllThematicLines}
-                          className="btn-secondary"
-                          disabled={isLoadingTable}
-                        >
-                          {isLoadingTable ? "Actualizando..." : "Actualizar"}
-                        </button>
                       </div>
 
                       {/* Controles de paginación superior */}

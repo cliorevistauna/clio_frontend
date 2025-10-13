@@ -24,8 +24,7 @@ const CreateThematicLine: React.FC = () => {
       });
 
       alert("Línea temática creada exitosamente");
-      setNombre("");
-      navigate(-1); // Go back to previous page
+      setNombre(""); // Limpiar el campo para permitir registrar otra línea
     } catch (error: any) {
       console.error("Error al crear línea temática:", error);
       const errorMessage = error.message || "Error al crear línea temática";

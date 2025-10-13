@@ -9,13 +9,15 @@ import { PaginationParams } from '../../../shared/types';
 export class EditorialNumberService {
   private endpoint = '/editorial-numbers';
 
-  async getAll(params?: PaginationParams): Promise<EditorialNumber[]> {
+  async getAll(params?: PaginationParams & { includeInactive?: boolean }): Promise<EditorialNumber[]> {
     const queryParams = new URLSearchParams();
 
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('page_size', params.limit.toString());
     if (params?.search) queryParams.append('search', params.search);
     if (params?.sortBy) queryParams.append('ordering', params.sortBy);
+    // Incluir números editoriales inactivos si se especifica
+    if (params?.includeInactive) queryParams.append('include_inactive', 'true');
 
     const queryString = queryParams.toString();
     const endpoint = queryString ? `${this.endpoint}/?${queryString}` : `${this.endpoint}/`;
@@ -52,10 +54,12 @@ export class EditorialNumberService {
   }
 
   // Métodos de búsqueda específica
-  async searchByNumber(numero: number, anio?: number): Promise<EditorialNumber[]> {
+  async searchByNumber(numero: number, anio?: number, includeInactive: boolean = true): Promise<EditorialNumber[]> {
     const queryParams = new URLSearchParams();
     queryParams.append('numero', numero.toString());
     if (anio) queryParams.append('anio', anio.toString());
+    // Incluir números editoriales inactivos por defecto para reportes
+    if (includeInactive) queryParams.append('include_inactive', 'true');
 
     const response = await apiClient.get<{ results?: EditorialNumber[] } | EditorialNumber[]>(`${this.endpoint}/?${queryParams.toString()}`);
 
@@ -69,12 +73,20 @@ export class EditorialNumberService {
     }
   }
 
-  async searchByYear(anio: number): Promise<EditorialNumber[]> {
-    return apiClient.get<EditorialNumber[]>(`${this.endpoint}/?anio=${anio}`);
+  async searchByYear(anio: number, includeInactive: boolean = true): Promise<EditorialNumber[]> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('anio', anio.toString());
+    if (includeInactive) queryParams.append('include_inactive', 'true');
+
+    return apiClient.get<EditorialNumber[]>(`${this.endpoint}/?${queryParams.toString()}`);
   }
 
-  async searchText(query: string): Promise<EditorialNumber[]> {
-    return apiClient.get<EditorialNumber[]>(`${this.endpoint}/?search=${encodeURIComponent(query)}`);
+  async searchText(query: string, includeInactive: boolean = true): Promise<EditorialNumber[]> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('search', encodeURIComponent(query));
+    if (includeInactive) queryParams.append('include_inactive', 'true');
+
+    return apiClient.get<EditorialNumber[]>(`${this.endpoint}/?${queryParams.toString()}`);
   }
 
   async getAllWithFilters(filters: {
@@ -82,12 +94,18 @@ export class EditorialNumberService {
     anio?: number;
     estado?: "activo" | "inactivo";
     search?: string;
+    includeInactive?: boolean;
   }): Promise<EditorialNumber[]> {
     const queryParams = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        queryParams.append(key, value.toString());
+        // Manejar includeInactive de forma especial
+        if (key === 'includeInactive' && value === true) {
+          queryParams.append('include_inactive', 'true');
+        } else if (key !== 'includeInactive') {
+          queryParams.append(key, value.toString());
+        }
       }
     });
 
@@ -97,6 +115,52 @@ export class EditorialNumberService {
 
     const response = await apiClient.get<{ results?: EditorialNumber[] } | EditorialNumber[]>(endpoint);
     return Array.isArray(response) ? response : (response.results || []);
+  }
+
+  /**
+   * Verifica si las fechas de un número editorial se solapan con otros números activos
+   * @param fechaInicio - Fecha de inicio en formato YYYY-MM-DD
+   * @param fechaFinal - Fecha final en formato YYYY-MM-DD
+   * @param excludeId - ID del número editorial a excluir de la verificación (útil al actualizar)
+   * @returns El número editorial con el que hay conflicto, o null si no hay conflictos
+   */
+  async checkDateOverlap(
+    fechaInicio: string,
+    fechaFinal: string,
+    excludeId?: number
+  ): Promise<EditorialNumber | null> {
+    // Obtener todos los números editoriales activos
+    const activeNumbers = await this.getAll({ includeInactive: false });
+
+    // Convertir fechas a objetos Date para comparación
+    const newStart = new Date(fechaInicio);
+    const newEnd = new Date(fechaFinal);
+
+    // Buscar solapamientos
+    for (const number of activeNumbers) {
+      // Excluir el número actual si estamos actualizando
+      if (excludeId && number.id === excludeId) {
+        continue;
+      }
+
+      // Saltar si no tiene fechas definidas
+      if (!number.fecha_inicio || !number.fecha_final) {
+        continue;
+      }
+
+      const existingStart = new Date(number.fecha_inicio);
+      const existingEnd = new Date(number.fecha_final);
+
+      // Verificar solapamiento:
+      // Hay solapamiento si las fechas se intersectan
+      const hasOverlap = newStart <= existingEnd && newEnd >= existingStart;
+
+      if (hasOverlap) {
+        return number; // Retornar el número con el que hay conflicto
+      }
+    }
+
+    return null; // No hay conflictos
   }
 }
 

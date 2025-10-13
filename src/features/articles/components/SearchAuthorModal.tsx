@@ -11,13 +11,15 @@ interface SearchAuthorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectAuthor: (author: ResearcherSearchResult) => void;
+  articleThematicLines?: number[]; // IDs de líneas temáticas del artículo para pre-cargar filtros
+  excludedIds?: number[]; // IDs de investigadores a excluir (ej: evaluadores ya seleccionados)
 }
 
 /**
  * RF-019: Creación de Autor desde Subformulario Embebido
  * RF-020: Búsqueda y Selección de Autores en la Creación de Artículos
  */
-const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, onSelectAuthor }) => {
+const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, onSelectAuthor, articleThematicLines = [], excludedIds = [] }) => {
   const [mode, setMode] = useState<'search' | 'create'>('search');
 
   // Estados para búsqueda con filtros múltiples
@@ -61,13 +63,32 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
           ]);
           setThematicLines(lines);
           setLanguages(langs);
+
+          // Pre-cargar filtros de líneas temáticas del artículo si existen
+          if (articleThematicLines.length > 0) {
+            const preloadedFilters = articleThematicLines
+              .map(lineId => {
+                const line = lines.find(l => l.id === lineId);
+                if (line) {
+                  return {
+                    type: 'línea_temática',
+                    value: line.id.toString(),
+                    label: `Línea: ${line.nombre}`
+                  };
+                }
+                return null;
+              })
+              .filter(f => f !== null) as Array<{ type: string, value: string, label: string }>;
+
+            setSearchFilters(preloadedFilters);
+          }
         } catch (error) {
           console.error("Error al cargar filtros:", error);
         }
       };
       loadFilters();
     }
-  }, [isOpen]);
+  }, [isOpen, articleThematicLines]);
 
   if (!isOpen) return null;
 
@@ -185,12 +206,19 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
         };
       });
 
-      console.log(`Resultados encontrados: ${results.length}`);
-      setSearchResults(results);
+      // Filtrar resultados excluyendo IDs no permitidos (evaluadores ya seleccionados)
+      const filteredResults = results.filter(r => !excludedIds.includes(r.id));
+
+      console.log(`Resultados encontrados: ${results.length}, después de filtrar: ${filteredResults.length}`);
+      setSearchResults(filteredResults);
       setCurrentPage(1); // Resetear a la primera página al hacer una nueva búsqueda
 
-      if (results.length === 0) {
-        alert("No se encontraron autores con los criterios ingresados.");
+      if (filteredResults.length === 0) {
+        if (results.length > 0 && excludedIds.length > 0) {
+          alert("No se encontraron autores disponibles. Los investigadores encontrados ya están seleccionados como evaluadores.");
+        } else {
+          alert("No se encontraron autores con los criterios ingresados.");
+        }
       }
     } catch (error) {
       console.error("Error al buscar autores:", error);

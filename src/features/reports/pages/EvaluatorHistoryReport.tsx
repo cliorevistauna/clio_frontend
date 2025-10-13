@@ -37,7 +37,6 @@ const EvaluatorHistoryReport: React.FC = () => {
   // Para la tabla de todos los números
   const [allEditorialNumbers, setAllEditorialNumbers] = useState<EditorialNumber[]>([]);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [confirmLoadTable, setConfirmLoadTable] = useState(false);
 
   // Estados para paginación de búsqueda de evaluadores
   const [evaluatorCurrentPage, setEvaluatorCurrentPage] = useState(1);
@@ -59,7 +58,7 @@ const EvaluatorHistoryReport: React.FC = () => {
   const loadAllEditorialNumbers = async () => {
     setIsLoadingTable(true);
     try {
-      const numbers = await editorialNumberService.getAll();
+      const numbers = await editorialNumberService.getAll({ includeInactive: true });
       setAllEditorialNumbers(numbers);
     } catch (error) {
       console.error("Error al cargar números editoriales:", error);
@@ -159,7 +158,8 @@ const EvaluatorHistoryReport: React.FC = () => {
 
     setIsSearching(true);
     try {
-      const results = await researcherService.search(searchTerm);
+      // Incluir investigadores inactivos en la búsqueda para reportes históricos
+      const results = await researcherService.search(searchTerm, { includeInactive: true });
       console.log('Resultados de búsqueda de evaluadores:', results);
       setSearchResults(results);
       setEvaluatorCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
@@ -590,32 +590,13 @@ const EvaluatorHistoryReport: React.FC = () => {
               <div>
                 <div style={{
                   padding: '10px',
-                  backgroundColor: '#fff3cd',
-                  border: '1px solid #ffc107',
+                  backgroundColor: '#e7f3ff',
+                  border: '1px solid #b3d9ff',
                   borderRadius: '4px',
                   marginBottom: '10px',
-                  color: '#856404'
+                  color: '#004085'
                 }}>
-                  ⚠️ <strong>Advertencia:</strong> Cargar todos los números editoriales consume más recursos del sistema.
-                </div>
-
-                {/* Checkbox de confirmación */}
-                <div style={{
-                  padding: '10px',
-                  backgroundColor: '#f8f9fa',
-                  border: '1px solid #ced4da',
-                  borderRadius: '4px',
-                  marginBottom: '10px'
-                }}>
-                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={confirmLoadTable}
-                      onChange={(e) => setConfirmLoadTable(e.target.checked)}
-                      style={{ marginRight: '10px', cursor: 'pointer' }}
-                    />
-                    <span>Entiendo que cargar todos los números editoriales puede afectar el rendimiento del sistema</span>
-                  </label>
+                  ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
                 </div>
 
                 {/* Botón para cargar la tabla */}
@@ -623,21 +604,19 @@ const EvaluatorHistoryReport: React.FC = () => {
                   <button
                     type="button"
                     onClick={loadAllEditorialNumbers}
-                    disabled={!confirmLoadTable}
                     style={{
                       width: '100%',
                       padding: '10px',
-                      backgroundColor: confirmLoadTable ? '#28a745' : '#6c757d',
+                      backgroundColor: '#28a745',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: confirmLoadTable ? 'pointer' : 'not-allowed',
+                      cursor: 'pointer',
                       fontWeight: 'bold',
-                      marginBottom: '10px',
-                      opacity: confirmLoadTable ? 1 : 0.6
+                      marginBottom: '10px'
                     }}
                   >
-                    Cargar Todos los Números Editoriales
+                    Cargar Todos los Números de Publicación
                   </button>
                 )}
 

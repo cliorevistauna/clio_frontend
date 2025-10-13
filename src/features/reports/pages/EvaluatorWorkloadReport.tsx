@@ -45,7 +45,8 @@ const EvaluatorWorkloadReport: React.FC = () => {
     }
 
     try {
-      const results = await researcherService.search(evaluadorSearchQuery);
+      // Incluir investigadores inactivos en la búsqueda para reportes
+      const results = await researcherService.search(evaluadorSearchQuery, { includeInactive: true });
       setEvaluadorSearchResults(results);
       setCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
       if (results.length === 0) {

@@ -11,7 +11,8 @@ import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
 import {
   frontendToBackendDate,
-  isValidFrontendDateFormat
+  isValidFrontendDateFormat,
+  getCurrentDateFrontend
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
 
@@ -54,6 +55,41 @@ const CreateArticle: React.FC = () => {
   // Estado de envío
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Estados para checkboxes "Hoy"
+  const [usarHoyRecepcion, setUsarHoyRecepcion] = useState(false);
+  const [usarHoyAceptacion, setUsarHoyAceptacion] = useState(false);
+  const [usarHoyPublicacion, setUsarHoyPublicacion] = useState(false);
+
+  // Manejar cambio de checkbox "Hoy" para fecha de recepción
+  const handleUsarHoyRecepcion = (checked: boolean) => {
+    setUsarHoyRecepcion(checked);
+    if (checked) {
+      setFechaRecepcion(getCurrentDateFrontend());
+    } else {
+      setFechaRecepcion("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de aceptación
+  const handleUsarHoyAceptacion = (checked: boolean) => {
+    setUsarHoyAceptacion(checked);
+    if (checked) {
+      setFechaAceptacion(getCurrentDateFrontend());
+    } else {
+      setFechaAceptacion("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de publicación
+  const handleUsarHoyPublicacion = (checked: boolean) => {
+    setUsarHoyPublicacion(checked);
+    if (checked) {
+      setFechaPublicacion(getCurrentDateFrontend());
+    } else {
+      setFechaPublicacion("");
+    }
+  };
+
   // Cargar números editoriales disponibles
   useEffect(() => {
     const loadEditorialNumbers = async () => {
@@ -85,6 +121,18 @@ const CreateArticle: React.FC = () => {
   };
 
   const handleSelectAuthor = (author: ResearcherSearchResult) => {
+    // Verificar si el autor seleccionado ya está como evaluador
+    const isAlreadyEvaluator = selectedEvaluators.some(ev => ev.id === author.id);
+
+    if (isAlreadyEvaluator) {
+      alert(
+        `El investigador ${author.nombre} ${author.apellido1} ${author.apellido2} ` +
+        `ya está seleccionado como evaluador.\n\n` +
+        `Un investigador no puede ser autor y evaluador del mismo artículo.`
+      );
+      return;
+    }
+
     setSelectedAuthor(author);
   };
 
@@ -93,6 +141,20 @@ const CreateArticle: React.FC = () => {
   };
 
   const handleSelectEvaluators = (evaluators: ResearcherSearchResult[]) => {
+    // Verificar si alguno de los evaluadores seleccionados es el autor
+    if (selectedAuthor) {
+      const authorIsEvaluator = evaluators.some(ev => ev.id === selectedAuthor.id);
+
+      if (authorIsEvaluator) {
+        alert(
+          `El autor ${selectedAuthor.nombre} ${selectedAuthor.apellido1} ${selectedAuthor.apellido2} ` +
+          `no puede ser seleccionado como evaluador.\n\n` +
+          `Un investigador no puede ser autor y evaluador del mismo artículo.`
+        );
+        return;
+      }
+    }
+
     setSelectedEvaluators(evaluators);
   };
 
@@ -170,6 +232,9 @@ const CreateArticle: React.FC = () => {
       setLineasTematicas([]);
       setSelectedAuthor(null);
       setSelectedEvaluators([]);
+      setUsarHoyRecepcion(false);
+      setUsarHoyAceptacion(false);
+      setUsarHoyPublicacion(false);
 
     } catch (error: any) {
       console.error("Error al registrar artículo:", error);
@@ -260,30 +325,69 @@ const CreateArticle: React.FC = () => {
             {/* Fechas */}
             <div className="form-group">
               <label>Fecha de Recepción *</label>
-              <DateInput
-                value={fechaRecepcion}
-                onChange={setFechaRecepcion}
-                disabled={isSubmitting}
-                required
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaRecepcion}
+                    onChange={setFechaRecepcion}
+                    disabled={isSubmitting || usarHoyRecepcion}
+                    required
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyRecepcion}
+                    onChange={(e) => handleUsarHoyRecepcion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Fecha de Aceptación</label>
-              <DateInput
-                value={fechaAceptacion}
-                onChange={setFechaAceptacion}
-                disabled={isSubmitting}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaAceptacion}
+                    onChange={setFechaAceptacion}
+                    disabled={isSubmitting || usarHoyAceptacion}
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyAceptacion}
+                    onChange={(e) => handleUsarHoyAceptacion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Fecha de Publicación</label>
-              <DateInput
-                value={fechaPublicacion}
-                onChange={setFechaPublicacion}
-                disabled={isSubmitting}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaPublicacion}
+                    onChange={setFechaPublicacion}
+                    disabled={isSubmitting || usarHoyPublicacion}
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyPublicacion}
+                    onChange={(e) => handleUsarHoyPublicacion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             {/* Autor - RF-019 y RF-020 */}
@@ -412,13 +516,16 @@ const CreateArticle: React.FC = () => {
         isOpen={showAuthorModal}
         onClose={() => setShowAuthorModal(false)}
         onSelectAuthor={handleSelectAuthor}
+        articleThematicLines={lineasTematicas}
+        excludedIds={selectedEvaluators.map(e => e.id)}
       />
 
       <SearchEvaluatorModal
         isOpen={showEvaluatorModal}
         onClose={() => setShowEvaluatorModal(false)}
         onSelectEvaluators={handleSelectEvaluators}
-        alreadySelected={selectedEvaluators.map(e => e.id)}
+        alreadySelected={selectedEvaluators.map(e => e.id).concat(selectedAuthor ? [selectedAuthor.id] : [])}
+        articleThematicLines={lineasTematicas}
       />
     </div>
   );

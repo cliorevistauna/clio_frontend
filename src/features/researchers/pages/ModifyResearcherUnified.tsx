@@ -36,7 +36,6 @@ const ModifyResearcher: React.FC = () => {
   const [filteredAuthors, setFilteredAuthors] = useState<Researcher[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
-  const [confirmLoadTable, setConfirmLoadTable] = useState(false);
 
   // Estados para paginación de la tabla
   const [currentPage, setCurrentPage] = useState(1);
@@ -172,9 +171,15 @@ const ModifyResearcher: React.FC = () => {
       console.log('Búsqueda por palabra clave:', searchKeyword);
       console.log('Filtros aplicados:', advancedFilters);
 
+      // Agregar includeInactive: true para buscar también entre investigadores inactivos
+      const filtersWithInactive = {
+        ...advancedFilters,
+        includeInactive: true
+      };
+
       const results = await researcherService.search(
         searchKeyword,
-        advancedFilters
+        filtersWithInactive
       );
 
       console.log(`Resultados encontrados: ${results.length}`);
@@ -527,55 +532,34 @@ const ModifyResearcher: React.FC = () => {
       <div>
         <h3>Todos los Autores y Evaluadores</h3>
 
-        {/* Advertencia antes de cargar */}
+        {/* Nota antes de cargar */}
         {allAuthors.length === 0 && !isLoadingTable && (
           <>
             <div style={{
               padding: '10px',
-              backgroundColor: '#fff3cd',
-              border: '1px solid #ffc107',
+              backgroundColor: '#e7f3ff',
+              border: '1px solid #b3d9ff',
               borderRadius: '4px',
               marginBottom: '10px',
-              color: '#856404'
+              color: '#004085'
             }}>
-              ⚠️ <strong>Advertencia:</strong> Cargar todos los autores y evaluadores consume más recursos del sistema.
-            </div>
-
-            {/* Checkbox de confirmación */}
-            <div style={{
-              padding: '10px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #ced4da',
-              borderRadius: '4px',
-              marginBottom: '10px'
-            }}>
-              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={confirmLoadTable}
-                  onChange={(e) => setConfirmLoadTable(e.target.checked)}
-                  style={{ marginRight: '10px', cursor: 'pointer' }}
-                />
-                <span>Entiendo que cargar todos los autores y evaluadores puede afectar el rendimiento del sistema</span>
-              </label>
+              ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
             </div>
 
             {/* Botón para cargar la tabla */}
             <button
               type="button"
               onClick={loadAllAuthors}
-              disabled={!confirmLoadTable}
               style={{
                 width: '100%',
                 padding: '10px',
-                backgroundColor: confirmLoadTable ? '#28a745' : '#6c757d',
+                backgroundColor: '#28a745',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: confirmLoadTable ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
                 fontWeight: 'bold',
-                marginBottom: '10px',
-                opacity: confirmLoadTable ? 1 : 0.6
+                marginBottom: '10px'
               }}
             >
               Cargar Todos los Autores y Evaluadores

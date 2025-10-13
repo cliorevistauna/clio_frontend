@@ -6,6 +6,7 @@ import { DateInput } from "../../../shared/components/ui";
 import {
   getCurrentDateFrontend,
   frontendToBackendDate,
+  backendToFrontendDate,
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
 
@@ -87,6 +88,22 @@ const CreateEditorialNumber: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Validar solapamiento de fechas antes de enviar
+      const conflictingNumber = await editorialNumberService.checkDateOverlap(
+        fechaInicioBackend,
+        fechaFinBackend
+      );
+
+      if (conflictingNumber) {
+        alert(
+          `Las fechas se solapan con el número editorial ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
+          `(vigente desde ${backendToFrontendDate(conflictingNumber.fecha_inicio || '')} hasta ${backendToFrontendDate(conflictingNumber.fecha_final || '')}).\n\n` +
+          `No pueden existir dos números de publicación vigentes simultáneamente.\n` +
+          `Por favor, ajuste las fechas para evitar el solapamiento.`
+        );
+        setIsLoading(false);
+        return;
+      }
       const request: CreateEditorialNumberRequest = {
         numero: numeroInt,
         anio: anioInt,

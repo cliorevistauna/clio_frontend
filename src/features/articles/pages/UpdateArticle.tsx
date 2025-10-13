@@ -12,7 +12,8 @@ import { EditorialNumber } from "../../editorial-numbers/types";
 import {
   frontendToBackendDate,
   backendToFrontendDate,
-  isValidFrontendDateFormat
+  isValidFrontendDateFormat,
+  getCurrentDateFrontend
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
 
@@ -23,6 +24,9 @@ interface EvaluatorWithState {
   fecha_envio_dictamen?: string | null;
   fecha_limite_dictamen?: string | null;
   fecha_entrega_dictamen?: string | null;
+  usarHoyEnvio?: boolean;
+  usarHoyLimite?: boolean;
+  usarHoyEntrega?: boolean;
 }
 
 /**
@@ -66,6 +70,41 @@ const UpdateArticle: React.FC = () => {
 
   // Estado de envío
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Estados para checkboxes "Hoy" de fechas principales
+  const [usarHoyRecepcion, setUsarHoyRecepcion] = useState(false);
+  const [usarHoyAceptacion, setUsarHoyAceptacion] = useState(false);
+  const [usarHoyPublicacion, setUsarHoyPublicacion] = useState(false);
+
+  // Manejar cambio de checkbox "Hoy" para fecha de recepción
+  const handleUsarHoyRecepcion = (checked: boolean) => {
+    setUsarHoyRecepcion(checked);
+    if (checked) {
+      setFechaRecepcion(getCurrentDateFrontend());
+    } else {
+      setFechaRecepcion("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de aceptación
+  const handleUsarHoyAceptacion = (checked: boolean) => {
+    setUsarHoyAceptacion(checked);
+    if (checked) {
+      setFechaAceptacion(getCurrentDateFrontend());
+    } else {
+      setFechaAceptacion("");
+    }
+  };
+
+  // Manejar cambio de checkbox "Hoy" para fecha de publicación
+  const handleUsarHoyPublicacion = (checked: boolean) => {
+    setUsarHoyPublicacion(checked);
+    if (checked) {
+      setFechaPublicacion(getCurrentDateFrontend());
+    } else {
+      setFechaPublicacion("");
+    }
+  };
 
   // Cargar números editoriales disponibles
   useEffect(() => {
@@ -147,7 +186,10 @@ const UpdateArticle: React.FC = () => {
             estado_dictamen: ev.estado_dictamen,
             fecha_envio_dictamen: ev.fecha_envio_dictamen ? backendToFrontendDate(ev.fecha_envio_dictamen) : null,
             fecha_limite_dictamen: ev.fecha_limite_dictamen ? backendToFrontendDate(ev.fecha_limite_dictamen) : null,
-            fecha_entrega_dictamen: ev.fecha_entrega_dictamen ? backendToFrontendDate(ev.fecha_entrega_dictamen) : null
+            fecha_entrega_dictamen: ev.fecha_entrega_dictamen ? backendToFrontendDate(ev.fecha_entrega_dictamen) : null,
+            usarHoyEnvio: false,
+            usarHoyLimite: false,
+            usarHoyEntrega: false
           }));
           setEvaluatorsWithState(evalWithState);
         }
@@ -155,7 +197,7 @@ const UpdateArticle: React.FC = () => {
       } catch (error) {
         console.error("Error al cargar artículo:", error);
         alert("Error al cargar el artículo.");
-        navigate(ROUTES.ARTICLES);
+        navigate(ROUTES.MODIFY_ARTICLE);
       } finally {
         setIsLoading(false);
       }
@@ -175,6 +217,18 @@ const UpdateArticle: React.FC = () => {
   };
 
   const handleSelectAuthor = (author: ResearcherSearchResult) => {
+    // Verificar si el autor seleccionado ya está como evaluador
+    const isAlreadyEvaluator = evaluatorsWithState.some(ev => ev.researcher.id === author.id);
+
+    if (isAlreadyEvaluator) {
+      alert(
+        `El investigador ${author.nombre} ${author.apellido1} ${author.apellido2} ` +
+        `ya está seleccionado como evaluador.\n\n` +
+        `Un investigador no puede ser autor y evaluador del mismo artículo.`
+      );
+      return;
+    }
+
     setSelectedAuthor(author);
   };
 
@@ -183,6 +237,20 @@ const UpdateArticle: React.FC = () => {
   };
 
   const handleSelectEvaluators = (evaluators: ResearcherSearchResult[]) => {
+    // Verificar si alguno de los evaluadores seleccionados es el autor
+    if (selectedAuthor) {
+      const authorIsEvaluator = evaluators.some(ev => ev.id === selectedAuthor.id);
+
+      if (authorIsEvaluator) {
+        alert(
+          `El autor ${selectedAuthor.nombre} ${selectedAuthor.apellido1} ${selectedAuthor.apellido2} ` +
+          `no puede ser seleccionado como evaluador.\n\n` +
+          `Un investigador no puede ser autor y evaluador del mismo artículo.`
+        );
+        return;
+      }
+    }
+
     // Agregar nuevos evaluadores con estado por defecto "invitado" y fechas null
     const newEvaluators: EvaluatorWithState[] = evaluators.map(ev => ({
       researcher: ev,
@@ -190,7 +258,10 @@ const UpdateArticle: React.FC = () => {
       estado_dictamen: null,
       fecha_envio_dictamen: null,
       fecha_limite_dictamen: null,
-      fecha_entrega_dictamen: null
+      fecha_entrega_dictamen: null,
+      usarHoyEnvio: false,
+      usarHoyLimite: false,
+      usarHoyEntrega: false
     }));
     setEvaluatorsWithState([...evaluatorsWithState, ...newEvaluators]);
   };
@@ -207,6 +278,48 @@ const UpdateArticle: React.FC = () => {
     setEvaluatorsWithState(evaluatorsWithState.map(ev => {
       if (ev.researcher.id === id) {
         return { ...ev, [field]: value };
+      }
+      return ev;
+    }));
+  };
+
+  // Manejar checkbox "Hoy" para fecha de envío de dictamen
+  const handleUsarHoyEnvio = (id: number, checked: boolean) => {
+    setEvaluatorsWithState(evaluatorsWithState.map(ev => {
+      if (ev.researcher.id === id) {
+        return {
+          ...ev,
+          usarHoyEnvio: checked,
+          fecha_envio_dictamen: checked ? getCurrentDateFrontend() : ''
+        };
+      }
+      return ev;
+    }));
+  };
+
+  // Manejar checkbox "Hoy" para fecha límite de dictamen
+  const handleUsarHoyLimite = (id: number, checked: boolean) => {
+    setEvaluatorsWithState(evaluatorsWithState.map(ev => {
+      if (ev.researcher.id === id) {
+        return {
+          ...ev,
+          usarHoyLimite: checked,
+          fecha_limite_dictamen: checked ? getCurrentDateFrontend() : ''
+        };
+      }
+      return ev;
+    }));
+  };
+
+  // Manejar checkbox "Hoy" para fecha de entrega de dictamen
+  const handleUsarHoyEntrega = (id: number, checked: boolean) => {
+    setEvaluatorsWithState(evaluatorsWithState.map(ev => {
+      if (ev.researcher.id === id) {
+        return {
+          ...ev,
+          usarHoyEntrega: checked,
+          fecha_entrega_dictamen: checked ? getCurrentDateFrontend() : ''
+        };
       }
       return ev;
     }));
@@ -295,11 +408,7 @@ const UpdateArticle: React.FC = () => {
       await articleService.update(parseInt(id), updateData);
 
       alert("Artículo actualizado exitosamente.");
-
-      // Recargar datos para obtener el estado actualizado por el backend
-      const updated = await articleService.getById(parseInt(id));
-      setArticle(updated);
-      setEstado(updated.estado);
+      navigate(ROUTES.MODIFY_ARTICLE);
 
     } catch (error: any) {
       console.error("Error al actualizar artículo:", error);
@@ -408,30 +517,69 @@ const UpdateArticle: React.FC = () => {
             {/* Fechas */}
             <div className="form-group">
               <label>Fecha de Recepción *</label>
-              <DateInput
-                value={fechaRecepcion}
-                onChange={setFechaRecepcion}
-                disabled={isSubmitting}
-                required
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaRecepcion}
+                    onChange={setFechaRecepcion}
+                    disabled={isSubmitting || usarHoyRecepcion}
+                    required
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyRecepcion}
+                    onChange={(e) => handleUsarHoyRecepcion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Fecha de Aceptación</label>
-              <DateInput
-                value={fechaAceptacion}
-                onChange={setFechaAceptacion}
-                disabled={isSubmitting}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaAceptacion}
+                    onChange={setFechaAceptacion}
+                    disabled={isSubmitting || usarHoyAceptacion}
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyAceptacion}
+                    onChange={(e) => handleUsarHoyAceptacion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
               <label>Fecha de Publicación</label>
-              <DateInput
-                value={fechaPublicacion}
-                onChange={setFechaPublicacion}
-                disabled={isSubmitting}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <DateInput
+                    value={fechaPublicacion}
+                    onChange={setFechaPublicacion}
+                    disabled={isSubmitting || usarHoyPublicacion}
+                  />
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                  <input
+                    type="checkbox"
+                    checked={usarHoyPublicacion}
+                    onChange={(e) => handleUsarHoyPublicacion(e.target.checked)}
+                    disabled={isSubmitting}
+                  />
+                  Hoy
+                </label>
+              </div>
             </div>
 
             {/* Autor */}
@@ -558,40 +706,79 @@ const UpdateArticle: React.FC = () => {
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha de Envío de Dictamen:
                               </label>
-                              <DateInput
-                                value={ev.fecha_envio_dictamen || ''}
-                                onChange={(value) => handleUpdateEvaluatorState(
-                                  ev.researcher.id,
-                                  'fecha_envio_dictamen',
-                                  value || null
-                                )}
-                              />
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <DateInput
+                                    value={ev.fecha_envio_dictamen || ''}
+                                    onChange={(value) => handleUpdateEvaluatorState(
+                                      ev.researcher.id,
+                                      'fecha_envio_dictamen',
+                                      value || null
+                                    )}
+                                    disabled={ev.usarHoyEnvio}
+                                  />
+                                </div>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={ev.usarHoyEnvio || false}
+                                    onChange={(e) => handleUsarHoyEnvio(ev.researcher.id, e.target.checked)}
+                                  />
+                                  Hoy
+                                </label>
+                              </div>
                             </div>
                             <div style={{ marginTop: '10px' }}>
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha Límite de Dictamen:
                               </label>
-                              <DateInput
-                                value={ev.fecha_limite_dictamen || ''}
-                                onChange={(value) => handleUpdateEvaluatorState(
-                                  ev.researcher.id,
-                                  'fecha_limite_dictamen',
-                                  value || null
-                                )}
-                              />
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <DateInput
+                                    value={ev.fecha_limite_dictamen || ''}
+                                    onChange={(value) => handleUpdateEvaluatorState(
+                                      ev.researcher.id,
+                                      'fecha_limite_dictamen',
+                                      value || null
+                                    )}
+                                    disabled={ev.usarHoyLimite}
+                                  />
+                                </div>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={ev.usarHoyLimite || false}
+                                    onChange={(e) => handleUsarHoyLimite(ev.researcher.id, e.target.checked)}
+                                  />
+                                  Hoy
+                                </label>
+                              </div>
                             </div>
                             <div style={{ marginTop: '10px' }}>
                               <label style={{ fontSize: '0.9rem', marginBottom: '5px', display: 'block' }}>
                                 Fecha de Entrega de Dictamen:
                               </label>
-                              <DateInput
-                                value={ev.fecha_entrega_dictamen || ''}
-                                onChange={(value) => handleUpdateEvaluatorState(
-                                  ev.researcher.id,
-                                  'fecha_entrega_dictamen',
-                                  value || null
-                                )}
-                              />
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                  <DateInput
+                                    value={ev.fecha_entrega_dictamen || ''}
+                                    onChange={(value) => handleUpdateEvaluatorState(
+                                      ev.researcher.id,
+                                      'fecha_entrega_dictamen',
+                                      value || null
+                                    )}
+                                    disabled={ev.usarHoyEntrega}
+                                  />
+                                </div>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={ev.usarHoyEntrega || false}
+                                    onChange={(e) => handleUsarHoyEntrega(ev.researcher.id, e.target.checked)}
+                                  />
+                                  Hoy
+                                </label>
+                              </div>
                             </div>
                           </>
                         )}
@@ -691,29 +878,20 @@ const UpdateArticle: React.FC = () => {
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
-                type="button"
-                onClick={() => navigate(ROUTES.ARTICLES)}
-                className="cancel-btn"
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: '500'
-                }}
-              >
-                Cancelar
-              </button>
-              <button
                 type="submit"
                 className="submit-btn"
                 disabled={isSubmitting}
-                style={{ flex: 2 }}
               >
-                {isSubmitting ? "Actualizando..." : "Actualizar Artículo"}
+                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
+              </button>
+              <button
+                type="button"
+                className="submit-btn"
+                onClick={() => navigate(ROUTES.MODIFY_ARTICLE)}
+                disabled={isSubmitting}
+                style={{ backgroundColor: '#6c757d' }}
+              >
+                Cancelar
               </button>
             </div>
           </form>
@@ -725,13 +903,16 @@ const UpdateArticle: React.FC = () => {
         isOpen={showAuthorModal}
         onClose={() => setShowAuthorModal(false)}
         onSelectAuthor={handleSelectAuthor}
+        articleThematicLines={lineasTematicas}
+        excludedIds={evaluatorsWithState.map(e => e.researcher.id)}
       />
 
       <SearchEvaluatorModal
         isOpen={showEvaluatorModal}
         onClose={() => setShowEvaluatorModal(false)}
         onSelectEvaluators={handleSelectEvaluators}
-        alreadySelected={evaluatorsWithState.map(e => e.researcher.id)}
+        alreadySelected={evaluatorsWithState.map(e => e.researcher.id).concat(selectedAuthor ? [selectedAuthor.id] : [])}
+        articleThematicLines={lineasTematicas}
       />
     </div>
   );

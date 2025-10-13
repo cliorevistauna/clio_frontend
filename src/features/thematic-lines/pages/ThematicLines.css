@@ -46,7 +46,7 @@
 
 /* Filters */
 .filters-section {
-  background: var(--color-background-light);
+  background: white;
   padding: 15px;
   border-radius: var(--border-radius-md);
   margin-bottom: 20px;

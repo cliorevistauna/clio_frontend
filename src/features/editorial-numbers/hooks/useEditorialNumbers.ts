@@ -66,9 +66,9 @@ export const useEditorialNumbers = (params?: PaginationParams) => {
         prev.map(en => en.id === data.id ? updatedEditorialNumber : en)
       );
 
-      if (currentEditorialNumber?.id === data.id) {
-        setCurrentEditorialNumber(updatedEditorialNumber);
-      }
+      // Siempre recargar el número vigente actual desde el backend
+      // porque las fechas modificadas pueden cambiar cuál es el vigente
+      await fetchCurrentEditorialNumber();
 
       return updatedEditorialNumber;
     } catch (err) {
@@ -78,7 +78,7 @@ export const useEditorialNumbers = (params?: PaginationParams) => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentEditorialNumber]);
+  }, [fetchCurrentEditorialNumber]);
 
   const deleteEditorialNumber = useCallback(async (id: number) => {
     try {

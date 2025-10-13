@@ -110,6 +110,7 @@ export class ResearcherService {
       grado_academico?: string;
       estado?: string;
       idiomas?: number;
+      includeInactive?: boolean; // Nuevo parámetro opcional para incluir inactivos
     }
   ): Promise<Researcher[]> {
     const queryParams = new URLSearchParams();
@@ -131,6 +132,11 @@ export class ResearcherService {
     }
     if (filters?.idiomas) {
       queryParams.append('idiomas', filters.idiomas.toString());
+    }
+    // Solo agregar include_inactive si es true (para researchers/modify)
+    // Los modales nunca pasarán este parámetro, por lo que siempre excluirán inactivos
+    if (filters?.includeInactive === true) {
+      queryParams.append('include_inactive', 'true');
     }
 
     const response = await apiClient.get<any>(`${this.endpoint}/?${queryParams.toString()}`);

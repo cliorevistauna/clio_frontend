@@ -10,6 +10,7 @@ interface SearchEvaluatorModalProps {
   onClose: () => void;
   onSelectEvaluators: (evaluators: ResearcherSearchResult[]) => void;
   alreadySelected: number[]; // IDs de evaluadores ya seleccionados
+  articleThematicLines?: number[]; // IDs de líneas temáticas del artículo para pre-cargar filtros
 }
 
 /**
@@ -17,14 +18,14 @@ interface SearchEvaluatorModalProps {
  *
  * Requisitos:
  * - Solo evaluadores activos pueden ser seleccionados
- * - Mínimo 2 evaluadores antes de guardar
  * - Búsqueda por palabra clave + filtros (línea temática, país, idioma)
  */
 const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
   isOpen,
   onClose,
   onSelectEvaluators,
-  alreadySelected
+  alreadySelected,
+  articleThematicLines = []
 }) => {
   const [keywordSearch, setKeywordSearch] = useState(""); // Búsqueda por palabra clave
   const [filterTerm, setFilterTerm] = useState(""); // Término para agregar filtros
@@ -52,13 +53,32 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
           ]);
           setThematicLines(lines);
           setLanguages(langs);
+
+          // Pre-cargar filtros de líneas temáticas del artículo si existen
+          if (articleThematicLines.length > 0) {
+            const preloadedFilters = articleThematicLines
+              .map(lineId => {
+                const line = lines.find(l => l.id === lineId);
+                if (line) {
+                  return {
+                    type: 'línea_temática',
+                    value: line.id.toString(),
+                    label: `Línea: ${line.nombre}`
+                  };
+                }
+                return null;
+              })
+              .filter(f => f !== null) as Array<{ type: string, value: string, label: string }>;
+
+            setSearchFilters(preloadedFilters);
+          }
         } catch (error) {
           console.error("Error al cargar filtros:", error);
         }
       };
       loadFilters();
     }
-  }, [isOpen]);
+  }, [isOpen, articleThematicLines]);
 
   if (!isOpen) return null;
 
@@ -205,8 +225,8 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
   };
 
   const handleConfirmSelection = () => {
-    if (selectedEvaluators.length < 2) {
-      alert("Seleccione al menos 2 evaluadores.");
+    if (selectedEvaluators.length === 0) {
+      alert("Seleccione al menos 1 evaluador.");
       return;
     }
 
@@ -240,7 +260,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     <div className="modal-overlay" onClick={handleCloseModal}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Seleccionar Evaluadores (Mínimo 2)</h3>
+          <h3>Seleccionar Evaluadores</h3>
           <button className="close-btn" onClick={handleCloseModal}>×</button>
         </div>
 
@@ -536,7 +556,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
               <button
                 onClick={handleConfirmSelection}
                 className="submit-btn"
-                disabled={selectedEvaluators.length < 2}
+                disabled={selectedEvaluators.length === 0}
               >
                 Confirmar Selección ({selectedEvaluators.length})
               </button>
