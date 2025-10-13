@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../../shared/components/PageHeader';
+import ThematicLineSingleSelector from '../../../shared/components/ThematicLineSingleSelector';
 import { useAuth } from '../../auth/hooks';
 import { ROUTES } from '../../../shared/constants';
 import { reportService } from '../services/reportService';
@@ -10,6 +11,7 @@ const EvaluatorsByThemeReport: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
+  const [selectedLineaId, setSelectedLineaId] = useState<number | null>(null);
   const [includeDetail, setIncludeDetail] = useState(false);
   const [reportData, setReportData] = useState<EvaluatorsByThemeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,7 @@ const EvaluatorsByThemeReport: React.FC = () => {
 
     try {
       const data = await reportService.getEvaluatorsByTheme({
+        linea_tematica_id: selectedLineaId,
         include_detail: includeDetail,
       });
       setReportData(data);
@@ -48,6 +51,7 @@ const EvaluatorsByThemeReport: React.FC = () => {
 
     try {
       const blob = await reportService.downloadEvaluatorsByThemePDF({
+        linea_tematica_id: selectedLineaId,
         include_detail: includeDetail,
       });
 
@@ -75,8 +79,16 @@ const EvaluatorsByThemeReport: React.FC = () => {
         <div className="form-container">
           <h2>Estadísticas de Evaluadores por Línea Temática</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-023: Visualice estadísticas de evaluadores agrupados por línea temática.
+            Visualice estadísticas de evaluadores agrupados por línea temática.
           </p>
+
+          <ThematicLineSingleSelector
+            selectedId={selectedLineaId}
+            onChange={setSelectedLineaId}
+            label="Seleccionar línea temática"
+            includeAllOption={true}
+            allOptionLabel="Todas las líneas temáticas"
+          />
 
           <div className="form-group">
             <label>

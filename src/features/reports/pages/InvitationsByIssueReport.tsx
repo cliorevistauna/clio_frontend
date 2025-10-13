@@ -202,7 +202,7 @@ const InvitationsByIssueReport: React.FC = () => {
         <div className="form-container">
           <h2>Invitaciones por Número de Publicación</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-025: Genere un reporte de invitaciones por número de publicación.
+            Genere un reporte de invitaciones por número de publicación.
           </p>
 
           {/* Número Editorial (Requerido) */}

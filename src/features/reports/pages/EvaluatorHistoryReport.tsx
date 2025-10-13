@@ -278,7 +278,7 @@ const EvaluatorHistoryReport: React.FC = () => {
         <div className="form-container">
           <h2>Histórico de Evaluaciones por Evaluador</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-022: Genere un reporte histórico de las evaluaciones realizadas por un evaluador específico.
+            Genere un reporte histórico de las evaluaciones realizadas por un evaluador específico.
           </p>
 
           {/* Sección de búsqueda de evaluador */}

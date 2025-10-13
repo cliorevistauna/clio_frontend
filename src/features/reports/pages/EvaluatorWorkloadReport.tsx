@@ -124,7 +124,7 @@ const EvaluatorWorkloadReport: React.FC = () => {
         <div className="form-container">
           <h2>Carga de Trabajo de Evaluadores</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-024: Visualice la carga de trabajo de los evaluadores en el sistema.
+            Visualice la carga de trabajo de los evaluadores en el sistema.
           </p>
 
           {/* Sección de búsqueda de evaluador */}

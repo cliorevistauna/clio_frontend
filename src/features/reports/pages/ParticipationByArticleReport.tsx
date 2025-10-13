@@ -139,7 +139,7 @@ const ParticipationByArticleReport: React.FC = () => {
         <div className="form-container">
           <h2>Participación por Artículo</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-026: Genere un reporte de participación por artículo.
+            Genere un reporte de participación por artículo.
           </p>
 
           {/* Artículo (Requerido) */}

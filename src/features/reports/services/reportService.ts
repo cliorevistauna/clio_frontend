@@ -83,6 +83,10 @@ export const reportService = {
   getEvaluatorsByTheme: async (params: EvaluatorsByThemeParams = {}): Promise<EvaluatorsByThemeResponse> => {
     const queryParams = new URLSearchParams();
 
+    if (params.linea_tematica_id !== undefined && params.linea_tematica_id !== null) {
+      queryParams.append('linea_tematica_id', params.linea_tematica_id.toString());
+    }
+
     if (params.include_detail) {
       queryParams.append('include_detail', 'true');
     }
@@ -101,6 +105,10 @@ export const reportService = {
   downloadEvaluatorsByThemePDF: async (params: EvaluatorsByThemeParams = {}): Promise<Blob> => {
     const queryParams = new URLSearchParams();
     queryParams.append('formato', 'pdf');
+
+    if (params.linea_tematica_id !== undefined && params.linea_tematica_id !== null) {
+      queryParams.append('linea_tematica_id', params.linea_tematica_id.toString());
+    }
 
     if (params.include_detail) {
       queryParams.append('include_detail', 'true');

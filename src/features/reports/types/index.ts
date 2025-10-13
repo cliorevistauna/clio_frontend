@@ -48,6 +48,7 @@ export interface EvaluatorsByThemeResponse {
 }
 
 export interface EvaluatorsByThemeParams {
+  linea_tematica_id?: number | null;
   include_detail?: boolean;
   formato?: 'json' | 'pdf';
 }

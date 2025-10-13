@@ -123,7 +123,7 @@ const PreviousParticipationReport: React.FC = () => {
         <div className="form-container">
           <h2>Participación en Números Anteriores</h2>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            RF-027: Genere un reporte de participación en números anteriores.
+            Genere un reporte de participación en números anteriores.
           </p>
 
           <div className="form-group">
