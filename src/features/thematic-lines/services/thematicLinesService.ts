@@ -40,8 +40,16 @@ class ThematicLinesService {
     }
   }
 
-  async getThematicLineById(id: number): Promise<ThematicLine> {
-    const response = await apiClient.get<ThematicLine>(`${this.basePath}/${id}/`);
+  async getThematicLineById(id: number, includeInactive: boolean = true): Promise<ThematicLine> {
+    const queryParams = new URLSearchParams();
+    if (includeInactive) {
+      queryParams.append('include_inactive', 'true');
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString ? `${this.basePath}/${id}/?${queryString}` : `${this.basePath}/${id}/`;
+
+    const response = await apiClient.get<ThematicLine>(url);
     return response;
   }
 
