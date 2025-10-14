@@ -32,8 +32,37 @@ class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+
+        // Extraer mensaje de error de la respuesta de Django REST Framework
+        let errorMessage = `HTTP ${response.status}`;
+
+        if (errorData && typeof errorData === 'object') {
+          // Prioridad 1: Campo 'message' explícito
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+          // Prioridad 2: Campo 'detail' (común en DRF)
+          else if (errorData.detail) {
+            errorMessage = errorData.detail;
+          }
+          // Prioridad 3: Errores no relacionados con campos específicos
+          else if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+            errorMessage = errorData.non_field_errors[0];
+          }
+          // Prioridad 4: Primer error de campo encontrado
+          else {
+            // Buscar el primer campo con errores
+            for (const [key, value] of Object.entries(errorData)) {
+              if (Array.isArray(value) && value.length > 0) {
+                errorMessage = value[0];
+                break;
+              }
+            }
+          }
+        }
+
         const error: ApiError = {
-          message: errorData.message || `HTTP ${response.status}`,
+          message: errorMessage,
           status: response.status,
           details: errorData,
         };

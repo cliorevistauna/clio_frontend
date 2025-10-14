@@ -239,13 +239,8 @@ const CreateArticle: React.FC = () => {
     } catch (error: any) {
       console.error("Error al registrar artículo:", error);
 
-      let errorMessage = "Error al registrar el artículo.";
-      if (error?.details && typeof error.details === 'object') {
-        errorMessage = JSON.stringify(error.details);
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-
+      // El apiClient ahora extrae automáticamente el mensaje del backend
+      const errorMessage = error?.message || "Error al registrar el artículo.";
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);

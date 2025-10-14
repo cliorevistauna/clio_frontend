@@ -413,13 +413,8 @@ const UpdateArticle: React.FC = () => {
     } catch (error: any) {
       console.error("Error al actualizar artículo:", error);
 
-      let errorMessage = "Error al actualizar el artículo.";
-      if (error?.details && typeof error.details === 'object') {
-        errorMessage = JSON.stringify(error.details);
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-
+      // El apiClient ahora extrae automáticamente el mensaje del backend
+      const errorMessage = error?.message || "Error al actualizar el artículo.";
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);

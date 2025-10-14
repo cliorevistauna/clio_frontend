@@ -73,7 +73,7 @@ export class AuthService {
         throw new Error(error.details.non_field_errors[0]);
       }
       // Si hay un mensaje de error general del backend
-      if (error.message && error.message !== 'HTTP 400') {
+      if (error.message) {
         throw new Error(error.message);
       }
       // Error genérico como fallback

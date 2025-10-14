@@ -267,18 +267,8 @@ const ModifyEditorialNumber: React.FC = () => {
     } catch (error: any) {
       console.error("Error al cambiar estado:", error);
 
-      let errorMessage = `Error al ${action} el número editorial.`;
-      if (error?.details && typeof error.details === 'object') {
-        const details = error.details;
-        if (details.estado && Array.isArray(details.estado)) {
-          errorMessage = details.estado[0];
-        } else if (details.message) {
-          errorMessage = details.message;
-        }
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-
+      // El apiClient ahora extrae automáticamente el mensaje del backend
+      const errorMessage = error?.message || `Error al ${action} el número editorial.`;
       alert(errorMessage);
     } finally {
       setIsChangingStatus(false);
@@ -376,23 +366,8 @@ const ModifyEditorialNumber: React.FC = () => {
     } catch (error: any) {
       console.error("Error al modificar número editorial:", error);
 
-      let errorMessage = "Error al modificar el número de publicación.";
-      if (error?.details && typeof error.details === 'object') {
-        const details = error.details;
-        if (details.numero && Array.isArray(details.numero)) {
-          errorMessage = details.numero[0];
-        } else if (details.anio && Array.isArray(details.anio)) {
-          errorMessage = details.anio[0];
-        } else if (details.fecha_inicio && Array.isArray(details.fecha_inicio)) {
-          errorMessage = details.fecha_inicio[0];
-        } else if (details.fecha_final && Array.isArray(details.fecha_final)) {
-          errorMessage = details.fecha_final[0];
-        } else if (details.non_field_errors && Array.isArray(details.non_field_errors)) {
-          errorMessage = details.non_field_errors[0];
-        } else if (details.message) {
-          errorMessage = details.message;
-        }
-      }
+      // El apiClient ahora extrae automáticamente el mensaje del backend
+      const errorMessage = error?.message || "Error al modificar el número de publicación.";
       alert(errorMessage);
     } finally {
       setIsUpdating(false);
