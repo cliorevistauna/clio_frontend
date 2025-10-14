@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import PageHeader from "../../../shared/components/PageHeader";
 import { editorialNumberService } from "../services";
 import { EditorialNumber, UpdateEditorialNumberRequest } from "../types";
@@ -9,6 +10,85 @@ import {
   getCurrentDateFrontend
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
+import { Button } from "../../../shared/components/ui";
+
+// Styled Components para el diálogo de confirmación (mismo estilo que ManageUsers)
+const ConfirmDialog = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background: var(--color-white);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+
+  h3 {
+    margin-bottom: 15px;
+    color: var(--color-primary);
+  }
+
+  p {
+    margin-bottom: 20px;
+    color: var(--color-text-light);
+  }
+`;
+
+const DialogButtons = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+`;
+
+const DialogButton = styled(Button)<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+
+  ${props => {
+    switch (props.variant) {
+      case 'danger':
+        return 'background-color: #dc3545; border-color: #dc3545;';
+      case 'success':
+        return 'background-color: #28a745; border-color: #28a745;';
+      case 'secondary':
+        return 'background-color: #6c757d; border-color: #6c757d;';
+      default:
+        return '';
+    }
+  }}
+
+  &:hover:not(:disabled) {
+    ${props => {
+      switch (props.variant) {
+        case 'danger':
+          return 'background-color: #c82333; border-color: #c82333;';
+        case 'success':
+          return 'background-color: #218838; border-color: #218838;';
+        case 'secondary':
+          return 'background-color: #5a6268; border-color: #5a6268;';
+        default:
+          return '';
+      }
+    }}
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
 
 /**
  * RF-009: Modificación de Números Editoriales
@@ -45,6 +125,14 @@ const ModifyEditorialNumber: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [usarHoyInicio, setUsarHoyInicio] = useState(false);
   const [usarHoyFin, setUsarHoyFin] = useState(false);
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
+
+  // Estado para el diálogo de confirmación (igual que ManageUsers)
+  const [confirmation, setConfirmation] = useState<{
+    editorialId: number;
+    editorialName: string;
+    newStatus: 'activo' | 'inactivo';
+  } | null>(null);
 
   // Manejar cambio de checkbox "Hoy" para fecha de inicio
   const handleUsarHoyInicio = (checked: boolean) => {
@@ -154,6 +242,47 @@ const ModifyEditorialNumber: React.FC = () => {
     // Recargar la tabla si estamos en esa pestaña
     if (activeTab === 'table') {
       loadAllEditorialNumbers();
+    }
+  };
+
+  // Ejecutar el cambio de estado confirmado
+  const executeStatusChange = async () => {
+    if (!confirmation || !selectedEditorial) return;
+
+    setIsChangingStatus(true);
+    const action = confirmation.newStatus === 'activo' ? 'activar' : 'inactivar';
+
+    try {
+      await editorialNumberService.updateStatus(confirmation.editorialId, confirmation.newStatus);
+
+      alert(`Número editorial ${confirmation.editorialName} ${action === 'activar' ? 'activado' : 'inactivado'} exitosamente.`);
+
+      // Actualizar el estado local
+      setSelectedEditorial({ ...selectedEditorial, estado: confirmation.newStatus });
+
+      // Recargar la tabla si estamos en esa pestaña
+      if (activeTab === 'table' && allEditorialNumbers.length > 0) {
+        loadAllEditorialNumbers();
+      }
+    } catch (error: any) {
+      console.error("Error al cambiar estado:", error);
+
+      let errorMessage = `Error al ${action} el número editorial.`;
+      if (error?.details && typeof error.details === 'object') {
+        const details = error.details;
+        if (details.estado && Array.isArray(details.estado)) {
+          errorMessage = details.estado[0];
+        } else if (details.message) {
+          errorMessage = details.message;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsChangingStatus(false);
+      setConfirmation(null);
     }
   };
 
@@ -630,6 +759,28 @@ const ModifyEditorialNumber: React.FC = () => {
   const renderEditForm = () => {
     return (
       <div>
+        {/* Campo de estado (igual que en modificar investigadores) */}
+        {selectedEditorial && (
+          <div className="form-group">
+            <label>Estado</label>
+            <select
+              value={selectedEditorial.estado}
+              onChange={(e) => {
+                const newStatus = e.target.value as 'activo' | 'inactivo';
+                setConfirmation({
+                  editorialId: selectedEditorial.id,
+                  editorialName: `${selectedEditorial.numero}-${selectedEditorial.anio}`,
+                  newStatus: newStatus,
+                });
+              }}
+              disabled={isUpdating || isChangingStatus}
+            >
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </div>
+        )}
+
         <form onSubmit={handleUpdate}>
           <div className="form-group">
             <label>Número de Publicación *</label>
@@ -801,6 +952,34 @@ const ModifyEditorialNumber: React.FC = () => {
           {activeTab === 'search' ? renderSearchTab() : renderTableTab()}
         </div>
       </main>
+
+      {/* Diálogo de Confirmación (mismo estilo que ManageUsers) */}
+      {confirmation && (
+        <ConfirmDialog>
+          <DialogContent>
+            <h3>Confirmar Cambio de Estado</h3>
+            <p>
+              ¿Está seguro de cambiar el estado del número editorial "{confirmation.editorialName}" a "{confirmation.newStatus}"?
+            </p>
+            <DialogButtons>
+              <DialogButton
+                variant="secondary"
+                onClick={() => setConfirmation(null)}
+                disabled={isChangingStatus}
+              >
+                Cancelar
+              </DialogButton>
+              <DialogButton
+                variant={confirmation.newStatus === 'activo' ? 'success' : 'danger'}
+                onClick={executeStatusChange}
+                disabled={isChangingStatus}
+              >
+                {isChangingStatus ? 'Procesando...' : confirmation.newStatus === 'activo' ? 'Activar' : 'Inactivar'}
+              </DialogButton>
+            </DialogButtons>
+          </DialogContent>
+        </ConfirmDialog>
+      )}
     </div>
   );
 };

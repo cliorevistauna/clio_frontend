@@ -8,8 +8,6 @@ import {
 
 export class ArticleService {
   private endpoint = '/articles';
-  private searchAuthorsEndpoint = '/articles/search-authors';
-  private searchEvaluatorsEndpoint = '/articles/search-evaluators';
   private createAuthorEndpoint = '/articles/create-author';
 
   /**
@@ -65,70 +63,6 @@ export class ArticleService {
    */
   async delete(id: number): Promise<void> {
     await apiClient.delete(`${this.endpoint}/${id}/`);
-  }
-
-  /**
-   * Buscar autores para asignar a un artículo - RF-020
-   * @param search Palabra clave para buscar (nombre, apellidos, afiliación)
-   * @param filters Filtros adicionales (línea temática, país, idioma)
-   */
-  async searchAuthors(
-    search?: string,
-    filters?: {
-      lineas_tematicas?: number;
-      pais?: string;
-      idiomas?: number;
-    }
-  ): Promise<ResearcherSearchResult[]> {
-    const queryParams = new URLSearchParams();
-
-    if (search) queryParams.append('search', search);
-    if (filters?.lineas_tematicas) queryParams.append('lineas_tematicas', filters.lineas_tematicas.toString());
-    if (filters?.pais) queryParams.append('pais', filters.pais);
-    if (filters?.idiomas) queryParams.append('idiomas', filters.idiomas.toString());
-
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `${this.searchAuthorsEndpoint}/?${queryString}` : `${this.searchAuthorsEndpoint}/`;
-
-    console.log('Buscando autores en:', endpoint);
-    const response = await apiClient.get<any>(endpoint);
-    console.log('Respuesta del servidor (autores):', response);
-
-    // El backend devuelve un array directo o un objeto con results
-    const data = response.results || response;
-    return Array.isArray(data) ? data : [];
-  }
-
-  /**
-   * Buscar evaluadores para asignar a un artículo - RF-021
-   * @param search Palabra clave para buscar
-   * @param filters Filtros adicionales
-   */
-  async searchEvaluators(
-    search?: string,
-    filters?: {
-      lineas_tematicas?: number;
-      pais?: string;
-      idiomas?: number;
-    }
-  ): Promise<ResearcherSearchResult[]> {
-    const queryParams = new URLSearchParams();
-
-    if (search) queryParams.append('search', search);
-    if (filters?.lineas_tematicas) queryParams.append('lineas_tematicas', filters.lineas_tematicas.toString());
-    if (filters?.pais) queryParams.append('pais', filters.pais);
-    if (filters?.idiomas) queryParams.append('idiomas', filters.idiomas.toString());
-
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `${this.searchEvaluatorsEndpoint}/?${queryString}` : `${this.searchEvaluatorsEndpoint}/`;
-
-    console.log('Buscando evaluadores en:', endpoint);
-    const response = await apiClient.get<any>(endpoint);
-    console.log('Respuesta del servidor (evaluadores):', response);
-
-    // El backend devuelve un array directo o un objeto con results
-    const data = response.results || response;
-    return Array.isArray(data) ? data : [];
   }
 
   /**
