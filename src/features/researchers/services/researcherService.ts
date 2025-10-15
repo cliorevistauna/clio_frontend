@@ -163,33 +163,6 @@ export class ResearcherService {
     const lines = await this.getThematicLines();
     return lines.filter(line => line.isActive);
   }
-
-  async getLanguages(): Promise<Array<{ id: number; nombre: string }>> {
-    // Endpoint con autenticación requerida por el backend
-    try {
-      const response = await apiClient.get<Array<{ id: number; nombre: string }>>('/researchers/languages/');
-      return response;
-    } catch (error: any) {
-      console.error('Error fetching languages:', error);
-
-      // Fallback: lista hardcodeada de idiomas mientras el backend no tenga endpoint público
-      // Los IDs coinciden con los de la BD después de ejecutar la migración 0005_populate_languages
-      return [
-        { id: 1, nombre: 'Español' },
-        { id: 2, nombre: 'Inglés' },
-        { id: 3, nombre: 'Francés' },
-        { id: 4, nombre: 'Portugués' },
-        { id: 5, nombre: 'Alemán' },
-        { id: 6, nombre: 'Italiano' },
-        { id: 7, nombre: 'Catalán' },
-        { id: 8, nombre: 'Náhuatl' },
-        { id: 9, nombre: 'Quechua' },
-        { id: 10, nombre: 'Latín' },
-        { id: 11, nombre: 'Holandés' },
-        { id: 12, nombre: 'Japonés' }
-      ];
-    }
-  }
 }
 
 export const researcherService = new ResearcherService();

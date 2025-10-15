@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ResearcherSearchResult } from "../types";
 import { researcherService } from "../../researchers/services";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { Language } from "../../../shared/components/LanguageSelector";
+import { languagesService, Language } from "../../../shared/services";
 import "./SearchAuthorModal.css"; // Reutilizamos los estilos
 
 interface SearchEvaluatorModalProps {
@@ -49,7 +49,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
         try {
           const [lines, langs] = await Promise.all([
             thematicLinesService.getThematicLines(false),
-            researcherService.getLanguages()
+            languagesService.getLanguages()
           ]);
           setThematicLines(lines);
           setLanguages(langs);

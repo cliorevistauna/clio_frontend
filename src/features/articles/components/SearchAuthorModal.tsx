@@ -4,7 +4,7 @@ import LanguageSelector from "../../../shared/components/LanguageSelector";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { researcherService } from "../../researchers/services";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { Language } from "../../../shared/components/LanguageSelector";
+import { languagesService, Language } from "../../../shared/services";
 import "./SearchAuthorModal.css";
 
 interface SearchAuthorModalProps {
@@ -59,7 +59,7 @@ const SearchAuthorModal: React.FC<SearchAuthorModalProps> = ({ isOpen, onClose, 
         try {
           const [lines, langs] = await Promise.all([
             thematicLinesService.getThematicLines(false),
-            researcherService.getLanguages()
+            languagesService.getLanguages()
           ]);
           setThematicLines(lines);
           setLanguages(langs);

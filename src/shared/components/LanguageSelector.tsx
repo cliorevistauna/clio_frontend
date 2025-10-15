@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { researcherService } from "../../features/researchers/services";
-
-export interface Language {
-  id: number;
-  nombre: string;
-}
+import { languagesService, Language } from "../services";
 
 interface LanguageSelectorProps {
   selected: number[];
@@ -22,7 +17,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange 
       try {
         setLoading(true);
         console.log("Loading languages in selector...");
-        const languages = await researcherService.getLanguages();
+        const languages = await languagesService.getLanguages();
         console.log("Languages loaded successfully:", languages);
         setAvailableLanguages(languages);
       } catch (error: any) {

@@ -8,7 +8,7 @@ import { useAuth } from "../../auth/hooks";
 import { researcherService } from "../services";
 import { Researcher } from "../types";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { Language } from "../../../shared/components/LanguageSelector";
+import { languagesService, Language } from "../../../shared/services";
 
 /**
  * RF-020: Modificar Investigadores
@@ -65,7 +65,7 @@ const ModifyResearcher: React.FC = () => {
       try {
         const [lines, langs] = await Promise.all([
           thematicLinesService.getThematicLines(false),
-          researcherService.getLanguages()
+          languagesService.getLanguages()
         ]);
         setThematicLines(lines);
         setLanguages(langs);
