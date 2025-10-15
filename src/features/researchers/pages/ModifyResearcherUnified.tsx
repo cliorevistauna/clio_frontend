@@ -36,6 +36,7 @@ const ModifyResearcher: React.FC = () => {
   const [filteredAuthors, setFilteredAuthors] = useState<Researcher[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   // Estados para paginación de la tabla
   const [currentPage, setCurrentPage] = useState(1);
@@ -345,7 +346,7 @@ const ModifyResearcher: React.FC = () => {
   const loadAllAuthors = async () => {
     setIsLoadingTable(true);
     try {
-      const authors = await researcherService.getAll();
+      const authors = await researcherService.getAll({ includeInactive: showInactive });
       setAllAuthors(authors);
       setFilteredAuthors(authors);
     } catch (error) {
@@ -357,6 +358,13 @@ const ModifyResearcher: React.FC = () => {
   };
 
   // Efecto removido - ahora se carga manualmente con confirmación del usuario
+
+  // Recargar cuando cambie el estado de showInactive (si ya hay datos cargados)
+  useEffect(() => {
+    if (allAuthors.length > 0) {
+      loadAllAuthors();
+    }
+  }, [showInactive]);
 
   // Filtrar investigadores en tiempo real
   useEffect(() => {
@@ -546,6 +554,24 @@ const ModifyResearcher: React.FC = () => {
               ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
             </div>
 
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#f8f9fa',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              marginBottom: '10px'
+            }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={(e) => setShowInactive(e.target.checked)}
+                  style={{ marginRight: '10px', cursor: 'pointer', width: '18px', height: '18px' }}
+                />
+                <span>Mostrar Inactivos</span>
+              </label>
+            </div>
+
             {/* Botón para cargar la tabla */}
             <button
               type="button"
@@ -589,6 +615,21 @@ const ModifyResearcher: React.FC = () => {
                 placeholder="Filtrar por nombre, ORCID, correo, afiliación..."
                 style={{ width: '100%' }}
               />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={(e) => {
+                    setShowInactive(e.target.checked);
+                    setCurrentPage(1);
+                  }}
+                  style={{ marginRight: '8px', cursor: 'pointer', width: '18px', height: '18px' }}
+                />
+                <span>Mostrar Inactivos</span>
+              </label>
             </div>
 
             {/* Controles de paginación superior */}
