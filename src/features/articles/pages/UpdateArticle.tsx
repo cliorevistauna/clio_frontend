@@ -106,11 +106,12 @@ const UpdateArticle: React.FC = () => {
     }
   };
 
-  // Cargar números editoriales disponibles
+  // Cargar números editoriales disponibles (incluyendo inactivos para mostrar correctamente los ya asociados)
   useEffect(() => {
     const loadEditorialNumbers = async () => {
       try {
-        const all = await editorialNumberService.getAll();
+        // Incluir números inactivos para poder mostrar el nombre del número inactivo ya asociado
+        const all = await editorialNumberService.getAll({ includeInactive: true });
         setEditorialNumbers(all);
       } catch (error) {
         console.error("Error al cargar números editoriales:", error);
@@ -466,14 +467,28 @@ const UpdateArticle: React.FC = () => {
                 style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ced4da' }}
               >
                 <option value="">Sin asignar</option>
-                {editorialNumbers.map(en => (
-                  <option key={en.id} value={en.id}>
-                    Número {en.numero} - Año {en.anio} ({en.estado})
-                  </option>
-                ))}
+                {editorialNumbers.map(en => {
+                  // Mostrar solo números activos en el dropdown, excepto el ya seleccionado (aunque esté inactivo)
+                  const isSelected = selectedEditorialNumber === en.id;
+                  const shouldShow = en.estado === 'activo' || isSelected;
+
+                  if (!shouldShow) return null;
+
+                  return (
+                    <option key={en.id} value={en.id}>
+                      Número {en.numero} - Año {en.anio}
+                      {en.estado === 'inactivo' ? ' (Inactivo)' : ''}
+                    </option>
+                  );
+                })}
               </select>
               <small style={{ color: '#6c757d', fontSize: '0.9rem' }}>
                 Puede modificar el número de publicación asignado
+                {selectedEditorialNumber && editorialNumbers.find(en => en.id === selectedEditorialNumber)?.estado === 'inactivo' && (
+                  <span style={{ color: '#dc3545', display: 'block', marginTop: '4px' }}>
+                    ⚠️ El número de publicación asignado está inactivo
+                  </span>
+                )}
               </small>
             </div>
 
