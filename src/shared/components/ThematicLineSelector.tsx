@@ -17,7 +17,8 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
       try {
         setLoading(true);
         console.log("Loading thematic lines in selector...");
-        const lines = await thematicLinesService.getThematicLines(false); // Only active lines
+        // Cargar TODAS las líneas (activas e inactivas) para poder mostrar nombres de líneas inactivas ya asociadas
+        const lines = await thematicLinesService.getThematicLines(true); // Include inactive lines
         console.log("Thematic lines loaded successfully:", lines);
         setAvailableLines(lines);
       } catch (error: any) {
@@ -33,8 +34,10 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
     loadThematicLines();
   }, []);
 
+  // Filtrar solo líneas ACTIVAS para mostrar en el dropdown de búsqueda
   const filteredOptions = availableLines.filter(
     (line) =>
+      line.estado === true && // Solo líneas activas pueden ser agregadas
       line.nombre.toLowerCase().includes(search.toLowerCase()) &&
       !selected.includes(line.id)
   );
@@ -48,9 +51,18 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
     onChange(selected.filter((id) => id !== lineaId));
   };
 
-  const getLineaName = (lineaId: number): string => {
+  const getLineaInfo = (lineaId: number): { nombre: string; isInactive: boolean } => {
     const line = availableLines.find(l => l.id === lineaId);
-    return line ? line.nombre : `ID: ${lineaId}`;
+    if (line) {
+      return {
+        nombre: line.nombre,
+        isInactive: !line.estado
+      };
+    }
+    return {
+      nombre: `ID: ${lineaId}`,
+      isInactive: false
+    };
   };
 
   if (loading) {
@@ -88,12 +100,25 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
       )}
 
       <div className="selected-items">
-        {selected.map((lineaId) => (
-          <span key={lineaId} className="selected-chip">
-            {getLineaName(lineaId)}
-            <button onClick={() => removeLinea(lineaId)}>x</button>
-          </span>
-        ))}
+        {selected.map((lineaId) => {
+          const lineaInfo = getLineaInfo(lineaId);
+          return (
+            <span
+              key={lineaId}
+              className="selected-chip"
+              style={lineaInfo.isInactive ? {
+                backgroundColor: '#f8d7da',
+                borderColor: '#f5c6cb',
+                color: '#721c24'
+              } : undefined}
+              title={lineaInfo.isInactive ? 'Esta línea temática está inactiva' : undefined}
+            >
+              {lineaInfo.nombre}
+              {lineaInfo.isInactive && ' (Inactiva)'}
+              <button onClick={() => removeLinea(lineaId)}>x</button>
+            </span>
+          );
+        })}
       </div>
 
       {availableLines.length === 0 && !loading && (
