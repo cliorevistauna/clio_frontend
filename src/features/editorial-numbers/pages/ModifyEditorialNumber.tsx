@@ -644,8 +644,7 @@ const ModifyEditorialNumber: React.FC = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ backgroundColor: '#f8f9fa' }}>
                   <tr>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Número</th>
-                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Año</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Número de Publicación</th>
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Estado</th>
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Fecha Inicio</th>
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Fecha Fin</th>
@@ -656,15 +655,16 @@ const ModifyEditorialNumber: React.FC = () => {
                 <tbody>
                   {currentNumbers.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
                         No se encontraron resultados
                       </td>
                     </tr>
                   ) : (
                     currentNumbers.map((editorial) => (
                       <tr key={editorial.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '10px' }}>{editorial.numero}</td>
-                        <td style={{ padding: '10px' }}>{editorial.anio}</td>
+                        <td style={{ padding: '10px' }}>
+                          {`${editorial.numero}-${editorial.anio}`}
+                        </td>
                         <td style={{ padding: '10px' }}>
                           <span style={{
                             padding: '4px 8px',

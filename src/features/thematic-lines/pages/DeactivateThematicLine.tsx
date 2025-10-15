@@ -362,7 +362,6 @@ const DeactivateThematicLine: React.FC = () => {
                         <table>
                           <thead>
                             <tr>
-                              <th>ID</th>
                               <th>Nombre</th>
                               <th>Estado</th>
                               <th>Acciones</th>
@@ -371,7 +370,6 @@ const DeactivateThematicLine: React.FC = () => {
                           <tbody>
                             {currentSearchResults.map(line => (
                               <tr key={line.id}>
-                                <td>{line.id}</td>
                                 <td>{line.nombre}</td>
                                 <td>
                                   <span className="status-badge active">
@@ -518,7 +516,6 @@ const DeactivateThematicLine: React.FC = () => {
                         <table>
                           <thead>
                             <tr>
-                              <th>ID</th>
                               <th>Nombre</th>
                               <th>Estado</th>
                               <th>Acciones</th>
@@ -534,7 +531,6 @@ const DeactivateThematicLine: React.FC = () => {
                             ) : (
                               currentLines.map(line => (
                                 <tr key={line.id}>
-                                  <td>{line.id}</td>
                                   <td>{line.nombre}</td>
                                   <td>
                                     <span className="status-badge active">
