@@ -251,6 +251,7 @@ const InvitationsByIssueReport: React.FC = () => {
                     placeholder="Número"
                     value={numeroSearchQuery}
                     onChange={(e) => setNumeroSearchQuery(e.target.value)}
+                    min="1"
                     style={{ flex: 1, padding: '8px', fontSize: '16px' }}
                   />
                   <input
@@ -258,6 +259,8 @@ const InvitationsByIssueReport: React.FC = () => {
                     placeholder="Año"
                     value={anioSearchQuery}
                     onChange={(e) => setAnioSearchQuery(e.target.value)}
+                    min="1900"
+                    max={new Date().getFullYear()}
                     style={{ flex: 1, padding: '8px', fontSize: '16px' }}
                   />
                   <button
