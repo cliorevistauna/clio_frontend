@@ -36,9 +36,10 @@ export interface EvaluatorsByThemeItem {
   evaluadores?: Array<{
     id: number;
     nombre_completo: string;
-    orcid: string;
     afiliacion: string;
-    grado_academico: string;
+    idiomas: string;
+    telefono: string;
+    correo: string;
   }>;
 }
 
