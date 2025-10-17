@@ -477,6 +477,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                     value={searchNumero}
                     onChange={(e) => setSearchNumero(e.target.value)}
                     disabled={isSearchingEditorial}
+                    min="1"
                     style={{ flex: 1, padding: '8px' }}
                   />
                   <input
@@ -485,6 +486,8 @@ const EvaluatorHistoryReport: React.FC = () => {
                     value={searchAnio}
                     onChange={(e) => setSearchAnio(e.target.value)}
                     disabled={isSearchingEditorial}
+                    min="1900"
+                    max={new Date().getFullYear()}
                     style={{ flex: 1, padding: '8px' }}
                   />
                   <button

@@ -224,10 +224,21 @@ const EvaluatorsByThemeReport: React.FC = () => {
                           {item.evaluadores && item.evaluadores.length > 0 ? (
                             <ul style={{ margin: 0, paddingLeft: '20px' }}>
                               {item.evaluadores.map((evaluador) => (
-                                <li key={evaluador.id} style={{ marginBottom: '8px' }}>
-                                  {evaluador.nombre_completo} - {evaluador.orcid}
+                                <li key={evaluador.id} style={{ marginBottom: '12px' }}>
+                                  <strong>{evaluador.nombre_completo}</strong>
                                   <br />
-                                  <small>{evaluador.afiliacion} ({evaluador.grado_academico})</small>
+                                  <small style={{ display: 'block', marginTop: '4px' }}>
+                                    <strong>Universidad:</strong> {evaluador.afiliacion || 'N/A'}
+                                  </small>
+                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                    <strong>Idiomas:</strong> {evaluador.idiomas || 'N/A'}
+                                  </small>
+                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                    <strong>Teléfono:</strong> {evaluador.telefono || 'N/A'}
+                                  </small>
+                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                    <strong>Correo:</strong> {evaluador.correo || 'N/A'}
+                                  </small>
                                 </li>
                               ))}
                             </ul>

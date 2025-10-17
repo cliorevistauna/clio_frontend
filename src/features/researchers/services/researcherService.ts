@@ -10,13 +10,14 @@ import { PaginationParams } from '../../../shared/types';
 export class ResearcherService {
   private endpoint = '/researchers';
 
-  async getAll(params?: PaginationParams): Promise<Researcher[]> {
+  async getAll(params?: PaginationParams & { includeInactive?: boolean }): Promise<Researcher[]> {
     const queryParams = new URLSearchParams();
 
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.search) queryParams.append('search', params.search);
     if (params?.sortBy) queryParams.append('ordering', params.sortBy);
+    if (params?.includeInactive === true) queryParams.append('include_inactive', 'true');
 
     const queryString = queryParams.toString();
     const endpoint = queryString ? `${this.endpoint}/?${queryString}` : `${this.endpoint}/`;

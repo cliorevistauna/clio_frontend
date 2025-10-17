@@ -267,7 +267,6 @@ const ModifyThematicLine: React.FC = () => {
                     <table>
                       <thead>
                         <tr>
-                          <th>ID</th>
                           <th>Nombre</th>
                           <th>Estado</th>
                           <th>Acciones</th>
@@ -276,7 +275,6 @@ const ModifyThematicLine: React.FC = () => {
                       <tbody>
                         {currentSearchResults.map(line => (
                           <tr key={line.id} className={!line.estado ? 'inactive-row' : ''}>
-                            <td>{line.id}</td>
                             <td>{line.nombre}</td>
                             <td>
                               <span className={`status-badge ${line.estado ? 'active' : 'inactive'}`}>
@@ -422,7 +420,6 @@ const ModifyThematicLine: React.FC = () => {
                     <table>
                       <thead>
                         <tr>
-                          <th>ID</th>
                           <th>Nombre</th>
                           <th>Estado</th>
                           <th>Acciones</th>
@@ -438,7 +435,6 @@ const ModifyThematicLine: React.FC = () => {
                         ) : (
                           currentLines.map(line => (
                             <tr key={line.id} className={!line.estado ? 'inactive-row' : ''}>
-                              <td>{line.id}</td>
                               <td>{line.nombre}</td>
                               <td>
                                 <span className={`status-badge ${line.estado ? 'active' : 'inactive'}`}>
