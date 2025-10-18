@@ -180,7 +180,7 @@ export const EditorialNumberForm: React.FC<EditorialNumberFormProps> = ({
 
         <form onSubmit={onSubmit}>
           <div className="form-group">
-            <label>Número de Publicación *</label>
+            <label>Periodo *</label>
             <input
               type="number"
               value={numero}

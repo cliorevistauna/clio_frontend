@@ -20,6 +20,9 @@ const ModifyArticle = lazy(() => import("../features/articles/pages").then(m => 
 const CreateThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.CreateThematicLine })));
 const ModifyThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.ModifyThematicLine })));
 const DeactivateThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.DeactivateThematicLine })));
+const CreateLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.CreateLanguage })));
+const ModifyLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.ModifyLanguage })));
+const DeactivateLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.DeactivateLanguage })));
 const EvaluatorHistoryReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorHistoryReport })));
 const EvaluatorsByThemeReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorsByThemeReport })));
 const EvaluatorWorkloadReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorWorkloadReport })));
@@ -179,6 +182,36 @@ const App: React.FC = () => {
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
               <Suspense fallback={<Skeleton variant="page" />}>
                 <DeactivateThematicLine />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateLanguage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.MODIFY_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyLanguage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.DEACTIVATE_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <DeactivateLanguage />
               </Suspense>
             </ProtectedRoute>
           }

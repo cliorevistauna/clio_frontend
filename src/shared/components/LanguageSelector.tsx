@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { languagesService, Language } from "../services";
+import { languagesService, Language } from "../../features/languages/services";
 
 interface LanguageSelectorProps {
   selected: number[];
@@ -76,11 +76,16 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = React.memo(({ selected
       {search && (
         <ul className="options-list">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((lang) => (
-              <li key={lang.id} onClick={() => addLanguage(lang.id)}>
-                {lang.nombre}
+            <>
+              <li className="select-header" style={{ fontWeight: 'bold', cursor: 'default', backgroundColor: '#f8f9fa', listStyle: 'none' }}>
+                Seleccione:
               </li>
-            ))
+              {filteredOptions.map((lang) => (
+                <li key={lang.id} onClick={() => addLanguage(lang.id)}>
+                  {lang.nombre}
+                </li>
+              ))}
+            </>
           ) : (
             <li className="no-results">No se encontraron resultados</li>
           )}

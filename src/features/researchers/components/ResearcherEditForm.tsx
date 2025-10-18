@@ -39,12 +39,11 @@ export const ResearcherEditForm: React.FC<ResearcherEditFormProps> = ({
       <h4 style={styles.titleCenter}>Datos de {selectedAuthor?.name}</h4>
       <form onSubmit={onSubmit}>
         <div className="form-group">
-          <label>ORCID *</label>
+          <label>ORCID</label>
           <input
             type="text"
             value={formState.orcid}
             onChange={(e) => onFieldChange('orcid', e.target.value)}
-            required
             disabled={isUpdating}
           />
         </div>

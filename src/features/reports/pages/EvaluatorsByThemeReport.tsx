@@ -170,19 +170,21 @@ const EvaluatorsByThemeReport: React.FC = () => {
             allOptionLabel="Todas las líneas temáticas"
           />
 
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={includeDetail}
-                onChange={(e) => setIncludeDetail(e.target.checked)}
-              />
-              <span style={{ marginLeft: '8px' }}>Incluir detalle de evaluadores</span>
-            </label>
-            <small style={styles.helperText}>
-              Mostrar lista completa de evaluadores por cada línea temática
-            </small>
-          </div>
+          {reportData && (
+            <div className="form-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={includeDetail}
+                  onChange={(e) => setIncludeDetail(e.target.checked)}
+                />
+                <span style={{ marginLeft: '8px' }}>Incluir detalle de evaluadores</span>
+              </label>
+              <small style={styles.helperText}>
+                Mostrar lista completa de evaluadores por cada línea temática
+              </small>
+            </div>
+          )}
 
           <div style={styles.reportActionsContainer}>
             <button

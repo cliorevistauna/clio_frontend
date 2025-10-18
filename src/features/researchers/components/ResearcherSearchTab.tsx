@@ -1,7 +1,7 @@
 import React from "react";
 import { Researcher } from "../types";
 import { ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { Language } from "../../../shared/services";
+import { Language } from "../../languages/services";
 import { SearchFilter } from "../hooks/useResearcherSearch";
 import { useSearchFilterValidation } from "../../../shared/hooks";
 import ConfirmDialog from "../../../shared/components/ConfirmDialog";
@@ -128,7 +128,7 @@ export const ResearcherSearchTab: React.FC<ResearcherSearchTabProps> = ({
     <div>
       <form onSubmit={handleSearchWithValidation}>
         <div className="form-group" style={styles.formGroupMargin}>
-          <label style={{ fontWeight: 'bold' }}>Búsqueda por palabra clave (ORCID, Nombre, Apellidos, Afiliación)</label>
+          <label style={{ fontWeight: 'bold' }}>Búsqueda por palabra clave (ORCID, Nombre, Apellidos, Afiliación, Correo y Lugar de Trabajo)</label>
           <input
             type="text"
             value={keywordSearch}
@@ -138,7 +138,7 @@ export const ResearcherSearchTab: React.FC<ResearcherSearchTabProps> = ({
             style={styles.fullWidthInput}
           />
           <small style={styles.helpText}>
-            💡 Busca en ORCID, nombre, apellidos, afiliación, correo y lugar de trabajo
+            💡 Puede ingresar múltiples términos de búsqueda separados por comas
           </small>
         </div>
 

@@ -42,8 +42,10 @@ export const validateDate = (dateString: string): string => {
   return "";
 };
 
-export const validateOrcid = (orcid: string): string => {
-  if (!orcid) return "ORCID es requerido";
+export const validateOrcid = (orcid: string, required: boolean = false): string => {
+  if (!orcid) {
+    return required ? "ORCID es requerido" : "";
+  }
 
   const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/;
   if (!orcidRegex.test(orcid)) {

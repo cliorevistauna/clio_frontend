@@ -262,9 +262,9 @@ const CreateArticle: React.FC = () => {
         <div className="form-container">
           <h2>Formulario de Registro</h2>
 
-          {/* Número de Publicación - Editable */}
+          {/* Periodo - Editable */}
           <div className="form-group">
-            <label>Número de Publicación</label>
+            <label>Periodo</label>
             <select
               value={selectedEditorialNumber || ''}
               onChange={(e) => setSelectedEditorialNumber(e.target.value ? parseInt(e.target.value) : null)}
@@ -274,13 +274,13 @@ const CreateArticle: React.FC = () => {
               <option value="">Sin asignar</option>
               {editorialNumbers.map(en => (
                 <option key={en.id} value={en.id}>
-                  Número {en.numero} - Año {en.anio} ({en.estado})
+                  Periodo {en.numero} - Año {en.anio} ({en.estado})
                   {currentEditorialNumber?.id === en.id ? ' (Actual)' : ''}
                 </option>
               ))}
             </select>
             <small style={{ color: '#6c757d', fontSize: '0.9rem' }}>
-              Por defecto se asigna el número de publicación vigente, pero puede cambiarlo
+              Por defecto se asigna el periodo vigente, pero puede cambiarlo
             </small>
           </div>
 

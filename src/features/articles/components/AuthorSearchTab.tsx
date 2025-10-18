@@ -129,7 +129,7 @@ const AuthorSearchTab: React.FC<AuthorSearchTabProps> = ({
           style={styles.input}
         />
         <small style={styles.helperText}>
-          💡 Busca en nombre, apellidos, afiliación, ORCID y correo
+          💡 Puede ingresar múltiples términos de búsqueda separados por comas
         </small>
       </div>
 

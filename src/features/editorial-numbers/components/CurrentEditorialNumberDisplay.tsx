@@ -19,7 +19,7 @@ const CurrentEditorialNumberDisplay: React.FC<CurrentEditorialNumberDisplayProps
   if (!currentEditorialNumber) {
     return (
       <div className={`current-editorial-number warning ${className}`}>
-        {showLabel && "Número de Publicación: "}
+        {showLabel && "Periodo: "}
         <span style={{ color: '#dc3545' }}>
           No hay un número editorial vigente en este momento.
         </span>
@@ -29,7 +29,7 @@ const CurrentEditorialNumberDisplay: React.FC<CurrentEditorialNumberDisplayProps
 
   return (
     <div className={`current-editorial-number active ${className}`}>
-      {showLabel && "Número de Publicación: "}
+      {showLabel && "Periodo: "}
       <strong>
         {currentEditorialNumber.numero}-{currentEditorialNumber.anio}
       </strong>

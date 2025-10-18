@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
-import { thematicLinesService, ThematicLine } from "../services/thematicLinesService";
-import "./ThematicLines.css";
+import { languagesService } from "../services/languagesService";
+import { Language } from "../types";
+import "./Languages.css";
 
-const ModifyThematicLine: React.FC = () => {
+const ModifyLanguage: React.FC = () => {
 
   // Estado para controlar qué pestaña está activa
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
 
   // Estados para la búsqueda específica
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<ThematicLine[]>([]);
+  const [searchResults, setSearchResults] = useState<Language[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   // Estados para la tabla
-  const [allThematicLines, setAllThematicLines] = useState<ThematicLine[]>([]);
-  const [filteredLines, setFilteredLines] = useState<ThematicLine[]>([]);
+  const [allLanguages, setAllLanguages] = useState<Language[]>([]);
+  const [filteredLanguages, setFilteredLanguages] = useState<Language[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
 
@@ -28,47 +29,45 @@ const ModifyThematicLine: React.FC = () => {
   const [searchItemsPerPage, setSearchItemsPerPage] = useState(10);
 
   // Estados para la edición
-  const [selectedLine, setSelectedLine] = useState<ThematicLine | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [editName, setEditName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Cargar todas las líneas temáticas para la tabla (solo activas)
-  const loadAllThematicLines = async () => {
+  // Cargar todos los idiomas para la tabla (solo activos)
+  const loadAllLanguages = async () => {
     setIsLoadingTable(true);
     try {
-      const lines = await thematicLinesService.getThematicLines(false); // Solo activas
-      setAllThematicLines(lines);
-      setFilteredLines(lines);
+      const langs = await languagesService.getLanguages(false); // Solo activos
+      setAllLanguages(langs);
+      setFilteredLanguages(langs);
     } catch (error) {
-      console.error("Error al cargar líneas temáticas:", error);
-      alert("Error al cargar líneas temáticas");
+      console.error("Error al cargar idiomas:", error);
+      alert("Error al cargar idiomas");
     } finally {
       setIsLoadingTable(false);
     }
   };
 
-  // Efecto removido - ahora se carga manualmente con confirmación del usuario
-
-  // Filtrar líneas en la tabla
+  // Filtrar idiomas en la tabla
   useEffect(() => {
-    let filtered = allThematicLines;
+    let filtered = allLanguages;
 
     // Filtro por nombre
     if (tableFilter) {
-      filtered = filtered.filter(line =>
-        line.nombre.toLowerCase().includes(tableFilter.toLowerCase())
+      filtered = filtered.filter(lang =>
+        lang.nombre.toLowerCase().includes(tableFilter.toLowerCase())
       );
     }
 
-    setFilteredLines(filtered);
+    setFilteredLanguages(filtered);
     setCurrentPage(1); // Resetear a página 1 al filtrar
-  }, [allThematicLines, tableFilter]);
+  }, [allLanguages, tableFilter]);
 
   // Lógica de paginación para la tabla
-  const totalPages = Math.ceil(filteredLines.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredLanguages.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentLines = filteredLines.slice(startIndex, endIndex);
+  const currentLanguages = filteredLanguages.slice(startIndex, endIndex);
 
   const handleItemsPerPageChange = (value: number) => {
     setItemsPerPage(value);
@@ -86,84 +85,84 @@ const ModifyThematicLine: React.FC = () => {
     setSearchCurrentPage(1);
   };
 
-  // Buscar líneas temáticas
+  // Buscar idiomas
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!searchTerm.trim()) {
-      alert("Ingrese el nombre de la línea temática a buscar.");
+      alert("Ingrese el nombre o código ISO del idioma a buscar.");
       return;
     }
 
     setIsSearching(true);
     try {
-      const lines = await thematicLinesService.getThematicLines(false); // Solo activas
-      const results = lines.filter(line =>
-        line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      const langs = await languagesService.getLanguages(false); // Solo activos
+      const results = langs.filter(lang =>
+        lang.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setSearchResults(results);
       setSearchCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
 
       if (results.length === 0) {
-        alert("No se encuentra línea temática con ese nombre.");
+        alert("No se encuentra idioma con ese nombre.");
       }
     } catch (error) {
       console.error("Error en la búsqueda:", error);
-      alert("Error al buscar líneas temáticas");
+      alert("Error al buscar idiomas");
     } finally {
       setIsSearching(false);
     }
   };
 
-  // Seleccionar línea para editar
-  const selectLineForEdit = (line: ThematicLine) => {
-    setSelectedLine(line);
-    setEditName(line.nombre);
+  // Seleccionar idioma para editar
+  const selectLanguageForEdit = (lang: Language) => {
+    setSelectedLanguage(lang);
+    setEditName(lang.nombre);
   };
 
-  // Actualizar línea temática
+  // Actualizar idioma
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedLine) return;
+    if (!selectedLanguage) return;
 
     if (!editName.trim()) {
-      alert("Ingrese el nombre de la línea temática.");
+      alert("Ingrese el nombre del idioma.");
       return;
     }
 
-    if (editName.trim() === selectedLine.nombre) {
+    if (editName.trim() === selectedLanguage.nombre) {
       alert("El nombre no ha cambiado.");
       return;
     }
 
     setIsUpdating(true);
     try {
-      await thematicLinesService.updateThematicLine(selectedLine.id, {
+      await languagesService.updateLanguage(selectedLanguage.id, {
         nombre: editName.trim()
       });
 
-      alert("Línea temática actualizada exitosamente");
+      alert("Idioma actualizado exitosamente");
 
       // Recargar desde backend para garantizar consistencia de datos
-      if (activeTab === 'table' && allThematicLines.length > 0) {
-        await loadAllThematicLines(); // Refrescar toda la tabla
+      if (activeTab === 'table' && allLanguages.length > 0) {
+        await loadAllLanguages(); // Refrescar toda la tabla
       } else if (activeTab === 'search' && searchResults.length > 0) {
         // Rehacer la búsqueda para actualizar resultados
-        const lines = await thematicLinesService.getThematicLines(false);
-        const results = lines.filter(line =>
-          line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        const langs = await languagesService.getLanguages(false);
+        const results = langs.filter(lang =>
+          lang.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setSearchResults(results);
       }
 
       // Limpiar selección
-      setSelectedLine(null);
+      setSelectedLanguage(null);
       setEditName("");
 
     } catch (error: any) {
       console.error("Error al actualizar:", error);
-      const errorMessage = error.message || "Error al actualizar línea temática";
+      const errorMessage = error.message || "Error al actualizar idioma";
       alert(errorMessage);
     } finally {
       setIsUpdating(false);
@@ -174,7 +173,7 @@ const ModifyThematicLine: React.FC = () => {
     setActiveTab(tab);
     setSearchTerm("");
     setSearchResults([]);
-    setSelectedLine(null);
+    setSelectedLanguage(null);
     setEditName("");
   };
 
@@ -190,13 +189,13 @@ const ModifyThematicLine: React.FC = () => {
             className={`tab ${activeTab === 'search' ? 'active' : ''}`}
             onClick={() => handleTabChange('search')}
           >
-            Buscar Una Específica
+            Buscar Uno Específico
           </button>
           <button
             className={`tab ${activeTab === 'table' ? 'active' : ''}`}
             onClick={() => handleTabChange('table')}
           >
-            Ver Todas en Tabla
+            Ver Todos en Tabla
           </button>
         </div>
 
@@ -206,7 +205,7 @@ const ModifyThematicLine: React.FC = () => {
             <div className="search-section">
               <form onSubmit={handleSearch} className="search-form">
                 <div className="form-group">
-                  <label htmlFor="search">Nombre de la línea temática:</label>
+                  <label htmlFor="search">Nombre del idioma:</label>
                   <input
                     type="text"
                     id="search"
@@ -264,7 +263,7 @@ const ModifyThematicLine: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="lines-table">
+                  <div className="languages-table">
                     <table>
                       <thead>
                         <tr>
@@ -273,12 +272,12 @@ const ModifyThematicLine: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentSearchResults.map(line => (
-                          <tr key={line.id}>
-                            <td>{line.nombre}</td>
+                        {currentSearchResults.map(lang => (
+                          <tr key={lang.id}>
+                            <td>{lang.nombre}</td>
                             <td>
                               <button
-                                onClick={() => selectLineForEdit(line)}
+                                onClick={() => selectLanguageForEdit(lang)}
                                 className="btn-secondary btn-small"
                               >
                                 Editar
@@ -319,10 +318,10 @@ const ModifyThematicLine: React.FC = () => {
         {activeTab === 'table' && (
           <div className="tab-content">
             <div className="table-section">
-              <h3>Todas las Líneas Temáticas</h3>
+              <h3>Todos los Idiomas</h3>
 
               {/* Advertencia antes de cargar */}
-              {allThematicLines.length === 0 && !isLoadingTable && (
+              {allLanguages.length === 0 && !isLoadingTable && (
                 <>
                   <div style={{
                     padding: '10px',
@@ -338,7 +337,7 @@ const ModifyThematicLine: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={loadAllThematicLines}
+                    onClick={loadAllLanguages}
                     style={{
                       width: '100%',
                       padding: '10px',
@@ -351,7 +350,7 @@ const ModifyThematicLine: React.FC = () => {
                       marginBottom: '10px'
                     }}
                   >
-                    Cargar Todas las Líneas Temáticas
+                    Cargar Todos los Idiomas
                   </button>
                 </>
               )}
@@ -363,7 +362,7 @@ const ModifyThematicLine: React.FC = () => {
                 </div>
               )}
 
-              {!isLoadingTable && allThematicLines.length > 0 && (
+              {!isLoadingTable && allLanguages.length > 0 && (
                 <>
                   <div className="filters-section">
                     <div className="form-group">
@@ -389,7 +388,7 @@ const ModifyThematicLine: React.FC = () => {
                     borderRadius: '4px'
                   }}>
                     <div style={{ fontSize: '14px', color: '#6c757d' }}>
-                      Mostrando {startIndex + 1} a {Math.min(endIndex, filteredLines.length)} de {filteredLines.length} líneas temáticas
+                      Mostrando {startIndex + 1} a {Math.min(endIndex, filteredLanguages.length)} de {filteredLanguages.length} idiomas
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '14px' }}>Mostrar:</span>
@@ -412,7 +411,7 @@ const ModifyThematicLine: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="lines-table">
+                  <div className="languages-table">
                     <table>
                       <thead>
                         <tr>
@@ -421,19 +420,19 @@ const ModifyThematicLine: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentLines.length === 0 ? (
+                        {currentLanguages.length === 0 ? (
                           <tr>
                             <td colSpan={2} style={{ textAlign: 'center', padding: '20px' }}>
                               No se encontraron resultados
                             </td>
                           </tr>
                         ) : (
-                          currentLines.map(line => (
-                            <tr key={line.id}>
-                              <td>{line.nombre}</td>
+                          currentLanguages.map(lang => (
+                            <tr key={lang.id}>
+                              <td>{lang.nombre}</td>
                               <td>
                                 <button
-                                  onClick={() => selectLineForEdit(line)}
+                                  onClick={() => selectLanguageForEdit(lang)}
                                   className="btn-secondary btn-small"
                                 >
                                   Editar
@@ -472,18 +471,18 @@ const ModifyThematicLine: React.FC = () => {
         )}
 
         {/* Formulario de Edición */}
-        {selectedLine && (
+        {selectedLanguage && (
           <div>
             <form onSubmit={handleUpdate}>
               <div className="form-group">
-                <label>Nombre de la Línea Temática *</label>
+                <label>Nombre del Idioma *</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Ingrese el nombre de la línea temática"
+                  placeholder="Ingrese el nombre del idioma"
                   required
-                  maxLength={150}
+                  maxLength={100}
                   disabled={isUpdating}
                 />
               </div>
@@ -496,7 +495,7 @@ const ModifyThematicLine: React.FC = () => {
                   type="button"
                   className="submit-btn"
                   onClick={() => {
-                    setSelectedLine(null);
+                    setSelectedLanguage(null);
                     setEditName("");
                   }}
                   disabled={isUpdating}
@@ -514,4 +513,4 @@ const ModifyThematicLine: React.FC = () => {
   );
 };
 
-export default ModifyThematicLine;
+export default ModifyLanguage;

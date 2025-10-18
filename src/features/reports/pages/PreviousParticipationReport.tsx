@@ -7,6 +7,7 @@ import { reportService } from '../services/reportService';
 import { PreviousParticipationResponse } from '../types';
 import { researcherService } from '../../researchers/services/researcherService';
 import { Researcher } from '../../researchers/types';
+import '../../../shared/styles/WideLayout.css';
 
 const styles = {
   subtitle: { color: '#6c757d', marginBottom: '20px' },
@@ -288,14 +289,14 @@ const PreviousParticipationReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Participación en Números Anteriores</h2>
+          <h2>Participación en Periodos Anteriores</h2>
           <p style={styles.subtitle}>
-            Genere un reporte de participación en números anteriores.
+            Genere un reporte de participación en periodos anteriores.
           </p>
 
           <div className="form-group">
@@ -432,7 +433,7 @@ const PreviousParticipationReport: React.FC = () => {
               {reportData.evaluador_id && (
                 <div style={styles.reportSummary}>
                   <p><strong>Evaluador:</strong> {reportData.evaluador_nombre}</p>
-                  <p><strong>Número de Publicación Anterior:</strong> {reportData.numero_editorial_anterior}</p>
+                  <p><strong>Periodo Anterior:</strong> {reportData.numero_editorial_anterior}</p>
                   <p><strong>Participó:</strong> {reportData.participo ? 'Sí' : 'No'}</p>
                 </div>
               )}

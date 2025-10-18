@@ -6,7 +6,7 @@ import { useAuth } from "../../auth/hooks";
 import { researcherService } from "../services";
 import { Researcher } from "../types";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { languagesService, Language } from "../../../shared/services";
+import { languagesService, Language } from "../../languages/services";
 import { useResearcherSearch } from "../hooks/useResearcherSearch";
 import { useResearcherForm } from "../hooks/useResearcherForm";
 import { ResearcherSearchTab } from "../components/ResearcherSearchTab";

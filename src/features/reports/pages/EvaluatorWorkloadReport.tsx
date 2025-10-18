@@ -438,7 +438,7 @@ const EvaluatorWorkloadReport: React.FC = () => {
                       <th style={styles.tableHeader}>Evaluador</th>
                       <th style={styles.tableHeader}>ORCID</th>
                       <th style={styles.tableHeader}>Total Dictámenes</th>
-                      <th style={styles.tableHeader}>Números de Publicación</th>
+                      <th style={styles.tableHeader}>Periodos</th>
                     </tr>
                   </thead>
                   <tbody>

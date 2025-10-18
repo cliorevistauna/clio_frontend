@@ -88,11 +88,16 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = React.memo(({ sele
       {search && (
         <ul className="options-list">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((line) => (
-              <li key={line.id} onClick={() => addLinea(line.id)}>
-                {line.nombre}
+            <>
+              <li className="select-header" style={{ fontWeight: 'bold', cursor: 'default', backgroundColor: '#f8f9fa', listStyle: 'none' }}>
+                Seleccione:
               </li>
-            ))
+              {filteredOptions.map((line) => (
+                <li key={line.id} onClick={() => addLinea(line.id)}>
+                  {line.nombre}
+                </li>
+              ))}
+            </>
           ) : (
             <li className="no-results">No se encontraron resultados</li>
           )}

@@ -10,6 +10,7 @@ import { Researcher } from "../../researchers/types";
 import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
 import { backendToFrontendDate } from "../../../shared/utils/dateUtils";
+import "../../../shared/styles/WideLayout.css";
 
 const styles = {
   activeTabButton: {
@@ -437,7 +438,7 @@ const EvaluatorHistoryReport: React.FC = () => {
   // Buscar número editorial específico
   const handleSearchEditorial = async () => {
     if (!searchNumero.trim()) {
-      alert("Por favor, ingrese el número de publicación a buscar.");
+      alert("Por favor, ingrese el periodo a buscar.");
       return;
     }
 
@@ -453,20 +454,20 @@ const EvaluatorHistoryReport: React.FC = () => {
       const results = await editorialNumberService.searchByNumber(numeroInt, anioInt);
 
       if (results.length === 0) {
-        alert("No se encontraron números de publicación con esos criterios.");
+        alert("No se encontraron periodos con esos criterios.");
         setEditorialSearchResults([]);
       } else {
         setEditorialSearchResults(results);
         setSearchCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
         if (results.length === 1) {
-          alert(`Se encontró el número de publicación ${results[0].numero}-${results[0].anio}`);
+          alert(`Se encontró el periodo ${results[0].numero}-${results[0].anio}`);
         } else {
           alert(`Se encontraron ${results.length} resultados. Seleccione los que desee filtrar.`);
         }
       }
     } catch (error) {
       console.error("Error en búsqueda de número editorial:", error);
-      alert("Error al buscar el número de publicación.");
+      alert("Error al buscar el periodo.");
       setEditorialSearchResults([]);
     } finally {
       setIsSearchingEditorial(false);
@@ -637,7 +638,7 @@ const EvaluatorHistoryReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
@@ -649,11 +650,11 @@ const EvaluatorHistoryReport: React.FC = () => {
 
           {/* Sección de búsqueda de evaluador */}
           <div className="form-group">
-            <label>Buscar Evaluador *</label>
+            <label>Buscar Evaluador (Requerido)</label>
             <div style={styles.searchContainer}>
               <input
                 type="text"
-                placeholder="Buscar por nombre, ORCID, correo..."
+                placeholder="Ej: Juan Pérez, 0000-0000-0000-0000, Universidad Central..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -668,6 +669,9 @@ const EvaluatorHistoryReport: React.FC = () => {
                 {isSearching ? "Buscando..." : "Buscar"}
               </button>
             </div>
+            <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '13px' }}>
+              💡 Puede ingresar múltiples términos de búsqueda separados por comas
+            </small>
 
             {/* Evaluador seleccionado */}
             {selectedEvaluator && (
@@ -742,9 +746,11 @@ const EvaluatorHistoryReport: React.FC = () => {
             )}
           </div>
 
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
+
           {/* Filtro de números editoriales */}
           <div className="form-group">
-            <label>Filtrar por Números de Publicación (Opcional)</label>
+            <label>Filtrar por Periodos (Opcional)</label>
 
             {/* Pestañas para método de selección */}
             <div style={styles.tabContainer}>
@@ -770,7 +776,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                 <div style={styles.filterContainer}>
                   <input
                     type="number"
-                    placeholder="Número"
+                    placeholder="Periodo"
                     value={searchNumero}
                     onChange={(e) => setSearchNumero(e.target.value)}
                     disabled={isSearchingEditorial}
@@ -830,7 +836,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                             onChange={() => handleToggleEditorialNumber(en.id)}
                             style={{ marginRight: '10px' }}
                           />
-                          Número {en.numero} - Año {en.anio} ({en.estado})
+                          Periodo {en.numero} - Año {en.anio} ({en.estado})
                         </label>
                       ))}
                     </div>
@@ -867,7 +873,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                     onClick={loadAllEditorialNumbers}
                     style={styles.loadAllButton}
                   >
-                    Cargar Todos los Números de Publicación
+                    Cargar Todos los Periodos
                   </button>
                 )}
 
@@ -914,7 +920,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                             onChange={() => handleToggleEditorialNumber(en.id)}
                             style={{ marginRight: '10px' }}
                           />
-                          Número {en.numero} - Año {en.anio} ({en.estado})
+                          Periodo {en.numero} - Año {en.anio} ({en.estado})
                         </label>
                       ))}
                     </div>
@@ -937,10 +943,10 @@ const EvaluatorHistoryReport: React.FC = () => {
               </div>
             )}
 
-            {/* Números seleccionados */}
+            {/* Periodos seleccionados */}
             {selectedEditorialNumbers.length > 0 && (
               <div style={styles.clearSelectionContainer}>
-                <strong>Números seleccionados:</strong> {selectedEditorialNumbers.length}
+                <strong>Periodos seleccionados:</strong> {selectedEditorialNumbers.length}
                 <button
                   type="button"
                   onClick={() => setSelectedEditorialNumbers([])}
@@ -955,6 +961,8 @@ const EvaluatorHistoryReport: React.FC = () => {
               Seleccione uno o varios números editoriales para filtrar. Si no selecciona ninguno, se mostrarán todas las evaluaciones.
             </small>
           </div>
+
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
 
           {/* Botones de acción */}
           <div style={styles.reportActionsContainer}>

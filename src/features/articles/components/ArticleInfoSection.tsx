@@ -101,9 +101,9 @@ const ArticleInfoSection: React.FC<ArticleInfoSectionProps> = ({
     <>
       <h4 style={{ textAlign: "center" }}>Datos del Artículo</h4>
 
-      {/* Número de Publicación - Editable */}
+      {/* Periodo - Editable */}
       <div className="form-group">
-        <label>Número de Publicación</label>
+        <label>Periodo</label>
         <select
           value={selectedEditorialNumber || ''}
           onChange={(e) => onEditorialNumberChange(e.target.value ? parseInt(e.target.value) : null)}
@@ -119,17 +119,17 @@ const ArticleInfoSection: React.FC<ArticleInfoSectionProps> = ({
 
             return (
               <option key={en.id} value={en.id}>
-                Número {en.numero} - Año {en.anio}
+                Periodo {en.numero} - Año {en.anio}
                 {en.estado === 'inactivo' ? ' (Inactivo)' : ''}
               </option>
             );
           })}
         </select>
         <small style={styles.helperText}>
-          Puede modificar el número de publicación asignado
+          Puede modificar el periodo asignado
           {selectedEditorialNumber && editorialNumbers.find(en => en.id === selectedEditorialNumber)?.estado === 'inactivo' && (
             <span style={styles.warningText}>
-              ⚠️ El número de publicación asignado está inactivo
+              ⚠️ El periodo asignado está inactivo
             </span>
           )}
         </small>

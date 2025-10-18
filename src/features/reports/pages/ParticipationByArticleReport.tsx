@@ -7,6 +7,7 @@ import { reportService } from '../services/reportService';
 import { ParticipationByArticleResponse } from '../types';
 import { articleService } from '../../articles/services/articleService';
 import { backendToFrontendDate } from '../../../shared/utils/dateUtils';
+import '../../../shared/styles/WideLayout.css';
 
 const styles = {
   subtitle: { color: '#6c757d', marginBottom: '20px' },
@@ -302,7 +303,7 @@ const ParticipationByArticleReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
@@ -321,7 +322,7 @@ const ParticipationByArticleReport: React.FC = () => {
                 <span>
                   <strong>Artículo seleccionado:</strong> {selectedArticulo.titulo}
                   <br />
-                  <small>Número de Publicación: {selectedArticulo.numero_editorial}</small>
+                  <small>Periodo: {selectedArticulo.numero_editorial}</small>
                 </span>
                 <button
                   type="button"
@@ -386,7 +387,7 @@ const ParticipationByArticleReport: React.FC = () => {
                         >
                           <strong>{articulo.titulo}</strong>
                           <br />
-                          <small>Número: {articulo.numero_editorial}</small>
+                          <small>Periodo: {articulo.numero_editorial}</small>
                         </div>
                       ))}
                     </div>
@@ -410,6 +411,8 @@ const ParticipationByArticleReport: React.FC = () => {
             )}
           </div>
 
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
+
           {/* Incluir Detalle */}
           <div className="form-group">
             <label>
@@ -424,6 +427,8 @@ const ParticipationByArticleReport: React.FC = () => {
               Mostrar información detallada de cada evaluador
             </small>
           </div>
+
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
 
           {/* Botones de acción */}
           <div style={styles.reportActionsContainer}>
@@ -456,7 +461,7 @@ const ParticipationByArticleReport: React.FC = () => {
               <h3>Resultados del Reporte</h3>
               <div style={styles.reportSummary}>
                 <p><strong>Artículo:</strong> {reportData.articulo_titulo}</p>
-                <p><strong>Número de Publicación:</strong> {reportData.numero_editorial}</p>
+                <p><strong>Periodo:</strong> {reportData.numero_editorial}</p>
                 <p><strong>Total Evaluadores con Dictamen:</strong> {reportData.total_evaluadores_dictamen}</p>
               </div>
 

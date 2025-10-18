@@ -184,7 +184,7 @@ export const EditorialNumberTableTab: React.FC<EditorialNumberTableTabProps> = (
 }) => {
   return (
     <div>
-      <h3>Todos los Números de Publicación</h3>
+      <h3>Todos los Periodos</h3>
 
       {allEditorialNumbers.length === 0 && !isLoadingTable && (
         <>
@@ -209,7 +209,7 @@ export const EditorialNumberTableTab: React.FC<EditorialNumberTableTabProps> = (
             onClick={onLoadEditorialNumbers}
             style={styles.loadButton}
           >
-            Cargar Todos los Números de Publicación
+            Cargar Todos los Periodos
           </button>
         </>
       )}
@@ -267,7 +267,7 @@ export const EditorialNumberTableTab: React.FC<EditorialNumberTableTabProps> = (
             <table style={styles.tableInstance}>
               <thead style={styles.tableHeaderRow}>
                 <tr>
-                  <th style={styles.tableHeader}>Número de Publicación</th>
+                  <th style={styles.tableHeader}>Periodo</th>
                   <th style={styles.tableHeader}>Estado</th>
                   <th style={styles.tableHeader}>Fecha Inicio</th>
                   <th style={styles.tableHeader}>Fecha Fin</th>

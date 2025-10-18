@@ -115,8 +115,8 @@ export const useResearcherForm = () => {
       return { success: false, message: "Primero debe buscar un autor o evaluador para modificar." };
     }
 
-    if (!formState.orcid || !formState.nombre || !formState.apellido1 || !formState.apellido2 || !formState.correo) {
-      return { success: false, message: "Debe completar todos los campos obligatorios (ORCID, nombre, apellidos y correo)." };
+    if (!formState.nombre || !formState.apellido1 || !formState.apellido2 || !formState.correo) {
+      return { success: false, message: "Debe completar todos los campos obligatorios (nombre, apellidos y correo)." };
     }
 
     const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

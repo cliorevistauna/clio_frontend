@@ -96,9 +96,9 @@ const CreateEditorialNumber: React.FC = () => {
 
       if (conflictingNumber) {
         alert(
-          `Las fechas se solapan con el número editorial ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
+          `Las fechas se solapan con el periodo ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
           `(vigente desde ${backendToFrontendDate(conflictingNumber.fecha_inicio || '')} hasta ${backendToFrontendDate(conflictingNumber.fecha_final || '')}).\n\n` +
-          `No pueden existir dos números de publicación vigentes simultáneamente.\n` +
+          `No pueden existir dos periodos de publicación vigentes simultáneamente.\n` +
           `Por favor, ajuste las fechas para evitar el solapamiento.`
         );
         setIsLoading(false);
@@ -114,7 +114,7 @@ const CreateEditorialNumber: React.FC = () => {
 
       await editorialNumberService.create(request);
 
-      alert("Número editorial creado exitosamente.");
+      alert("Periodo creado exitosamente.");
 
       // Limpiar el formulario
       setNumero("");
@@ -126,10 +126,10 @@ const CreateEditorialNumber: React.FC = () => {
       setUsarHoyFin(false);
 
     } catch (error: any) {
-      console.error("Error al crear número editorial:", error);
+      console.error("Error al crear el periodo:", error);
 
       // RF-008: Mostrar mensaje específico para número editorial duplicado
-      let errorMessage = "Error al crear el número de publicación.";
+      let errorMessage = "Error al crear el periodo.";
 
       if (error?.details && typeof error.details === 'object') {
         // Verificar si es error de validación de unicidad
@@ -139,7 +139,7 @@ const CreateEditorialNumber: React.FC = () => {
             err.includes('numero') && err.includes('anio')
           );
           if (uniqueError) {
-            errorMessage = "Este número de publicación ya existe.";
+            errorMessage = "Este periodo ya existe.";
           }
         }
 
@@ -172,7 +172,7 @@ const CreateEditorialNumber: React.FC = () => {
           <h2>Formulario de Registro</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Número de Publicación *</label>
+              <label>Periodo *</label>
               <input
                 type="number"
                 value={numero}

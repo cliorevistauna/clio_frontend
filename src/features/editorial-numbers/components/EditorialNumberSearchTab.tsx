@@ -45,7 +45,7 @@ export const EditorialNumberSearchTab: React.FC<EditorialNumberSearchTabProps> =
     <div>
       <form onSubmit={onSearch}>
         <div className="form-group">
-          <label>Número de Publicación *</label>
+          <label>Periodo *</label>
           <input
             type="number"
             value={searchNumero}
@@ -83,7 +83,7 @@ export const EditorialNumberSearchTab: React.FC<EditorialNumberSearchTabProps> =
                 style={styles.resultsItem}
                 onClick={() => onSelectEditorial(editorial)}
               >
-                <strong>Número {editorial.numero}-{editorial.anio}</strong><br />
+                <strong>Periodo {editorial.numero}-{editorial.anio}</strong><br />
                 <small>
                   Estado: {editorial.estado} |
                   Fechas: {editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : '-'} a {editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : '-'}

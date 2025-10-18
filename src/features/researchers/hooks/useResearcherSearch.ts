@@ -29,27 +29,47 @@ export const useResearcherSearch = () => {
       let filterValue = term;
       let filterLabel = `País: ${term}`;
 
-      const idiomaMatch = languages.find(l =>
+      // Prioridad 1: Buscar coincidencia EXACTA en idiomas
+      const idiomaExactMatch = languages.find(l =>
+        l.nombre.toLowerCase() === term.toLowerCase()
+      );
+
+      // Prioridad 2: Buscar coincidencia EXACTA en líneas temáticas
+      const lineaExactMatch = thematicLines.find(l =>
+        l.nombre.toLowerCase() === term.toLowerCase()
+      );
+
+      // Prioridad 3: Buscar coincidencia PARCIAL en líneas temáticas (más común)
+      const lineaPartialMatch = thematicLines.find(l =>
         l.nombre.toLowerCase().includes(term.toLowerCase()) ||
         term.toLowerCase().includes(l.nombre.toLowerCase())
       );
 
-      if (idiomaMatch) {
-        filterType = 'idioma';
-        filterValue = idiomaMatch.id.toString();
-        filterLabel = `Idioma: ${idiomaMatch.nombre}`;
-      } else {
-        const lineaMatch = thematicLines.find(l =>
-          l.nombre.toLowerCase().includes(term.toLowerCase()) ||
-          term.toLowerCase().includes(l.nombre.toLowerCase())
-        );
+      // Prioridad 4: Buscar coincidencia PARCIAL en idiomas
+      const idiomaPartialMatch = languages.find(l =>
+        l.nombre.toLowerCase().includes(term.toLowerCase()) ||
+        term.toLowerCase().includes(l.nombre.toLowerCase())
+      );
 
-        if (lineaMatch) {
-          filterType = 'línea_temática';
-          filterValue = lineaMatch.id.toString();
-          filterLabel = `Línea: ${lineaMatch.nombre}`;
-        }
+      // Aplicar coincidencia en orden de prioridad
+      if (idiomaExactMatch) {
+        filterType = 'idioma';
+        filterValue = idiomaExactMatch.id.toString();
+        filterLabel = `Idioma: ${idiomaExactMatch.nombre}`;
+      } else if (lineaExactMatch) {
+        filterType = 'línea_temática';
+        filterValue = lineaExactMatch.id.toString();
+        filterLabel = `Línea: ${lineaExactMatch.nombre}`;
+      } else if (lineaPartialMatch) {
+        filterType = 'línea_temática';
+        filterValue = lineaPartialMatch.id.toString();
+        filterLabel = `Línea: ${lineaPartialMatch.nombre}`;
+      } else if (idiomaPartialMatch) {
+        filterType = 'idioma';
+        filterValue = idiomaPartialMatch.id.toString();
+        filterLabel = `Idioma: ${idiomaPartialMatch.nombre}`;
       }
+      // Si no encuentra ninguna coincidencia, se queda como país (default)
 
       const filterId = `${filterType}-${filterValue}`;
 

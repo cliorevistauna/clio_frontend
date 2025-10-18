@@ -102,13 +102,13 @@ const ModifyEditorialNumber: React.FC = () => {
     e.preventDefault();
 
     if (!searchNumero) {
-      alert("Ingrese el número de publicación a buscar.");
+      alert("Ingrese el periodo a buscar.");
       return;
     }
 
     const numeroInt = parseInt(searchNumero);
     if (isNaN(numeroInt) || numeroInt <= 0) {
-      alert("Ingrese un número válido.");
+      alert("Ingrese un periodo válido.");
       return;
     }
 
@@ -118,20 +118,20 @@ const ModifyEditorialNumber: React.FC = () => {
       const results = await editorialNumberService.searchByNumber(numeroInt, anioInt);
 
       if (results.length === 0) {
-        alert("No se encontraron números de publicación con esos criterios.");
+        alert("No se encontraron periodos con esos criterios.");
         clearForm();
         setSearchResults([]);
       } else if (results.length === 1) {
         preloadForm(results[0]);
         setSearchResults([]);
-        alert(`Número de publicación ${results[0].numero}-${results[0].anio} cargado exitosamente.`);
+        alert(`Periodo ${results[0].numero}-${results[0].anio} cargado exitosamente.`);
       } else {
         setSearchResults(results);
         alert(`Se encontraron ${results.length} resultados. Seleccione uno de la lista.`);
       }
     } catch (error) {
       console.error("Error en búsqueda:", error);
-      alert("Error al buscar el número de publicación.");
+      alert("Error al buscar el periodo.");
       clearForm();
       setSearchResults([]);
     } finally {
@@ -183,7 +183,7 @@ const ModifyEditorialNumber: React.FC = () => {
     try {
       await editorialNumberService.updateStatus(confirmation.editorialId, confirmation.newStatus);
 
-      alert(`Número editorial ${confirmation.editorialName} ${action === 'activar' ? 'activado' : 'inactivado'} exitosamente.`);
+      alert(`Periodo ${confirmation.editorialName} ${action === 'activar' ? 'activado' : 'inactivado'} exitosamente.`);
 
       setSelectedEditorial({ ...selectedEditorial, estado: confirmation.newStatus });
 
@@ -192,7 +192,7 @@ const ModifyEditorialNumber: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error al cambiar estado:", error);
-      const errorMessage = error?.message || `Error al ${action} el número editorial.`;
+      const errorMessage = error?.message || `Error al ${action} el periodo.`;
       alert(errorMessage);
     } finally {
       setIsChangingStatus(false);
@@ -204,7 +204,7 @@ const ModifyEditorialNumber: React.FC = () => {
     e.preventDefault();
 
     if (!selectedEditorial) {
-      alert("Primero debe buscar un número de publicación para modificar.");
+      alert("Primero debe buscar un periodo para modificar.");
       return;
     }
 
@@ -217,7 +217,7 @@ const ModifyEditorialNumber: React.FC = () => {
     const anioInt = parseInt(anio);
 
     if (isNaN(numeroInt) || numeroInt <= 0) {
-      alert("El número debe ser un valor positivo.");
+      alert("El periodo debe ser un valor positivo.");
       return;
     }
 
@@ -249,9 +249,9 @@ const ModifyEditorialNumber: React.FC = () => {
 
       if (conflictingNumber) {
         alert(
-          `Las fechas se solapan con el número editorial ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
+          `Las fechas se solapan con el periodo ${conflictingNumber.numero}-${conflictingNumber.anio} ` +
           `(vigente desde ${backendToFrontendDate(conflictingNumber.fecha_inicio || '')} hasta ${backendToFrontendDate(conflictingNumber.fecha_final || '')}).\n\n` +
-          `No pueden existir dos números de publicación vigentes simultáneamente.\n` +
+          `No pueden existir dos periodos de publicación vigentes simultáneamente.\n` +
           `Por favor, ajuste las fechas para evitar el solapamiento.`
         );
         setIsUpdating(false);
@@ -268,7 +268,7 @@ const ModifyEditorialNumber: React.FC = () => {
 
       await editorialNumberService.update(updateRequest);
 
-      alert("Número de publicación modificado exitosamente.");
+      alert("Periodo modificado exitosamente.");
 
       clearForm();
       setSearchNumero("");
@@ -279,8 +279,8 @@ const ModifyEditorialNumber: React.FC = () => {
       }
 
     } catch (error: any) {
-      console.error("Error al modificar número editorial:", error);
-      const errorMessage = error?.message || "Error al modificar el número de publicación.";
+      console.error("Error al modificar periodo:", error);
+      const errorMessage = error?.message || "Error al modificar el periodo.";
       alert(errorMessage);
     } finally {
       setIsUpdating(false);
@@ -294,8 +294,8 @@ const ModifyEditorialNumber: React.FC = () => {
       setAllEditorialNumbers(numbers);
       setFilteredNumbers(numbers);
     } catch (error) {
-      console.error('Error al cargar números editoriales:', error);
-      alert('Error al cargar los números de publicación.');
+      console.error('Error al cargar periodos de publicación:', error);
+      alert('Error al cargar los periodos de publicación.');
     } finally {
       setIsLoadingTable(false);
     }

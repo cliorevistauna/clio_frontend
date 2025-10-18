@@ -7,6 +7,7 @@ import { reportService } from '../services/reportService';
 import { InvitationsByIssueResponse } from '../types';
 import { editorialNumberService } from '../../editorial-numbers/services/editorialNumberService';
 import { articleService } from '../../articles/services/articleService';
+import '../../../shared/styles/WideLayout.css';
 
 const styles = {
   subtitle: { color: '#6c757d', marginBottom: '20px' },
@@ -31,8 +32,8 @@ const styles = {
   searchContainer: { display: 'flex', gap: '10px', marginBottom: '10px' },
   fullWidthInput: { flex: 1, padding: '8px', fontSize: '16px' },
   editorialSearchButton: {
-    padding: '8px 16px',
-    backgroundColor: '#17a2b8',
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
@@ -386,24 +387,24 @@ const InvitationsByIssueReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Invitaciones por Número de Publicación</h2>
+          <h2>Invitaciones por Periodo</h2>
           <p style={styles.subtitle}>
-            Genere un reporte de invitaciones por número de publicación.
+            Genere un reporte de invitaciones por periodo.
           </p>
 
           {/* Número Editorial (Requerido) */}
           <div className="form-group">
-            <label>Número de Publicación (Requerido)</label>
+            <label>Periodo (Requerido)</label>
 
             {selectedNumero ? (
               <div style={styles.selectedBadge}>
                 <span>
-                  <strong>Número seleccionado:</strong> {selectedNumero.numero}-{selectedNumero.anio}
+                  <strong>Periodo seleccionado:</strong> {selectedNumero.numero}-{selectedNumero.anio}
                 </span>
                 <button
                   type="button"
@@ -423,7 +424,7 @@ const InvitationsByIssueReport: React.FC = () => {
                 <div style={styles.searchContainer}>
                   <input
                     type="number"
-                    placeholder="Número"
+                    placeholder="Periodo"
                     value={numeroSearchQuery}
                     onChange={(e) => setNumeroSearchQuery(e.target.value)}
                     min="1"
@@ -500,6 +501,8 @@ const InvitationsByIssueReport: React.FC = () => {
               </>
             )}
           </div>
+
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
 
           {/* Artículo (Opcional) */}
           <div className="form-group">
@@ -600,6 +603,8 @@ const InvitationsByIssueReport: React.FC = () => {
             )}
           </div>
 
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
+
           {/* Botones de acción */}
           <div style={styles.reportActionsContainer}>
             <button
@@ -630,7 +635,7 @@ const InvitationsByIssueReport: React.FC = () => {
             <div style={styles.resultsContainer}>
               <h3>Resultados del Reporte</h3>
               <div style={styles.reportSummary}>
-                <p><strong>Número de Publicación:</strong> {reportData.numero_editorial_nombre}</p>
+                <p><strong>Periodo:</strong> {reportData.numero_editorial_nombre}</p>
                 <p><strong>Total de Invitaciones:</strong> {reportData.total_invitaciones}</p>
 
                 {reportData.articulo_titulo && (

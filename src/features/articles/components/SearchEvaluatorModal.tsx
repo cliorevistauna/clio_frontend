@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { ResearcherSearchResult } from "../types";
 import { researcherService } from "../../researchers/services";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { languagesService, Language } from "../../../shared/services";
+import { languagesService, Language } from "../../languages/services";
 import { useSearchFilterValidation } from "../../../shared/hooks";
 import ConfirmDialog from "../../../shared/components/ConfirmDialog";
 import "./SearchAuthorModal.css"; // Reutilizamos los estilos
@@ -342,7 +342,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                 style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
               />
               <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '13px' }}>
-                💡 Busca en nombre, apellidos, afiliación, ORCID y correo
+                💡 Puede ingresar múltiples términos de búsqueda separados por comas
               </small>
             </div>
 
@@ -613,9 +613,6 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
             )}
 
             <div className="modal-footer">
-              <button onClick={handleCloseModal} className="cancel-btn">
-                Cancelar
-              </button>
               <button
                 onClick={handleConfirmSelection}
                 className="submit-btn"

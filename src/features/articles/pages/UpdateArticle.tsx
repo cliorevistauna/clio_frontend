@@ -13,6 +13,7 @@ import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
 import { useArticleForm } from "../hooks/useArticleForm";
 import { useEvaluatorsManager } from "../hooks/useEvaluatorsManager";
+import "../../../shared/styles/WideLayout.css";
 
 const styles = {
   buttonFlexContainer: {
@@ -235,7 +236,7 @@ const UpdateArticle: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="app-layout">
+      <div className="app-layout wide-layout">
         <PageHeader onLogout={handleLogout} />
         <main className="main-content">
           <div className="form-container">
@@ -248,7 +249,7 @@ const UpdateArticle: React.FC = () => {
 
   if (!article) {
     return (
-      <div className="app-layout">
+      <div className="app-layout wide-layout">
         <PageHeader onLogout={handleLogout} />
         <main className="main-content">
           <div className="form-container">
@@ -260,7 +261,7 @@ const UpdateArticle: React.FC = () => {
   }
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">

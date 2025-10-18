@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { ResearcherSearchResult } from "../types";
 import { researcherService } from "../../researchers/services";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
-import { languagesService, Language } from "../../../shared/services";
+import { languagesService, Language } from "../../languages/services";
 
 interface SearchFilter {
   id: string;

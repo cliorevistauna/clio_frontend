@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import PageHeader from "../../../shared/components/PageHeader";
-import { thematicLinesService, ThematicLine } from "../services/thematicLinesService";
+import { languagesService } from "../services/languagesService";
+import { Language } from "../types";
 import { Button } from "../../../shared/components/ui";
-import "./ThematicLines.css";
+import "./Languages.css";
 
 // Styled components para el diálogo de confirmación
 const ConfirmDialog = styled.div`
@@ -48,7 +49,7 @@ const DialogButtons = styled.div`
   margin-top: 20px;
 `;
 
-const LineInfoBox = styled.div`
+const LanguageInfoBox = styled.div`
   background: #f8f9fa;
   border: 1px solid #dee2e6;
   border-radius: var(--border-radius-sm);
@@ -118,7 +119,7 @@ const ActionButton = styled(Button)<{ variant?: 'danger' | 'secondary' }>`
   }
 `;
 
-const DeactivateThematicLine: React.FC = () => {
+const DeactivateLanguage: React.FC = () => {
   const navigate = useNavigate();
 
   // Estado para controlar qué pestaña está activa
@@ -126,12 +127,12 @@ const DeactivateThematicLine: React.FC = () => {
 
   // Estados para la búsqueda específica
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<ThematicLine[]>([]);
+  const [searchResults, setSearchResults] = useState<Language[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   // Estados para la tabla
-  const [allThematicLines, setAllThematicLines] = useState<ThematicLine[]>([]);
-  const [filteredLines, setFilteredLines] = useState<ThematicLine[]>([]);
+  const [allLanguages, setAllLanguages] = useState<Language[]>([]);
+  const [filteredLanguages, setFilteredLanguages] = useState<Language[]>([]);
   const [tableFilter, setTableFilter] = useState("");
   const [isLoadingTable, setIsLoadingTable] = useState(false);
 
@@ -144,47 +145,45 @@ const DeactivateThematicLine: React.FC = () => {
   const [searchItemsPerPage, setSearchItemsPerPage] = useState(10);
 
   // Estados para la confirmación de eliminación
-  const [selectedLine, setSelectedLine] = useState<ThematicLine | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
-  // Cargar todas las líneas temáticas activas para la tabla
-  const loadAllThematicLines = async () => {
+  // Cargar todos los idiomas activos para la tabla
+  const loadAllLanguages = async () => {
     setIsLoadingTable(true);
     try {
-      const lines = await thematicLinesService.getThematicLines(false); // Only active
-      setAllThematicLines(lines);
-      setFilteredLines(lines);
+      const langs = await languagesService.getLanguages(false); // Only active
+      setAllLanguages(langs);
+      setFilteredLanguages(langs);
     } catch (error) {
-      console.error("Error al cargar líneas temáticas:", error);
-      alert("Error al cargar líneas temáticas");
+      console.error("Error al cargar idiomas:", error);
+      alert("Error al cargar idiomas");
     } finally {
       setIsLoadingTable(false);
     }
   };
 
-  // Efecto removido - ahora se carga manualmente con confirmación del usuario
-
-  // Filtrar líneas en la tabla
+  // Filtrar idiomas en la tabla
   useEffect(() => {
-    let filtered = allThematicLines;
+    let filtered = allLanguages;
 
     // Filtro por nombre
     if (tableFilter) {
-      filtered = filtered.filter(line =>
-        line.nombre.toLowerCase().includes(tableFilter.toLowerCase())
+      filtered = filtered.filter(lang =>
+        lang.nombre.toLowerCase().includes(tableFilter.toLowerCase())
       );
     }
 
-    setFilteredLines(filtered);
+    setFilteredLanguages(filtered);
     setCurrentPage(1); // Resetear a página 1 al filtrar
-  }, [allThematicLines, tableFilter]);
+  }, [allLanguages, tableFilter]);
 
   // Lógica de paginación para la tabla
-  const totalPages = Math.ceil(filteredLines.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredLanguages.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentLines = filteredLines.slice(startIndex, endIndex);
+  const currentLanguages = filteredLanguages.slice(startIndex, endIndex);
 
   const handleItemsPerPageChange = (value: number) => {
     setItemsPerPage(value);
@@ -202,63 +201,63 @@ const DeactivateThematicLine: React.FC = () => {
     setSearchCurrentPage(1);
   };
 
-  // Buscar líneas temáticas activas
+  // Buscar idiomas activos
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!searchTerm.trim()) {
-      alert("Ingrese el nombre de la línea temática a buscar.");
+      alert("Ingrese el nombre del idioma a buscar.");
       return;
     }
 
     setIsSearching(true);
     try {
-      const lines = await thematicLinesService.getThematicLines(false); // Only active
-      const results = lines.filter(line =>
-        line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      const langs = await languagesService.getLanguages(false); // Only active
+      const results = langs.filter(lang =>
+        lang.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setSearchResults(results);
       setSearchCurrentPage(1); // Resetear a página 1 al hacer nueva búsqueda
 
       if (results.length === 0) {
-        alert("No se encuentra línea temática con ese nombre.");
+        alert("No se encuentra idioma con ese nombre.");
       }
     } catch (error) {
       console.error("Error en la búsqueda:", error);
-      alert("Error al buscar líneas temáticas");
+      alert("Error al buscar idiomas");
     } finally {
       setIsSearching(false);
     }
   };
 
-  // Seleccionar línea para eliminar
-  const selectLineForDeactivation = (line: ThematicLine) => {
-    setSelectedLine(line);
+  // Seleccionar idioma para eliminar
+  const selectLanguageForDeactivation = (lang: Language) => {
+    setSelectedLanguage(lang);
     setShowConfirmation(true);
   };
 
   // Confirmar eliminación
   const confirmDeactivation = async () => {
-    if (!selectedLine) return;
+    if (!selectedLanguage) return;
 
     setIsDeactivating(true);
     try {
-      await thematicLinesService.deactivateThematicLine(selectedLine.id);
+      await languagesService.deactivateLanguage(selectedLanguage.id);
 
-      alert("Línea temática eliminada exitosamente");
+      alert("Idioma eliminado exitosamente");
 
       // Limpiar selección
-      setSelectedLine(null);
+      setSelectedLanguage(null);
       setShowConfirmation(false);
 
       // Recargar desde backend para garantizar consistencia de datos
-      if (activeTab === 'table' && allThematicLines.length > 0) {
-        await loadAllThematicLines(); // Refrescar toda la tabla desde backend
+      if (activeTab === 'table' && allLanguages.length > 0) {
+        await loadAllLanguages(); // Refrescar toda la tabla desde backend
       } else if (activeTab === 'search' && searchResults.length > 0) {
         // Rehacer la búsqueda para actualizar resultados desde backend
-        const lines = await thematicLinesService.getThematicLines(false);
-        const results = lines.filter(line =>
-          line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        const langs = await languagesService.getLanguages(false);
+        const results = langs.filter(lang =>
+          lang.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setSearchResults(results);
         setSearchCurrentPage(1); // Resetear a página 1
@@ -266,7 +265,7 @@ const DeactivateThematicLine: React.FC = () => {
 
     } catch (error: any) {
       console.error("Error al eliminar:", error);
-      const errorMessage = error.message || "Error al eliminar línea temática";
+      const errorMessage = error.message || "Error al eliminar idioma";
       alert(errorMessage);
     } finally {
       setIsDeactivating(false);
@@ -275,7 +274,7 @@ const DeactivateThematicLine: React.FC = () => {
 
   // Cancelar eliminación
   const cancelDeactivation = () => {
-    setSelectedLine(null);
+    setSelectedLanguage(null);
     setShowConfirmation(false);
   };
 
@@ -283,7 +282,7 @@ const DeactivateThematicLine: React.FC = () => {
     setActiveTab(tab);
     setSearchTerm("");
     setSearchResults([]);
-    setSelectedLine(null);
+    setSelectedLanguage(null);
     setShowConfirmation(false);
   };
 
@@ -298,13 +297,13 @@ const DeactivateThematicLine: React.FC = () => {
               className={`tab ${activeTab === 'search' ? 'active' : ''}`}
               onClick={() => handleTabChange('search')}
             >
-              Buscar Una Específica
+              Buscar Uno Específico
             </button>
             <button
               className={`tab ${activeTab === 'table' ? 'active' : ''}`}
               onClick={() => handleTabChange('table')}
             >
-              Ver Todas en Tabla
+              Ver Todos en Tabla
             </button>
           </div>
 
@@ -314,7 +313,7 @@ const DeactivateThematicLine: React.FC = () => {
                 <div className="search-section">
                   <form onSubmit={handleSearch} className="search-form">
                     <div className="form-group">
-                      <label htmlFor="search">Nombre de la línea temática:</label>
+                      <label htmlFor="search">Nombre del idioma:</label>
                       <input
                         type="text"
                         id="search"
@@ -372,7 +371,7 @@ const DeactivateThematicLine: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="lines-table">
+                      <div className="languages-table">
                         <table>
                           <thead>
                             <tr>
@@ -381,12 +380,12 @@ const DeactivateThematicLine: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {currentSearchResults.map(line => (
-                              <tr key={line.id}>
-                                <td>{line.nombre}</td>
+                            {currentSearchResults.map(lang => (
+                              <tr key={lang.id}>
+                                <td>{lang.nombre}</td>
                                 <td>
                                   <button
-                                    onClick={() => selectLineForDeactivation(line)}
+                                    onClick={() => selectLanguageForDeactivation(lang)}
                                     className="btn-danger btn-small"
                                   >
                                     Eliminar
@@ -427,10 +426,10 @@ const DeactivateThematicLine: React.FC = () => {
             {activeTab === 'table' && (
               <div className="tab-content">
                 <div className="table-section">
-                  <h3>Líneas Temáticas Activas</h3>
+                  <h3>Idiomas Activos</h3>
 
                   {/* Advertencia antes de cargar */}
-                  {allThematicLines.length === 0 && !isLoadingTable && (
+                  {allLanguages.length === 0 && !isLoadingTable && (
                     <>
                       <div style={{
                         padding: '10px',
@@ -446,7 +445,7 @@ const DeactivateThematicLine: React.FC = () => {
 
                       <button
                         type="button"
-                        onClick={loadAllThematicLines}
+                        onClick={loadAllLanguages}
                         style={{
                           width: '100%',
                           padding: '10px',
@@ -460,7 +459,7 @@ const DeactivateThematicLine: React.FC = () => {
                           marginBottom: '10px'
                         }}
                       >
-                        Cargar Todas las Líneas Temáticas
+                        Cargar Todos los Idiomas
                       </button>
                     </>
                   )}
@@ -472,7 +471,7 @@ const DeactivateThematicLine: React.FC = () => {
                     </div>
                   )}
 
-                  {!isLoadingTable && allThematicLines.length > 0 && (
+                  {!isLoadingTable && allLanguages.length > 0 && (
                     <>
                       <div className="filters-section">
                         <div className="form-group">
@@ -498,7 +497,7 @@ const DeactivateThematicLine: React.FC = () => {
                         borderRadius: '4px'
                       }}>
                         <div style={{ fontSize: '14px', color: '#6c757d' }}>
-                          Mostrando {startIndex + 1} a {Math.min(endIndex, filteredLines.length)} de {filteredLines.length} líneas temáticas
+                          Mostrando {startIndex + 1} a {Math.min(endIndex, filteredLanguages.length)} de {filteredLanguages.length} idiomas
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span style={{ fontSize: '14px' }}>Mostrar:</span>
@@ -521,7 +520,7 @@ const DeactivateThematicLine: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="lines-table">
+                      <div className="languages-table">
                         <table>
                           <thead>
                             <tr>
@@ -530,19 +529,19 @@ const DeactivateThematicLine: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {currentLines.length === 0 ? (
+                            {currentLanguages.length === 0 ? (
                               <tr>
                                 <td colSpan={2} style={{ textAlign: 'center', padding: '20px' }}>
                                   No se encontraron resultados
                                 </td>
                               </tr>
                             ) : (
-                              currentLines.map(line => (
-                                <tr key={line.id}>
-                                  <td>{line.nombre}</td>
+                              currentLanguages.map(lang => (
+                                <tr key={lang.id}>
+                                  <td>{lang.nombre}</td>
                                   <td>
                                     <button
-                                      onClick={() => selectLineForDeactivation(line)}
+                                      onClick={() => selectLanguageForDeactivation(lang)}
                                       className="btn-danger btn-small"
                                     >
                                       Eliminar
@@ -583,22 +582,22 @@ const DeactivateThematicLine: React.FC = () => {
       </div>
 
       {/* Diálogo de Confirmación Modal */}
-      {showConfirmation && selectedLine && (
+      {showConfirmation && selectedLanguage && (
         <ConfirmDialog>
           <DialogContent>
             <h3>Confirmar Eliminación</h3>
             <p>
-              ¿Está seguro de que desea eliminar la siguiente línea temática?
+              ¿Está seguro de que desea eliminar el siguiente idioma?
             </p>
 
-            <LineInfoBox>
-              <strong>Nombre de la línea temática:</strong>
-              <span>{selectedLine.nombre}</span>
-            </LineInfoBox>
+            <LanguageInfoBox>
+              <strong>Nombre del idioma:</strong>
+              <span>{selectedLanguage.nombre}</span>
+            </LanguageInfoBox>
 
             <WarningText>
               <em>
-                <strong>Nota:</strong> La línea temática será desactivada y no estará disponible para nuevos artículos,
+                <strong>Nota:</strong> El idioma será desactivado y no estará disponible para nuevos artículos,
                 pero se mantendrá en el sistema para preservar el historial.
               </em>
             </WarningText>
@@ -626,4 +625,4 @@ const DeactivateThematicLine: React.FC = () => {
   );
 };
 
-export default DeactivateThematicLine;
+export default DeactivateLanguage;
