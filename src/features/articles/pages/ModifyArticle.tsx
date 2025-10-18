@@ -87,7 +87,7 @@ const ModifyArticle: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout modify-article-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
@@ -122,7 +122,7 @@ const ModifyArticle: React.FC = () => {
                   {isSearching ? "Buscando..." : "Buscar"}
                 </button>
               </div>
-              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d' }}>
+              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '13px' }}>
                 💡 Busca por título del artículo o procedencia
               </small>
             </div>
@@ -134,33 +134,33 @@ const ModifyArticle: React.FC = () => {
                   <table className="articles-table">
                     <thead>
                       <tr>
-                        <th>Título</th>
-                        <th>Procedencia</th>
-                        <th>Estado</th>
-                        <th>Fecha Recepción</th>
-                        <th>Número Editorial</th>
-                        <th>Acciones</th>
+                        <th style={{ width: '50%' }}>Título</th>
+                        <th style={{ width: '15%' }}>Procedencia</th>
+                        <th style={{ width: '8%' }}>Estado</th>
+                        <th style={{ width: '10%' }}>Fecha Recepción</th>
+                        <th style={{ width: '10%' }}>Número Editorial</th>
+                        <th style={{ width: '7%' }}>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {searchResults.map((article) => (
                         <tr key={article.id}>
-                          <td style={{ maxWidth: '300px' }}>
+                          <td style={{ width: '50%', wordWrap: 'break-word', whiteSpace: 'normal' }}>
                             <strong>{article.titulo}</strong>
                           </td>
-                          <td>{article.procedencia}</td>
-                          <td>
+                          <td style={{ width: '15%' }}>{article.procedencia}</td>
+                          <td style={{ width: '8%' }}>
                             <span className={`badge ${getEstadoBadgeClass(article.estado)}`}>
                               {formatEstado(article.estado)}
                             </span>
                           </td>
-                          <td>{backendToFrontendDate(article.fecha_recepcion)}</td>
-                          <td>
+                          <td style={{ width: '10%' }}>{backendToFrontendDate(article.fecha_recepcion)}</td>
+                          <td style={{ width: '10%' }}>
                             {article.numero_editorial_info
                               ? `${article.numero_editorial_info.numero}-${article.numero_editorial_info.anio}`
                               : 'Sin asignar'}
                           </td>
-                          <td>
+                          <td style={{ width: '7%' }}>
                             <button
                               onClick={() => handleSelectArticle(article.id)}
                               className="btn-edit"

@@ -1,22 +1,10 @@
-.app-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Contenido específico para ModifyArticle con ancho extendido */
+.modify-article-layout .main-content {
+  max-width: 2000px;
 }
 
-.main-content {
-  flex: 1;
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.form-container {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.modify-article-layout .form-container {
+  max-width: 100%;
 }
 
 .form-container h2 {

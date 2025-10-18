@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import PageHeader from "../../../shared/components/PageHeader";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { SearchAuthorModal, SearchEvaluatorModal } from "../components";
@@ -16,6 +16,60 @@ import {
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
 
+// Definir el estado del formulario de artículo
+interface ArticleFormState {
+  titulo: string;
+  procedencia: string;
+  fechaRecepcion: string;
+  fechaAceptacion: string;
+  fechaPublicacion: string;
+  lineasTematicas: number[];
+  usarHoyRecepcion: boolean;
+  usarHoyAceptacion: boolean;
+  usarHoyPublicacion: boolean;
+}
+
+// Definir las acciones posibles
+type ArticleFormAction =
+  | { type: 'SET_FIELD'; field: keyof ArticleFormState; value: any }
+  | { type: 'RESET_FORM' }
+  | { type: 'SET_TODAY'; field: 'fechaRecepcion' | 'fechaAceptacion' | 'fechaPublicacion'; checked: boolean };
+
+// Estado inicial del formulario
+const initialArticleFormState: ArticleFormState = {
+  titulo: "",
+  procedencia: "",
+  fechaRecepcion: "",
+  fechaAceptacion: "",
+  fechaPublicacion: "",
+  lineasTematicas: [],
+  usarHoyRecepcion: false,
+  usarHoyAceptacion: false,
+  usarHoyPublicacion: false
+};
+
+// Reducer para gestionar el estado del formulario
+const articleFormReducer = (
+  state: ArticleFormState,
+  action: ArticleFormAction
+): ArticleFormState => {
+  switch (action.type) {
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'RESET_FORM':
+      return initialArticleFormState;
+    case 'SET_TODAY':
+      const checkboxField = `usarHoy${action.field.charAt(0).toUpperCase() + action.field.slice(1)}` as keyof ArticleFormState;
+      return {
+        ...state,
+        [checkboxField]: action.checked,
+        [action.field]: action.checked ? getCurrentDateFrontend() : ""
+      };
+    default:
+      return state;
+  }
+};
+
 /**
  * RF-017: Creación de Artículos
  *
@@ -31,13 +85,8 @@ const CreateArticle: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  // Campos del formulario
-  const [titulo, setTitulo] = useState("");
-  const [procedencia, setProcedencia] = useState("");
-  const [fechaRecepcion, setFechaRecepcion] = useState("");
-  const [fechaAceptacion, setFechaAceptacion] = useState("");
-  const [fechaPublicacion, setFechaPublicacion] = useState("");
-  const [lineasTematicas, setLineasTematicas] = useState<number[]>([]);
+  // Usar useReducer para el formulario
+  const [formState, dispatch] = useReducer(articleFormReducer, initialArticleFormState);
 
   // Número editorial
   const [editorialNumbers, setEditorialNumbers] = useState<EditorialNumber[]>([]);
@@ -55,40 +104,6 @@ const CreateArticle: React.FC = () => {
   // Estado de envío
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Estados para checkboxes "Hoy"
-  const [usarHoyRecepcion, setUsarHoyRecepcion] = useState(false);
-  const [usarHoyAceptacion, setUsarHoyAceptacion] = useState(false);
-  const [usarHoyPublicacion, setUsarHoyPublicacion] = useState(false);
-
-  // Manejar cambio de checkbox "Hoy" para fecha de recepción
-  const handleUsarHoyRecepcion = (checked: boolean) => {
-    setUsarHoyRecepcion(checked);
-    if (checked) {
-      setFechaRecepcion(getCurrentDateFrontend());
-    } else {
-      setFechaRecepcion("");
-    }
-  };
-
-  // Manejar cambio de checkbox "Hoy" para fecha de aceptación
-  const handleUsarHoyAceptacion = (checked: boolean) => {
-    setUsarHoyAceptacion(checked);
-    if (checked) {
-      setFechaAceptacion(getCurrentDateFrontend());
-    } else {
-      setFechaAceptacion("");
-    }
-  };
-
-  // Manejar cambio de checkbox "Hoy" para fecha de publicación
-  const handleUsarHoyPublicacion = (checked: boolean) => {
-    setUsarHoyPublicacion(checked);
-    if (checked) {
-      setFechaPublicacion(getCurrentDateFrontend());
-    } else {
-      setFechaPublicacion("");
-    }
-  };
 
   // Cargar números editoriales disponibles
   useEffect(() => {
@@ -140,7 +155,7 @@ const CreateArticle: React.FC = () => {
     setSelectedAuthor(null);
   };
 
-  const handleSelectEvaluators = (evaluators: ResearcherSearchResult[]) => {
+  const handleSelectEvaluators = useCallback((evaluators: ResearcherSearchResult[]) => {
     // Verificar si alguno de los evaluadores seleccionados es el autor
     if (selectedAuthor) {
       const authorIsEvaluator = evaluators.some(ev => ev.id === selectedAuthor.id);
@@ -156,17 +171,17 @@ const CreateArticle: React.FC = () => {
     }
 
     setSelectedEvaluators(evaluators);
-  };
+  }, [selectedAuthor]);
 
-  const handleRemoveEvaluator = (id: number) => {
-    setSelectedEvaluators(selectedEvaluators.filter(e => e.id !== id));
-  };
+  const handleRemoveEvaluator = useCallback((id: number) => {
+    setSelectedEvaluators(prev => prev.filter(e => e.id !== id));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validaciones RF-017
-    if (!titulo || !procedencia || !fechaRecepcion) {
+    if (!formState.titulo || !formState.procedencia || !formState.fechaRecepcion) {
       alert("Por favor, complete todos los campos obligatorios.");
       return;
     }
@@ -176,23 +191,23 @@ const CreateArticle: React.FC = () => {
       return;
     }
 
-    if (lineasTematicas.length === 0) {
+    if (formState.lineasTematicas.length === 0) {
       alert("Se debe seleccionar al menos una línea temática.");
       return;
     }
 
     // Validar formato de fechas
-    if (!isValidFrontendDateFormat(fechaRecepcion)) {
+    if (!isValidFrontendDateFormat(formState.fechaRecepcion)) {
       alert("La fecha de recepción debe tener el formato DD-MM-YYYY.");
       return;
     }
 
-    if (fechaAceptacion && !isValidFrontendDateFormat(fechaAceptacion)) {
+    if (formState.fechaAceptacion && !isValidFrontendDateFormat(formState.fechaAceptacion)) {
       alert("La fecha de aceptación debe tener el formato DD-MM-YYYY.");
       return;
     }
 
-    if (fechaPublicacion && !isValidFrontendDateFormat(fechaPublicacion)) {
+    if (formState.fechaPublicacion && !isValidFrontendDateFormat(formState.fechaPublicacion)) {
       alert("La fecha de publicación debe tener el formato DD-MM-YYYY.");
       return;
     }
@@ -203,13 +218,13 @@ const CreateArticle: React.FC = () => {
     setIsSubmitting(true);
     try {
       const articleData = {
-        titulo,
-        procedencia,
-        fecha_recepcion: frontendToBackendDate(fechaRecepcion),
-        fecha_aceptacion: fechaAceptacion ? frontendToBackendDate(fechaAceptacion) : undefined,
-        fecha_publicacion: fechaPublicacion ? frontendToBackendDate(fechaPublicacion) : undefined,
+        titulo: formState.titulo,
+        procedencia: formState.procedencia,
+        fecha_recepcion: frontendToBackendDate(formState.fechaRecepcion),
+        fecha_aceptacion: formState.fechaAceptacion ? frontendToBackendDate(formState.fechaAceptacion) : undefined,
+        fecha_publicacion: formState.fechaPublicacion ? frontendToBackendDate(formState.fechaPublicacion) : undefined,
         numero_editorial: selectedEditorialNumber || undefined,
-        lineas_tematicas: lineasTematicas,
+        lineas_tematicas: formState.lineasTematicas,
         autores: [selectedAuthor.id],
         evaluadores_data: selectedEvaluators.map(ev => ({
           investigador: ev.id,
@@ -224,17 +239,9 @@ const CreateArticle: React.FC = () => {
       alert("Artículo registrado exitosamente.");
 
       // Limpiar formulario
-      setTitulo("");
-      setProcedencia("");
-      setFechaRecepcion("");
-      setFechaAceptacion("");
-      setFechaPublicacion("");
-      setLineasTematicas([]);
+      dispatch({ type: 'RESET_FORM' });
       setSelectedAuthor(null);
       setSelectedEvaluators([]);
-      setUsarHoyRecepcion(false);
-      setUsarHoyAceptacion(false);
-      setUsarHoyPublicacion(false);
 
     } catch (error: any) {
       console.error("Error al registrar artículo:", error);
@@ -245,7 +252,7 @@ const CreateArticle: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [formState, selectedAuthor, selectedEditorialNumber, selectedEvaluators]);
 
   return (
     <div className="app-layout">
@@ -283,8 +290,8 @@ const CreateArticle: React.FC = () => {
               <label>Título del Artículo *</label>
               <input
                 type="text"
-                value={titulo}
-                onChange={(e) => setTitulo(e.target.value)}
+                value={formState.titulo}
+                onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'titulo', value: e.target.value })}
                 required
                 disabled={isSubmitting}
                 placeholder="Ingrese el título del artículo"
@@ -296,8 +303,8 @@ const CreateArticle: React.FC = () => {
               <label>Procedencia *</label>
               <input
                 type="text"
-                value={procedencia}
-                onChange={(e) => setProcedencia(e.target.value)}
+                value={formState.procedencia}
+                onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'procedencia', value: e.target.value })}
                 required
                 disabled={isSubmitting}
                 placeholder="Ejemplo: Universidad Nacional"
@@ -307,10 +314,10 @@ const CreateArticle: React.FC = () => {
             {/* Líneas Temáticas */}
             <div className="form-group">
               <ThematicLineSelector
-                selected={lineasTematicas}
-                onChange={setLineasTematicas}
+                selected={formState.lineasTematicas}
+                onChange={(value) => dispatch({ type: 'SET_FIELD', field: 'lineasTematicas', value })}
               />
-              {lineasTematicas.length === 0 && (
+              {formState.lineasTematicas.length === 0 && (
                 <small style={{ color: '#dc3545' }}>
                   * Se debe seleccionar al menos una línea temática
                 </small>
@@ -323,17 +330,17 @@ const CreateArticle: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <DateInput
-                    value={fechaRecepcion}
-                    onChange={setFechaRecepcion}
-                    disabled={isSubmitting || usarHoyRecepcion}
+                    value={formState.fechaRecepcion}
+                    onChange={(value) => dispatch({ type: 'SET_FIELD', field: 'fechaRecepcion', value })}
+                    disabled={isSubmitting || formState.usarHoyRecepcion}
                     required
                   />
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"
-                    checked={usarHoyRecepcion}
-                    onChange={(e) => handleUsarHoyRecepcion(e.target.checked)}
+                    checked={formState.usarHoyRecepcion}
+                    onChange={(e) => dispatch({ type: 'SET_TODAY', field: 'fechaRecepcion', checked: e.target.checked })}
                     disabled={isSubmitting}
                   />
                   Hoy
@@ -346,16 +353,16 @@ const CreateArticle: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <DateInput
-                    value={fechaAceptacion}
-                    onChange={setFechaAceptacion}
-                    disabled={isSubmitting || usarHoyAceptacion}
+                    value={formState.fechaAceptacion}
+                    onChange={(value) => dispatch({ type: 'SET_FIELD', field: 'fechaAceptacion', value })}
+                    disabled={isSubmitting || formState.usarHoyAceptacion}
                   />
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"
-                    checked={usarHoyAceptacion}
-                    onChange={(e) => handleUsarHoyAceptacion(e.target.checked)}
+                    checked={formState.usarHoyAceptacion}
+                    onChange={(e) => dispatch({ type: 'SET_TODAY', field: 'fechaAceptacion', checked: e.target.checked })}
                     disabled={isSubmitting}
                   />
                   Hoy
@@ -368,16 +375,16 @@ const CreateArticle: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
                   <DateInput
-                    value={fechaPublicacion}
-                    onChange={setFechaPublicacion}
-                    disabled={isSubmitting || usarHoyPublicacion}
+                    value={formState.fechaPublicacion}
+                    onChange={(value) => dispatch({ type: 'SET_FIELD', field: 'fechaPublicacion', value })}
+                    disabled={isSubmitting || formState.usarHoyPublicacion}
                   />
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', margin: 0, whiteSpace: 'nowrap' }}>
                   <input
                     type="checkbox"
-                    checked={usarHoyPublicacion}
-                    onChange={(e) => handleUsarHoyPublicacion(e.target.checked)}
+                    checked={formState.usarHoyPublicacion}
+                    onChange={(e) => dispatch({ type: 'SET_TODAY', field: 'fechaPublicacion', checked: e.target.checked })}
                     disabled={isSubmitting}
                   />
                   Hoy
@@ -511,7 +518,7 @@ const CreateArticle: React.FC = () => {
         isOpen={showAuthorModal}
         onClose={() => setShowAuthorModal(false)}
         onSelectAuthor={handleSelectAuthor}
-        articleThematicLines={lineasTematicas}
+        articleThematicLines={formState.lineasTematicas}
         excludedIds={selectedEvaluators.map(e => e.id)}
       />
 
@@ -520,7 +527,7 @@ const CreateArticle: React.FC = () => {
         onClose={() => setShowEvaluatorModal(false)}
         onSelectEvaluators={handleSelectEvaluators}
         alreadySelected={selectedEvaluators.map(e => e.id).concat(selectedAuthor ? [selectedAuthor.id] : [])}
-        articleThematicLines={lineasTematicas}
+        articleThematicLines={formState.lineasTematicas}
       />
     </div>
   );

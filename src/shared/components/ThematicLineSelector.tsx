@@ -6,7 +6,7 @@ interface ThematicLineSelector {
   onChange: (values: number[]) => void;
 }
 
-const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onChange }) => {
+const LineaTematicaSelector: React.FC<ThematicLineSelector> = React.memo(({ selected, onChange }) => {
   const [search, setSearch] = useState("");
   const [availableLines, setAvailableLines] = useState<ThematicLine[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +128,6 @@ const LineaTematicaSelector: React.FC<ThematicLineSelector> = ({ selected, onCha
       )}
     </div>
   );
-};
+});
 
 export default LineaTematicaSelector;

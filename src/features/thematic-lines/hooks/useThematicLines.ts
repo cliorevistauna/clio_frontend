@@ -74,6 +74,7 @@ export const useThematicLines = (includeInactive: boolean = false) => {
 
   useEffect(() => {
     fetchThematicLines();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [includeInactive]);
 
   return {

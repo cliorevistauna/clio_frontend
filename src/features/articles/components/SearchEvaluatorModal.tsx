@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { ResearcherSearchResult } from "../types";
 import { researcherService } from "../../researchers/services";
 import { thematicLinesService, ThematicLine } from "../../thematic-lines/services/thematicLinesService";
 import { languagesService, Language } from "../../../shared/services";
+import { useSearchFilterValidation } from "../../../shared/hooks";
+import ConfirmDialog from "../../../shared/components/ConfirmDialog";
 import "./SearchAuthorModal.css"; // Reutilizamos los estilos
 
 interface SearchEvaluatorModalProps {
@@ -29,7 +31,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
 }) => {
   const [keywordSearch, setKeywordSearch] = useState(""); // Búsqueda por palabra clave
   const [filterTerm, setFilterTerm] = useState(""); // Término para agregar filtros
-  const [searchFilters, setSearchFilters] = useState<Array<{ type: string, value: string, label: string }>>([]);
+  const [searchFilters, setSearchFilters] = useState<Array<{ id: string, type: string, value: string, label: string }>>([]);
   const [searchResults, setSearchResults] = useState<ResearcherSearchResult[]>([]);
   const [selectedEvaluators, setSelectedEvaluators] = useState<ResearcherSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -41,6 +43,9 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
   // Datos para búsqueda inteligente de tags
   const [thematicLines, setThematicLines] = useState<ThematicLine[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
+
+  // Hook para validación de filtros
+  const { dialogState, validateAndSearch, handleConfirm, handleCancel } = useSearchFilterValidation();
 
   // Cargar líneas temáticas e idiomas al abrir el modal
   useEffect(() => {
@@ -61,6 +66,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                 const line = lines.find(l => l.id === lineId);
                 if (line) {
                   return {
+                    id: `línea_temática-${line.id}`,
                     type: 'línea_temática',
                     value: line.id.toString(),
                     label: `Línea: ${line.nombre}`
@@ -68,7 +74,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                 }
                 return null;
               })
-              .filter(f => f !== null) as Array<{ type: string, value: string, label: string }>;
+              .filter(f => f !== null) as Array<{ id: string, type: string, value: string, label: string }>;
 
             setSearchFilters(preloadedFilters);
           }
@@ -80,9 +86,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     }
   }, [isOpen, articleThematicLines]);
 
-  if (!isOpen) return null;
-
-  const handleAddFilter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleAddFilter = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && filterTerm.trim()) {
       e.preventDefault();
       const term = filterTerm.trim();
@@ -117,7 +121,11 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
         // Si no coincide con idioma ni línea, se queda como país
       }
 
-      setSearchFilters([...searchFilters, {
+      // Crear ID único para el filtro basado en tipo y valor
+      const filterId = `${filterType}-${filterValue}`;
+
+      setSearchFilters(prev => [...prev, {
+        id: filterId,
         type: filterType,
         value: filterValue,
         label: filterLabel
@@ -125,13 +133,13 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
 
       setFilterTerm("");
     }
-  };
+  }, [filterTerm, thematicLines, languages]);
 
-  const handleRemoveFilter = (index: number) => {
-    setSearchFilters(searchFilters.filter((_, i) => i !== index));
-  };
+  const handleRemoveFilter = useCallback((id: string) => {
+    setSearchFilters(prev => prev.filter(f => f.id !== id));
+  }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     if (searchFilters.length === 0 && !keywordSearch.trim()) {
       alert("Por favor, agregue al menos un criterio de búsqueda o palabra clave.");
       return;
@@ -172,11 +180,11 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
 
       // Mapear de Researcher a ResearcherSearchResult
       const results: ResearcherSearchResult[] = researchers.map(r => {
-        // Extraer nombre y apellidos del campo concatenado name
+        // Extraer nombre y apellidos del campo concatenado name sin mutar el array
         const nameParts = r.name.trim().split(' ');
-        const apellido2 = nameParts.length > 2 ? nameParts.pop() || '' : '';
-        const apellido1 = nameParts.length > 1 ? nameParts.pop() || '' : nameParts[0] || '';
-        const nombre = nameParts.join(' ') || '';
+        const apellido2 = nameParts.length > 2 ? nameParts[nameParts.length - 1] : '';
+        const apellido1 = nameParts.length > 1 ? nameParts[nameParts.length - 2] : nameParts[0] || '';
+        const nombre = nameParts.length > 2 ? nameParts.slice(0, nameParts.length - 2).join(' ') : '';
 
         return {
           id: parseInt(r.id),
@@ -212,19 +220,66 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [searchFilters, keywordSearch, alreadySelected]);
 
-  const handleToggleEvaluator = (evaluator: ResearcherSearchResult) => {
-    const isSelected = selectedEvaluators.find(e => e.id === evaluator.id);
+  const addFilterFromTerm = useCallback(() => {
+    const term = filterTerm.trim();
 
-    if (isSelected) {
-      setSelectedEvaluators(selectedEvaluators.filter(e => e.id !== evaluator.id));
+    // Intentar identificar automáticamente el tipo de filtro
+    let filterType = 'país';
+    let filterValue = term;
+    let filterLabel = `País: ${term}`;
+
+    const idiomaMatch = languages.find(l =>
+      l.nombre.toLowerCase().includes(term.toLowerCase()) ||
+      term.toLowerCase().includes(l.nombre.toLowerCase())
+    );
+
+    if (idiomaMatch) {
+      filterType = 'idioma';
+      filterValue = idiomaMatch.id.toString();
+      filterLabel = `Idioma: ${idiomaMatch.nombre}`;
     } else {
-      setSelectedEvaluators([...selectedEvaluators, evaluator]);
-    }
-  };
+      const lineaMatch = thematicLines.find(l =>
+        l.nombre.toLowerCase().includes(term.toLowerCase()) ||
+        term.toLowerCase().includes(l.nombre.toLowerCase())
+      );
 
-  const handleConfirmSelection = () => {
+      if (lineaMatch) {
+        filterType = 'línea_temática';
+        filterValue = lineaMatch.id.toString();
+        filterLabel = `Línea: ${lineaMatch.nombre}`;
+      }
+    }
+
+    const filterId = `${filterType}-${filterValue}`;
+    setSearchFilters(prev => [...prev, {
+      id: filterId,
+      type: filterType,
+      value: filterValue,
+      label: filterLabel
+    }]);
+    setFilterTerm("");
+  }, [filterTerm, languages, thematicLines]);
+
+  const handleSearchWithValidation = useCallback(() => {
+    validateAndSearch(filterTerm, addFilterFromTerm, handleSearch);
+  }, [filterTerm, addFilterFromTerm, handleSearch, validateAndSearch]);
+
+  const confirmDialogMessage = `Tiene filtros sin guardar: "${dialogState.filterTerm}"\n\n¿Desea guardarlos antes de buscar?`;
+
+  const handleToggleEvaluator = useCallback((evaluator: ResearcherSearchResult) => {
+    setSelectedEvaluators(prev => {
+      const isSelected = prev.find(e => e.id === evaluator.id);
+      if (isSelected) {
+        return prev.filter(e => e.id !== evaluator.id);
+      } else {
+        return [...prev, evaluator];
+      }
+    });
+  }, []);
+
+  const handleConfirmSelection = useCallback(() => {
     if (selectedEvaluators.length === 0) {
       alert("Seleccione al menos 1 evaluador.");
       return;
@@ -232,9 +287,9 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
 
     onSelectEvaluators(selectedEvaluators);
     handleCloseModal();
-  };
+  }, [selectedEvaluators, onSelectEvaluators]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setKeywordSearch("");
     setFilterTerm("");
     setSearchFilters([]);
@@ -243,18 +298,26 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     setCurrentPage(1);
     setItemsPerPage(10);
     onClose();
-  };
+  }, [onClose]);
 
-  // Lógica de paginación
-  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentResults = searchResults.slice(startIndex, endIndex);
-
-  const handleItemsPerPageChange = (value: number) => {
+  const handleItemsPerPageChange = useCallback((value: number) => {
     setItemsPerPage(value);
     setCurrentPage(1);
-  };
+  }, []);
+
+  // Lógica de paginación (memoizada)
+  const paginationData = useMemo(() => {
+    const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentResults = searchResults.slice(startIndex, endIndex);
+
+    return { totalPages, startIndex, endIndex, currentResults };
+  }, [searchResults, currentPage, itemsPerPage]);
+
+  const { totalPages, startIndex, endIndex, currentResults } = paginationData;
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={handleCloseModal}>
@@ -278,7 +341,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                 onChange={(e) => setKeywordSearch(e.target.value)}
                 style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
               />
-              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '12px' }}>
+              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '13px' }}>
                 💡 Busca en nombre, apellidos, afiliación, ORCID y correo
               </small>
             </div>
@@ -296,11 +359,11 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                   onChange={(e) => setFilterTerm(e.target.value)}
                   onKeyDown={handleAddFilter}
                 />
-                <button onClick={handleSearch} disabled={isSearching}>
+                <button onClick={handleSearchWithValidation} disabled={isSearching}>
                   {isSearching ? "Buscando..." : "Buscar"}
                 </button>
               </div>
-              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '12px' }}>
+              <small style={{ display: 'block', marginTop: '5px', color: '#6c757d', fontSize: '13px' }}>
                 💡 Presione Enter para agregar filtros. Se detectan automáticamente idiomas, líneas temáticas o países.
               </small>
             </div>
@@ -320,8 +383,8 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                 <small style={{ width: '100%', color: '#6c757d', marginBottom: '5px' }}>
                   Filtros de búsqueda:
                 </small>
-                {searchFilters.map((filter, index) => (
-                  <span key={index} style={{
+                {searchFilters.map((filter) => (
+                  <span key={filter.id} style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     padding: '5px 10px',
@@ -333,7 +396,7 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
                   }}>
                     {filter.label}
                     <button
-                      onClick={() => handleRemoveFilter(index)}
+                      onClick={() => handleRemoveFilter(filter.id)}
                       style={{
                         background: 'none',
                         border: 'none',
@@ -564,6 +627,15 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={dialogState.isOpen}
+        message={confirmDialogMessage}
+        confirmText="Sí"
+        cancelText="No"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 };

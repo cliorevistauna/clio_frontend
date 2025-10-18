@@ -6,7 +6,7 @@ interface LanguageSelectorProps {
   onChange: (values: number[]) => void;
 }
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange }) => {
+const LanguageSelector: React.FC<LanguageSelectorProps> = React.memo(({ selected, onChange }) => {
   const [search, setSearch] = useState("");
   const [availableLanguages, setAvailableLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +103,6 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange 
       )}
     </div>
   );
-};
+});
 
 export default LanguageSelector;

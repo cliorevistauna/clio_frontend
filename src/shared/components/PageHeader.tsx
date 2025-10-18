@@ -11,7 +11,7 @@ interface PageHeaderProps {
   onLogout?: () => void;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
+const PageHeader: React.FC<PageHeaderProps> = React.memo(({ onLogout }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { currentEditorialNumber } = useEditorialNumbers();
@@ -195,6 +195,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
       </div>
     </header>
   );
-};
+});
 
 export default PageHeader;

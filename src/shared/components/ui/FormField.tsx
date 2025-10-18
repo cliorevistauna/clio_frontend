@@ -34,7 +34,7 @@ const ErrorMessage = styled.span`
   display: block;
 `;
 
-export const FormField: React.FC<FormFieldProps> = ({
+export const FormField = React.memo<FormFieldProps>(({
   children,
   label,
   required = false,
@@ -53,4 +53,4 @@ export const FormField: React.FC<FormFieldProps> = ({
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </FieldWrapper>
   );
-};
+});

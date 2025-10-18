@@ -7,6 +7,86 @@ import { ROUTES } from '../../../shared/constants';
 import { reportService } from '../services/reportService';
 import { EvaluatorsByThemeResponse } from '../types';
 
+const styles = {
+  subtitle: { color: '#6c757d', marginBottom: '20px' },
+  helperText: { display: 'block', marginTop: '4px', color: '#666' },
+  reportActionsContainer: { display: 'flex', gap: '10px', marginTop: '20px' },
+  primaryButton: {
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  },
+  primaryButtonDisabled: {
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontSize: '16px'
+  },
+  secondaryButton: {
+    padding: '10px 20px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  },
+  secondaryButtonDisabled: {
+    padding: '10px 20px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontSize: '16px'
+  },
+  errorMessage: {
+    marginTop: '20px',
+    padding: '12px 16px',
+    backgroundColor: '#f8d7da',
+    color: '#842029',
+    border: '1px solid #f5c2c7',
+    borderRadius: '4px'
+  },
+  resultsContainer: { marginTop: '30px' },
+  tableContainer: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    marginTop: '20px',
+    backgroundColor: 'white',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+  },
+  tableHeaderRow: { backgroundColor: '#f8f9fa' },
+  tableHeader: {
+    padding: '12px',
+    textAlign: 'left',
+    borderBottom: '2px solid #dee2e6',
+    fontWeight: 600,
+    color: '#495057'
+  },
+  tableRowEven: {
+    backgroundColor: 'white'
+  },
+  tableRowOdd: {
+    backgroundColor: '#f8f9fa'
+  },
+  tableCell: {
+    padding: '12px',
+    borderBottom: '1px solid #dee2e6'
+  },
+  evaluatorDetailText: { display: 'block', marginTop: '4px' },
+  evaluatorDetailTextTop: { display: 'block', marginTop: '2px' },
+  listContainer: { margin: 0, paddingLeft: '20px' },
+  listItem: { marginBottom: '12px' }
+} as const;
+
 const EvaluatorsByThemeReport: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -78,7 +158,7 @@ const EvaluatorsByThemeReport: React.FC = () => {
       <main className="main-content">
         <div className="form-container">
           <h2>Estadísticas de Evaluadores por Línea Temática</h2>
-          <p style={{ color: '#6c757d', marginBottom: '20px' }}>
+          <p style={styles.subtitle}>
             Visualice estadísticas de evaluadores agrupados por línea temática.
           </p>
 
@@ -99,24 +179,16 @@ const EvaluatorsByThemeReport: React.FC = () => {
               />
               <span style={{ marginLeft: '8px' }}>Incluir detalle de evaluadores</span>
             </label>
-            <small style={{ display: 'block', marginTop: '4px', color: '#666' }}>
+            <small style={styles.helperText}>
               Mostrar lista completa de evaluadores por cada línea temática
             </small>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <div style={styles.reportActionsContainer}>
             <button
               onClick={handleGenerateReport}
               disabled={isLoading}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-              }}
+              style={isLoading ? styles.primaryButtonDisabled : styles.primaryButton}
             >
               {isLoading ? 'Generando...' : 'Generar Reporte'}
             </button>
@@ -124,73 +196,34 @@ const EvaluatorsByThemeReport: React.FC = () => {
             <button
               onClick={handleDownloadPDF}
               disabled={isLoading}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-              }}
+              style={isLoading ? styles.secondaryButtonDisabled : styles.secondaryButton}
             >
               {isLoading ? 'Descargando...' : 'Descargar PDF'}
             </button>
           </div>
 
           {error && (
-            <div style={{
-              marginTop: '20px',
-              padding: '12px 16px',
-              backgroundColor: '#f8d7da',
-              color: '#842029',
-              border: '1px solid #f5c2c7',
-              borderRadius: '4px',
-            }}>
+            <div style={styles.errorMessage}>
               {error}
             </div>
           )}
 
           {reportData && (
-            <div style={{ marginTop: '30px' }}>
+            <div style={styles.resultsContainer}>
               <h3>Resultados del Reporte</h3>
               <p><strong>Total de Líneas Temáticas:</strong> {reportData.total_lineas_tematicas}</p>
 
-              <table style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                marginTop: '20px',
-                backgroundColor: 'white',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              }}>
+              <table style={styles.tableContainer}>
                 <thead>
-                  <tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <th style={{
-                      padding: '12px',
-                      textAlign: 'left',
-                      borderBottom: '2px solid #dee2e6',
-                      fontWeight: 600,
-                      color: '#495057',
-                    }}>
+                  <tr style={styles.tableHeaderRow}>
+                    <th style={styles.tableHeader}>
                       Línea Temática
                     </th>
-                    <th style={{
-                      padding: '12px',
-                      textAlign: 'left',
-                      borderBottom: '2px solid #dee2e6',
-                      fontWeight: 600,
-                      color: '#495057',
-                    }}>
+                    <th style={styles.tableHeader}>
                       Total Evaluadores
                     </th>
                     {includeDetail && (
-                      <th style={{
-                        padding: '12px',
-                        textAlign: 'left',
-                        borderBottom: '2px solid #dee2e6',
-                        fontWeight: 600,
-                        color: '#495057',
-                      }}>
+                      <th style={styles.tableHeader}>
                         Detalles
                       </th>
                     )}
@@ -200,43 +233,32 @@ const EvaluatorsByThemeReport: React.FC = () => {
                   {reportData.estadisticas.map((item, index) => (
                     <tr
                       key={item.linea_tematica_id}
-                      style={{
-                        backgroundColor: index % 2 === 0 ? 'white' : '#f8f9fa',
-                      }}
+                      style={index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd}
                     >
-                      <td style={{
-                        padding: '12px',
-                        borderBottom: '1px solid #dee2e6',
-                      }}>
+                      <td style={styles.tableCell}>
                         {item.linea_tematica_nombre}
                       </td>
-                      <td style={{
-                        padding: '12px',
-                        borderBottom: '1px solid #dee2e6',
-                      }}>
+                      <td style={styles.tableCell}>
                         {item.total_evaluadores}
                       </td>
                       {includeDetail && (
-                        <td style={{
-                          padding: '12px',
-                          borderBottom: '1px solid #dee2e6',
-                        }}>
+                        <td style={styles.tableCell}>
                           {item.evaluadores && item.evaluadores.length > 0 ? (
-                            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                            <ul style={styles.listContainer}>
                               {item.evaluadores.map((evaluador) => (
-                                <li key={evaluador.id} style={{ marginBottom: '12px' }}>
+                                <li key={evaluador.id} style={styles.listItem}>
                                   <strong>{evaluador.nombre_completo}</strong>
                                   <br />
-                                  <small style={{ display: 'block', marginTop: '4px' }}>
+                                  <small style={styles.evaluatorDetailText}>
                                     <strong>Universidad:</strong> {evaluador.afiliacion || 'N/A'}
                                   </small>
-                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                  <small style={styles.evaluatorDetailTextTop}>
                                     <strong>Idiomas:</strong> {evaluador.idiomas || 'N/A'}
                                   </small>
-                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                  <small style={styles.evaluatorDetailTextTop}>
                                     <strong>Teléfono:</strong> {evaluador.telefono || 'N/A'}
                                   </small>
-                                  <small style={{ display: 'block', marginTop: '2px' }}>
+                                  <small style={styles.evaluatorDetailTextTop}>
                                     <strong>Correo:</strong> {evaluador.correo || 'N/A'}
                                   </small>
                                 </li>

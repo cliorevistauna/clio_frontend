@@ -145,23 +145,16 @@ const ModifyThematicLine: React.FC = () => {
 
       alert("Línea temática actualizada exitosamente");
 
-      // Actualizar listas locales
-      if (activeTab === 'search') {
-        setSearchResults(prev =>
-          prev.map(line =>
-            line.id === selectedLine.id
-              ? { ...line, nombre: editName.trim() }
-              : line
-          )
+      // Recargar desde backend para garantizar consistencia de datos
+      if (activeTab === 'table' && allThematicLines.length > 0) {
+        await loadAllThematicLines(); // Refrescar toda la tabla
+      } else if (activeTab === 'search' && searchResults.length > 0) {
+        // Rehacer la búsqueda para actualizar resultados
+        const lines = await thematicLinesService.getThematicLines(false);
+        const results = lines.filter(line =>
+          line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
         );
-      } else {
-        setAllThematicLines(prev =>
-          prev.map(line =>
-            line.id === selectedLine.id
-              ? { ...line, nombre: editName.trim() }
-              : line
-          )
-        );
+        setSearchResults(results);
       }
 
       // Limpiar selección
@@ -177,6 +170,14 @@ const ModifyThematicLine: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'search' | 'table') => {
+    setActiveTab(tab);
+    setSearchTerm("");
+    setSearchResults([]);
+    setSelectedLine(null);
+    setEditName("");
+  };
+
   return (
     <div className="app-layout">
       <PageHeader />
@@ -187,13 +188,13 @@ const ModifyThematicLine: React.FC = () => {
         <div className="tabs">
           <button
             className={`tab ${activeTab === 'search' ? 'active' : ''}`}
-            onClick={() => setActiveTab('search')}
+            onClick={() => handleTabChange('search')}
           >
             Buscar Específica
           </button>
           <button
             className={`tab ${activeTab === 'table' ? 'active' : ''}`}
-            onClick={() => setActiveTab('table')}
+            onClick={() => handleTabChange('table')}
           >
             Mostrar Todas
           </button>
@@ -335,7 +336,8 @@ const ModifyThematicLine: React.FC = () => {
                     border: '1px solid #b3d9ff',
                     borderRadius: '4px',
                     marginBottom: '10px',
-                    color: '#004085'
+                    color: '#004085',
+                    fontSize: '13px'
                   }}>
                     ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
                   </div>

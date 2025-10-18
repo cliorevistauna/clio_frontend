@@ -8,6 +8,176 @@ import { EvaluatorWorkloadResponse } from '../types';
 import { researcherService } from '../../researchers/services/researcherService';
 import { Researcher } from '../../researchers/types';
 
+const styles = {
+  subtitle: { color: '#6c757d', marginBottom: '20px' },
+  helperText: { display: 'block', marginBottom: '8px', color: '#666' },
+  selectedBadge: {
+    marginTop: '10px',
+    padding: '10px',
+    backgroundColor: '#d4edda',
+    border: '1px solid #c3e6cb',
+    borderRadius: '4px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  closeButton: {
+    background: 'none',
+    border: 'none',
+    color: '#721c24',
+    cursor: 'pointer',
+    fontSize: '1.2rem',
+    padding: '0 10px'
+  },
+  searchContainer: { display: 'flex', gap: '10px', marginBottom: '10px' },
+  evaluatorSearchInput: { flex: 1, padding: '10px', fontSize: '16px' },
+  searchButton: {
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  },
+  paginationContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '10px',
+    marginBottom: '10px',
+    padding: '10px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '4px'
+  },
+  paginationInfo: { fontSize: '14px', color: '#6c757d' },
+  paginationInfoContainer: { display: 'flex', alignItems: 'center', gap: '10px' },
+  paginationLabel: { fontSize: '14px' },
+  itemsPerPageSelect: {
+    padding: '5px 8px',
+    border: '1px solid #ced4da',
+    borderRadius: '4px',
+    fontSize: '14px',
+    cursor: 'pointer'
+  },
+  searchResultContainer: {
+    border: '1px solid #dee2e6',
+    borderRadius: '4px',
+    marginBottom: '10px'
+  },
+  searchResultItem: {
+    padding: '10px',
+    cursor: 'pointer',
+    borderBottom: '1px solid #dee2e6',
+    backgroundColor: 'white'
+  },
+  paginationControls: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '10px',
+    gap: '8px'
+  },
+  pageButtonActive: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: '#007bff',
+    color: 'white',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold'
+  },
+  pageButton: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: 'white',
+    color: '#495057',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'normal'
+  },
+  disabledPaginationButton: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: '#e9ecef',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontSize: '14px'
+  },
+  ellipsis: { padding: '8px' },
+  reportActionsContainer: { display: 'flex', gap: '10px', marginTop: '20px' },
+  generateButtonEnabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    opacity: 1
+  },
+  generateButtonDisabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontWeight: '500',
+    opacity: 0.6
+  },
+  downloadButtonEnabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    opacity: 1
+  },
+  downloadButtonDisabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontWeight: '500',
+    opacity: 0.6
+  },
+  errorMessage: {
+    marginTop: '20px',
+    padding: '12px 16px',
+    backgroundColor: '#f8d7da',
+    color: '#842029',
+    border: '1px solid #f5c2c7',
+    borderRadius: '4px'
+  },
+  resultsContainer: { marginTop: '30px' },
+  reportSummary: {
+    padding: '15px',
+    backgroundColor: '#e7f3ff',
+    borderRadius: '4px',
+    marginBottom: '20px'
+  },
+  tableContainer: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    marginTop: '10px'
+  },
+  tableHeaderRow: { backgroundColor: '#f8f9fa' },
+  tableHeader: { padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' },
+  tableRow: { borderBottom: '1px solid #dee2e6' },
+  tableCell: { padding: '12px' }
+} as const;
+
 /**
  * RF-024: Reporte de carga de trabajo de evaluadores
  */
@@ -123,28 +293,19 @@ const EvaluatorWorkloadReport: React.FC = () => {
       <main className="main-content">
         <div className="form-container">
           <h2>Carga de Trabajo de Evaluadores</h2>
-          <p style={{ color: '#6c757d', marginBottom: '20px' }}>
+          <p style={styles.subtitle}>
             Visualice la carga de trabajo de los evaluadores en el sistema.
           </p>
 
           {/* Sección de búsqueda de evaluador */}
           <div className="form-group">
             <label>Evaluador (Opcional)</label>
-            <small style={{ display: 'block', marginBottom: '8px', color: '#666' }}>
+            <small style={styles.helperText}>
               Dejar vacío para ver todos los evaluadores
             </small>
 
             {selectedEvaluador ? (
-              <div style={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#d4edda',
-                border: '1px solid #c3e6cb',
-                borderRadius: '4px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
+              <div style={styles.selectedBadge}>
                 <span>
                   <strong>{selectedEvaluador.name}</strong>
                   <br />
@@ -156,40 +317,25 @@ const EvaluatorWorkloadReport: React.FC = () => {
                     setSelectedEvaluador(null);
                     setEvaluadorId('');
                   }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#721c24',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    padding: '0 10px'
-                  }}
+                  style={styles.closeButton}
                 >
                   ×
                 </button>
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <div style={styles.searchContainer}>
                   <input
                     type="text"
                     placeholder="Buscar por nombre, ORCID, correo..."
                     value={evaluadorSearchQuery}
                     onChange={(e) => setEvaluadorSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearchEvaluador()}
-                    style={{ flex: 1, padding: '10px', fontSize: '16px' }}
+                    style={styles.evaluatorSearchInput}
                   />
                   <button
                     onClick={handleSearchEvaluador}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#007bff',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '16px'
-                    }}
+                    style={styles.searchButton}
                   >
                     Buscar
                   </button>
@@ -198,55 +344,31 @@ const EvaluatorWorkloadReport: React.FC = () => {
                 {evaluadorSearchResults.length > 0 && (
                   <div>
                     {/* Controles de paginación superior */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginTop: '10px',
-                      marginBottom: '10px',
-                      padding: '10px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '4px'
-                    }}>
-                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                    <div style={styles.paginationContainer}>
+                      <div style={styles.paginationInfo}>
                         Mostrando {startIndex + 1} a {Math.min(endIndex, evaluadorSearchResults.length)} de {evaluadorSearchResults.length} evaluadores
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                      <div style={styles.paginationInfoContainer}>
+                        <span style={styles.paginationLabel}>Mostrar:</span>
                         <select
                           value={itemsPerPage}
                           onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                          style={{
-                            padding: '5px 8px',
-                            border: '1px solid #ced4da',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
+                          style={styles.itemsPerPageSelect}
                         >
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
                         </select>
-                        <span style={{ fontSize: '14px' }}>por página</span>
+                        <span style={styles.paginationLabel}>por página</span>
                       </div>
                     </div>
 
-                    <div style={{
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      marginBottom: '10px'
-                    }}>
+                    <div style={styles.searchResultContainer}>
                       {currentResults.map((evaluador) => (
                         <div
                           key={evaluador.id}
                           onClick={() => handleSelectEvaluador(evaluador)}
-                          style={{
-                            padding: '10px',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid #dee2e6',
-                            backgroundColor: 'white'
-                          }}
+                          style={styles.searchResultItem}
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
                         >
@@ -259,21 +381,15 @@ const EvaluatorWorkloadReport: React.FC = () => {
 
                     {/* Controles de paginación inferior */}
                     {totalPages > 1 && (
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginBottom: '10px',
-                        gap: '8px'
-                      }}>
-                        <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
-                        <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                      <div style={styles.paginationControls}>
+                        <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} style={currentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Primera</button>
+                        <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} style={currentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Anterior</button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 2).map((page, index, array) => {
                           const showEllipsis = index > 0 && page - array[index - 1] > 1;
-                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === page ? '#007bff' : 'white', color: currentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: currentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={styles.ellipsis}>...</span>}<button onClick={() => setCurrentPage(page)} style={currentPage === page ? styles.pageButtonActive : styles.pageButton}>{page}</button></React.Fragment>);
                         })}
-                        <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === totalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
-                        <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: currentPage === totalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                        <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={currentPage === totalPages ? styles.disabledPaginationButton : styles.pageButton}>Siguiente</button>
+                        <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} style={currentPage === totalPages ? styles.disabledPaginationButton : styles.pageButton}>Última</button>
                       </div>
                     )}
                   </div>
@@ -283,38 +399,18 @@ const EvaluatorWorkloadReport: React.FC = () => {
           </div>
 
           {/* Botones de acción */}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <div style={styles.reportActionsContainer}>
             <button
               onClick={handleGenerateReport}
               disabled={isLoading}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                fontWeight: '500',
-                opacity: isLoading ? 0.6 : 1
-              }}
+              style={isLoading ? styles.generateButtonDisabled : styles.generateButtonEnabled}
             >
               {isLoading ? 'Generando...' : 'Generar Reporte'}
             </button>
             <button
               onClick={handleDownloadPDF}
               disabled={isLoading}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                fontWeight: '500',
-                opacity: isLoading ? 0.6 : 1
-              }}
+              style={isLoading ? styles.downloadButtonDisabled : styles.downloadButtonEnabled}
             >
               {isLoading ? 'Descargando...' : 'Descargar PDF'}
             </button>
@@ -322,52 +418,36 @@ const EvaluatorWorkloadReport: React.FC = () => {
 
           {/* Mensaje de error */}
           {error && (
-            <div style={{
-              marginTop: '20px',
-              padding: '12px 16px',
-              backgroundColor: '#f8d7da',
-              color: '#842029',
-              border: '1px solid #f5c2c7',
-              borderRadius: '4px'
-            }}>
+            <div style={styles.errorMessage}>
               {error}
             </div>
           )}
 
           {/* Resultados del reporte */}
           {reportData && (
-            <div style={{ marginTop: '30px' }}>
+            <div style={styles.resultsContainer}>
               <h3>Resultados del Reporte</h3>
-              <div style={{
-                padding: '15px',
-                backgroundColor: '#e7f3ff',
-                borderRadius: '4px',
-                marginBottom: '20px'
-              }}>
+              <div style={styles.reportSummary}>
                 <p><strong>Total de Evaluadores:</strong> {reportData.total_evaluadores}</p>
               </div>
 
               <div className="table-responsive">
-                <table style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  marginTop: '10px'
-                }}>
+                <table style={styles.tableContainer}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8f9fa' }}>
-                      <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>Evaluador</th>
-                      <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>ORCID</th>
-                      <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>Total Dictámenes</th>
-                      <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>Números de Publicación</th>
+                    <tr style={styles.tableHeaderRow}>
+                      <th style={styles.tableHeader}>Evaluador</th>
+                      <th style={styles.tableHeader}>ORCID</th>
+                      <th style={styles.tableHeader}>Total Dictámenes</th>
+                      <th style={styles.tableHeader}>Números de Publicación</th>
                     </tr>
                   </thead>
                   <tbody>
                     {reportData.carga_trabajo.map((item, index) => (
-                      <tr key={item.evaluador_id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                        <td style={{ padding: '12px' }}>{item.evaluador_nombre}</td>
-                        <td style={{ padding: '12px' }}>{item.evaluador_orcid}</td>
-                        <td style={{ padding: '12px' }}>{item.total_dictamenes}</td>
-                        <td style={{ padding: '12px' }}>{item.numeros_editoriales.join(', ')}</td>
+                      <tr key={item.evaluador_id} style={styles.tableRow}>
+                        <td style={styles.tableCell}>{item.evaluador_nombre}</td>
+                        <td style={styles.tableCell}>{item.evaluador_orcid}</td>
+                        <td style={styles.tableCell}>{item.total_dictamenes}</td>
+                        <td style={styles.tableCell}>{item.numeros_editoriales.join(', ')}</td>
                       </tr>
                     ))}
                   </tbody>
