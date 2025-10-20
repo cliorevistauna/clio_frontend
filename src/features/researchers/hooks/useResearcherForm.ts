@@ -81,7 +81,7 @@ const researcherFormReducer = (
         lineas: data.thematicLines || [],
         idiomas: Array.isArray(data.languages) ? data.languages : [],
         telefono: data.phones?.mobile || '',
-        estado: data.status === 'active' ? 'activo' : data.status === 'inactive' ? 'inactivo' : 'pendiente'
+        estado: data.status === 'active' ? 'activo' : 'inactivo'
       };
     default:
       return state;

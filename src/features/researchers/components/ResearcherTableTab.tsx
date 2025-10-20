@@ -90,13 +90,6 @@ const styles = {
     color: '#721c24',
     fontSize: '12px'
   },
-  statusBadgePending: {
-    padding: '4px 8px',
-    borderRadius: '4px',
-    backgroundColor: '#fff3cd',
-    color: '#856404',
-    fontSize: '12px'
-  },
   tableCell: {
     padding: '10px'
   },
@@ -287,11 +280,9 @@ export const ResearcherTableTab: React.FC<ResearcherTableTabProps> = ({
                       <td style={styles.tableCell}>{author.country || '-'}</td>
                       <td style={styles.tableCell}>
                         <span style={
-                          author.status === 'active' ? styles.statusBadgeActive :
-                          author.status === 'inactive' ? styles.statusBadgeInactive :
-                          styles.statusBadgePending
+                          author.status === 'active' ? styles.statusBadgeActive : styles.statusBadgeInactive
                         }>
-                          {author.status === 'active' ? 'Activo' : author.status === 'inactive' ? 'Inactivo' : 'Pendiente'}
+                          {author.status === 'active' ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
                       <td style={styles.tableCellCenter}>

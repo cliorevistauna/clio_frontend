@@ -14,7 +14,7 @@ export interface Researcher {
     home?: string;
     university?: string;
   };
-  status: "active" | "inactive" | "pending";
+  status: "active" | "inactive";
   createdAt: string;
   updatedAt: string;
 }
@@ -37,7 +37,7 @@ export interface CreateResearcherRequest {
     home?: string;
     university?: string;
   };
-  status: "active" | "inactive" | "pending";
+  status: "active" | "inactive";
 }
 
 export interface UpdateResearcherRequest extends Partial<CreateResearcherRequest> {

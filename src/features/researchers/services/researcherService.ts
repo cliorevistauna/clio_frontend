@@ -74,7 +74,7 @@ export class ResearcherService {
         home: '',
         university: ''
       },
-      status: djangoData.estado === 'activo' ? 'active' : djangoData.estado === 'inactivo' ? 'inactive' : 'pending',
+      status: djangoData.estado === 'activo' ? 'active' : 'inactive',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
