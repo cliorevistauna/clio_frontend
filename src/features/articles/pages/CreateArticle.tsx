@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useReducer } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { SearchAuthorModal, SearchEvaluatorModal } from "../components";
 import { articleService } from "../services";
@@ -15,6 +15,7 @@ import {
   getCurrentDateFrontend
 } from "../../../shared/utils/dateUtils";
 import { DateInput } from "../../../shared/components/ui";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 // Definir el estado del formulario de artículo
 interface ArticleFormState {
@@ -84,6 +85,7 @@ const articleFormReducer = (
 const CreateArticle: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
 
   // Usar useReducer para el formulario
   const [formState, dispatch] = useReducer(articleFormReducer, initialArticleFormState);
@@ -255,8 +257,8 @@ const CreateArticle: React.FC = () => {
   }, [formState, selectedAuthor, selectedEditorialNumber, selectedEvaluators]);
 
   return (
-    <div className="app-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">

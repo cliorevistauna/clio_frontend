@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { AppLayout } from "../../../shared/components/layout";
 import { Button } from "../../../shared/components/ui";
 import { useAuth } from "../../auth/hooks";
@@ -373,7 +373,7 @@ const ManageUsers: React.FC = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <PageHeader onLogout={handleLogout} />
+        <HeaderWithToggle onLogout={handleLogout} />
         <Container>
           <h1>Gestionar Usuarios</h1>
           <p>Cargando usuarios...</p>
@@ -384,7 +384,7 @@ const ManageUsers: React.FC = () => {
 
   return (
     <AppLayout>
-      <PageHeader onLogout={handleLogout} />
+      <HeaderWithToggle onLogout={handleLogout} />
       <Container>
         <h1>Usuarios del Sistema</h1>
 

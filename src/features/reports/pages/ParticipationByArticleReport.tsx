@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../../../shared/components/PageHeader';
+import { HeaderWithToggle } from '../../../shared/components/HeaderWithToggle';
 import { useAuth } from '../../auth/hooks';
 import { ROUTES } from '../../../shared/constants';
 import { reportService } from '../services/reportService';
 import { ParticipationByArticleResponse } from '../types';
 import { articleService } from '../../articles/services/articleService';
 import { backendToFrontendDate } from '../../../shared/utils/dateUtils';
-import '../../../shared/styles/WideLayout.css';
+import { useViewMode } from '../../../shared/contexts/ViewModeContext';
 
 const styles = {
   subtitle: { color: '#6c757d', marginBottom: '20px' },
@@ -185,6 +185,7 @@ const styles = {
 const ParticipationByArticleReport: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
   const [articuloId, setArticuloId] = useState<string>('');
   const [articuloSearchQuery, setArticuloSearchQuery] = useState('');
   const [articuloSearchResults, setArticuloSearchResults] = useState<any[]>([]);
@@ -303,8 +304,8 @@ const ParticipationByArticleReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout wide-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">

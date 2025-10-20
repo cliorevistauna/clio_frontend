@@ -279,16 +279,6 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     });
   }, []);
 
-  const handleConfirmSelection = useCallback(() => {
-    if (selectedEvaluators.length === 0) {
-      alert("Seleccione al menos 1 evaluador.");
-      return;
-    }
-
-    onSelectEvaluators(selectedEvaluators);
-    handleCloseModal();
-  }, [selectedEvaluators, onSelectEvaluators]);
-
   const handleCloseModal = useCallback(() => {
     setKeywordSearch("");
     setFilterTerm("");
@@ -299,6 +289,16 @@ const SearchEvaluatorModal: React.FC<SearchEvaluatorModalProps> = ({
     setItemsPerPage(10);
     onClose();
   }, [onClose]);
+
+  const handleConfirmSelection = useCallback(() => {
+    if (selectedEvaluators.length === 0) {
+      alert("Seleccione al menos 1 evaluador.");
+      return;
+    }
+
+    onSelectEvaluators(selectedEvaluators);
+    handleCloseModal();
+  }, [selectedEvaluators, onSelectEvaluators, handleCloseModal]);
 
   const handleItemsPerPageChange = useCallback((value: number) => {
     setItemsPerPage(value);

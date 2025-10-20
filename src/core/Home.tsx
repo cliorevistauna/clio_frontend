@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../shared/components/PageHeader";
+import { HeaderWithToggle } from "../shared/components/HeaderWithToggle";
 import { AppLayout } from "../shared/components/layout";
 import { useAuth } from "../features/auth/hooks";
 import { ROUTES } from "../shared/constants";
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
 
   return (
     <AppLayout>
-      <PageHeader onLogout={handleLogout} />
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main style={{ padding: '20px' }}>
         {/* RF-002: Visualización del nombre y rol del usuario */}

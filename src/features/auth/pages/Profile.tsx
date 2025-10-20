@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useAuth } from '../hooks';
 import { authService } from '../services';
 import { getUserRoleName } from '../../../shared/utils';
-import PageHeader from '../../../shared/components/PageHeader';
+import { HeaderWithToggle } from '../../../shared/components/HeaderWithToggle';
 import { AppLayout } from '../../../shared/components/layout';
 import { Button } from '../../../shared/components/ui';
 
@@ -310,7 +310,7 @@ const Profile: React.FC = () => {
 
   return (
     <AppLayout>
-      <PageHeader />
+      <HeaderWithToggle />
       <Container>
         <h1>Mi Perfil</h1>
 

@@ -165,6 +165,7 @@ export const ResearcherEditForm: React.FC<ResearcherEditFormProps> = ({
           >
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
+            <option value="pendiente">Pendiente</option>
           </select>
         </div>
 

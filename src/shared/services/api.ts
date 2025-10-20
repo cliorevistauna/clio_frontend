@@ -52,7 +52,7 @@ class ApiClient {
           // Prioridad 4: Primer error de campo encontrado
           else {
             // Buscar el primer campo con errores
-            for (const [key, value] of Object.entries(errorData)) {
+            for (const value of Object.values(errorData)) {
               if (Array.isArray(value) && value.length > 0) {
                 errorMessage = value[0];
                 break;

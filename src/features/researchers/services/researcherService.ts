@@ -2,7 +2,6 @@ import { apiClient } from '../../../shared/services/api';
 import {
   Researcher,
   CreateResearcherRequest,
-  UpdateResearcherRequest,
   ThematicLine,
 } from '../types';
 import { PaginationParams } from '../../../shared/types';
@@ -74,7 +73,7 @@ export class ResearcherService {
         home: '',
         university: ''
       },
-      status: djangoData.estado === 'activo' ? 'active' : 'inactive',
+      status: djangoData.estado === 'activo' ? 'active' : djangoData.estado === 'inactivo' ? 'inactive' : 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
