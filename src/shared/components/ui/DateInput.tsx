@@ -72,7 +72,7 @@ const ErrorMessage = styled.span`
  * - Calendario visual para seleccionar fecha
  * - Convierte internamente entre DD-MM-YYYY y Date object
  */
-export const DateInput: React.FC<DateInputProps> = ({
+export const DateInput: React.FC<DateInputProps> = React.memo(({
   value,
   onChange,
   disabled = false,
@@ -145,4 +145,4 @@ export const DateInput: React.FC<DateInputProps> = ({
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </InputWrapper>
   );
-};
+});

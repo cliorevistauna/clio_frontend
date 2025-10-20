@@ -11,7 +11,7 @@ interface PageHeaderProps {
   onLogout?: () => void;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
+const PageHeader: React.FC<PageHeaderProps> = React.memo(({ onLogout }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { currentEditorialNumber } = useEditorialNumbers();
@@ -104,7 +104,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                     <Link to={ROUTES.MANAGE_USERS} className="submenu-link">
                       Gestionar
                     </Link>
-                    <div className="submenu-divider">Números de Publicación</div>
+                    <div className="submenu-divider">Periodo de Publicación</div>
                     <Link to={ROUTES.CREATE_EDITORIAL_NUMBER} className="submenu-link">
                       Registrar
                     </Link>
@@ -119,6 +119,16 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                       Modificar
                     </Link>
                     <Link to={ROUTES.DEACTIVATE_THEMATIC_LINE} className="submenu-link">
+                      Eliminar
+                    </Link>
+                    <div className="submenu-divider">Idiomas</div>
+                    <Link to={ROUTES.CREATE_LANGUAGE} className="submenu-link">
+                      Registrar
+                    </Link>
+                    <Link to={ROUTES.MODIFY_LANGUAGE} className="submenu-link">
+                      Modificar
+                    </Link>
+                    <Link to={ROUTES.DEACTIVATE_LANGUAGE} className="submenu-link">
                       Eliminar
                     </Link>
                   </div>
@@ -156,22 +166,22 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
                 {showReportsSubmenu && (
                   <div className="submenu">
                     <Link to={ROUTES.EVALUATOR_HISTORY_REPORT} className="submenu-link">
-                      Histórico de evaluaciones por evaluador
+                      Histórico de Evaluaciones por Evaluador
                     </Link>
                     <Link to={ROUTES.EVALUATORS_BY_THEME_REPORT} className="submenu-link">
-                      Estadísticas por línea temática
+                      Estadísticas por Línea Temática
                     </Link>
                     <Link to={ROUTES.EVALUATOR_WORKLOAD_REPORT} className="submenu-link">
-                      Carga de trabajo de evaluadores
+                      Carga de Trabajo de Evaluadores
                     </Link>
                     <Link to={ROUTES.INVITATIONS_BY_ISSUE_REPORT} className="submenu-link">
-                      Invitaciones por número editorial
+                      Invitaciones por Periodo de Publicación
                     </Link>
                     <Link to={ROUTES.PARTICIPATION_BY_ARTICLE_REPORT} className="submenu-link">
-                      Participación por artículo
+                      Participación por Artículo
                     </Link>
                     <Link to={ROUTES.PREVIOUS_PARTICIPATION_REPORT} className="submenu-link">
-                      Participación en números anteriores
+                      Participación en Periodos Anteriores
                     </Link>
                   </div>
                 )}
@@ -190,11 +200,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ onLogout }) => {
           )}
         </nav>
         <div className="editorial-number">
-          Número de Publicación: {currentEditorialNumber ? `${currentEditorialNumber.numero}-${currentEditorialNumber.anio}` : 'N/A'}
+          Periodo Actual: {currentEditorialNumber ? `${currentEditorialNumber.numero}-${currentEditorialNumber.anio}` : 'N/A'}
         </div>
       </div>
     </header>
   );
-};
+});
 
 export default PageHeader;

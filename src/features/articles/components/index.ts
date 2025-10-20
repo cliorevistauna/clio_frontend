@@ -1,2 +1,9 @@
 export { default as SearchAuthorModal } from './SearchAuthorModal';
 export { default as SearchEvaluatorModal } from './SearchEvaluatorModal';
+export { default as ArticleInfoSection } from './ArticleInfoSection';
+export { default as AuthorSection } from './AuthorSection';
+export { default as EvaluatorsSection } from './EvaluatorsSection';
+export { default as EvaluatorCard } from './EvaluatorCard';
+export { default as AuthorSearchTab } from './AuthorSearchTab';
+export { default as AuthorCreateTab } from './AuthorCreateTab';
+export { default as AuthorResultsTable } from './AuthorResultsTable';

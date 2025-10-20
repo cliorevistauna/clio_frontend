@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { languagesService, Language } from "../services";
+import { languagesService, Language } from "../../features/languages/services";
 
 interface LanguageSelectorProps {
   selected: number[];
   onChange: (values: number[]) => void;
 }
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange }) => {
+const LanguageSelector: React.FC<LanguageSelectorProps> = React.memo(({ selected, onChange }) => {
   const [search, setSearch] = useState("");
   const [availableLanguages, setAvailableLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,11 +76,16 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange 
       {search && (
         <ul className="options-list">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((lang) => (
-              <li key={lang.id} onClick={() => addLanguage(lang.id)}>
-                {lang.nombre}
+            <>
+              <li className="select-header" style={{ fontWeight: 'bold', cursor: 'default', backgroundColor: '#f8f9fa', listStyle: 'none' }}>
+                Seleccione:
               </li>
-            ))
+              {filteredOptions.map((lang) => (
+                <li key={lang.id} onClick={() => addLanguage(lang.id)}>
+                  {lang.nombre}
+                </li>
+              ))}
+            </>
           ) : (
             <li className="no-results">No se encontraron resultados</li>
           )}
@@ -103,6 +108,6 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selected, onChange 
       )}
     </div>
   );
-};
+});
 
 export default LanguageSelector;

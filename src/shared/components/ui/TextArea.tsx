@@ -50,7 +50,7 @@ const ErrorMessage = styled.span`
   font-size: 0.875rem;
 `;
 
-export const TextArea: React.FC<TextAreaProps> = ({
+export const TextArea: React.FC<TextAreaProps> = React.memo(({
   error,
   hasError,
   rows = 3,
@@ -66,4 +66,4 @@ export const TextArea: React.FC<TextAreaProps> = ({
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </TextAreaWrapper>
   );
-};
+});

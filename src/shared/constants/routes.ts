@@ -39,6 +39,11 @@ export const ROUTES = {
   MODIFY_THEMATIC_LINE: '/línea-temática/modificar',
   DEACTIVATE_THEMATIC_LINE: '/línea-temática/eliminar',
 
+  // Languages
+  CREATE_LANGUAGE: '/idioma/registrar',
+  MODIFY_LANGUAGE: '/idioma/modificar',
+  DEACTIVATE_LANGUAGE: '/idioma/eliminar',
+
   // Admin
   ADMIN: '/admin',
   USER_MANAGEMENT: '/admin/users',

@@ -7,6 +7,198 @@ import { reportService } from '../services/reportService';
 import { InvitationsByIssueResponse } from '../types';
 import { editorialNumberService } from '../../editorial-numbers/services/editorialNumberService';
 import { articleService } from '../../articles/services/articleService';
+import '../../../shared/styles/WideLayout.css';
+
+const styles = {
+  subtitle: { color: '#6c757d', marginBottom: '20px' },
+  selectedBadge: {
+    marginTop: '10px',
+    padding: '10px',
+    backgroundColor: '#d4edda',
+    border: '1px solid #c3e6cb',
+    borderRadius: '4px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  closeButton: {
+    background: 'none',
+    border: 'none',
+    color: '#721c24',
+    cursor: 'pointer',
+    fontSize: '1.2rem',
+    padding: '0 10px'
+  },
+  searchContainer: { display: 'flex', gap: '10px', marginBottom: '10px' },
+  fullWidthInput: { flex: 1, padding: '8px', fontSize: '16px' },
+  editorialSearchButton: {
+    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  },
+  paginationContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '10px',
+    marginBottom: '10px',
+    padding: '10px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '4px'
+  },
+  paginationInfo: { fontSize: '14px', color: '#6c757d' },
+  paginationInfoContainer: { display: 'flex', alignItems: 'center', gap: '10px' },
+  paginationLabel: { fontSize: '14px' },
+  itemsPerPageSelect: {
+    padding: '5px 8px',
+    border: '1px solid #ced4da',
+    borderRadius: '4px',
+    fontSize: '14px',
+    cursor: 'pointer'
+  },
+  searchResultContainer: {
+    border: '1px solid #dee2e6',
+    borderRadius: '4px',
+    marginBottom: '10px'
+  },
+  searchResultItem: {
+    padding: '10px',
+    cursor: 'pointer',
+    borderBottom: '1px solid #dee2e6',
+    backgroundColor: 'white'
+  },
+  paginationControls: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '10px',
+    gap: '8px'
+  },
+  pageButtonActive: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: '#007bff',
+    color: 'white',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold'
+  },
+  pageButton: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: 'white',
+    color: '#495057',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'normal'
+  },
+  disabledPaginationButton: {
+    padding: '8px 12px',
+    border: '1px solid #ced4da',
+    background: '#e9ecef',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontSize: '14px'
+  },
+  ellipsis: { padding: '8px' },
+  helperText: { display: 'block', marginBottom: '8px', color: '#666' },
+  searchInputDisabled: { flex: 1, padding: '10px', fontSize: '16px' },
+  secondaryButtonEnabled: {
+    padding: '10px 20px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    opacity: 1
+  },
+  secondaryButtonDisabled: {
+    padding: '10px 20px',
+    backgroundColor: '#6c757d',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontSize: '16px',
+    opacity: 0.6
+  },
+  reportActionsContainer: { display: 'flex', gap: '10px', marginTop: '20px' },
+  generateButtonEnabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    opacity: 1
+  },
+  generateButtonDisabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontWeight: '500',
+    opacity: 0.6
+  },
+  downloadButtonEnabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    opacity: 1
+  },
+  downloadButtonDisabled: {
+    flex: 1,
+    padding: '12px',
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'not-allowed',
+    fontWeight: '500',
+    opacity: 0.6
+  },
+  errorMessage: {
+    marginTop: '20px',
+    padding: '12px 16px',
+    backgroundColor: '#f8d7da',
+    color: '#842029',
+    border: '1px solid #f5c2c7',
+    borderRadius: '4px'
+  },
+  resultsContainer: { marginTop: '30px' },
+  reportSummary: {
+    padding: '15px',
+    backgroundColor: '#e7f3ff',
+    borderRadius: '4px',
+    marginBottom: '20px'
+  },
+  tableContainer: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    marginTop: '10px'
+  },
+  tableHeaderRow: { backgroundColor: '#f8f9fa' },
+  tableHeader: { padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' },
+  tableRow: { borderBottom: '1px solid #dee2e6' },
+  tableCell: { padding: '12px' }
+} as const;
 
 /**
  * RF-025: Reporte de invitaciones por número editorial
@@ -195,33 +387,24 @@ const InvitationsByIssueReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout wide-layout">
       <PageHeader onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">
-          <h2>Invitaciones por Número de Publicación</h2>
-          <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            Genere un reporte de invitaciones por número de publicación.
+          <h2>Invitaciones por Periodo</h2>
+          <p style={styles.subtitle}>
+            Genere un reporte de invitaciones por periodo.
           </p>
 
           {/* Número Editorial (Requerido) */}
           <div className="form-group">
-            <label>Número de Publicación (Requerido)</label>
+            <label>Periodo (Requerido)</label>
 
             {selectedNumero ? (
-              <div style={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#d4edda',
-                border: '1px solid #c3e6cb',
-                borderRadius: '4px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
+              <div style={styles.selectedBadge}>
                 <span>
-                  <strong>Número seleccionado:</strong> {selectedNumero.numero}-{selectedNumero.anio}
+                  <strong>Periodo seleccionado:</strong> {selectedNumero.numero}-{selectedNumero.anio}
                 </span>
                 <button
                   type="button"
@@ -231,28 +414,21 @@ const InvitationsByIssueReport: React.FC = () => {
                     setSelectedArticulo(null);
                     setArticuloId('');
                   }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#721c24',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    padding: '0 10px'
-                  }}
+                  style={styles.closeButton}
                 >
                   ×
                 </button>
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <div style={styles.searchContainer}>
                   <input
                     type="number"
-                    placeholder="Número"
+                    placeholder="Periodo"
                     value={numeroSearchQuery}
                     onChange={(e) => setNumeroSearchQuery(e.target.value)}
                     min="1"
-                    style={{ flex: 1, padding: '8px', fontSize: '16px' }}
+                    style={styles.fullWidthInput}
                   />
                   <input
                     type="number"
@@ -261,19 +437,11 @@ const InvitationsByIssueReport: React.FC = () => {
                     onChange={(e) => setAnioSearchQuery(e.target.value)}
                     min="1900"
                     max={new Date().getFullYear()}
-                    style={{ flex: 1, padding: '8px', fontSize: '16px' }}
+                    style={styles.fullWidthInput}
                   />
                   <button
                     onClick={handleSearchNumero}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#17a2b8',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '16px'
-                    }}
+                    style={styles.editorialSearchButton}
                   >
                     Buscar
                   </button>
@@ -282,55 +450,31 @@ const InvitationsByIssueReport: React.FC = () => {
                 {numeroSearchResults.length > 0 && (
                   <div>
                     {/* Controles de paginación superior */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginTop: '10px',
-                      marginBottom: '10px',
-                      padding: '10px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '4px'
-                    }}>
-                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                    <div style={styles.paginationContainer}>
+                      <div style={styles.paginationInfo}>
                         Mostrando {numeroStartIndex + 1} a {Math.min(numeroEndIndex, numeroSearchResults.length)} de {numeroSearchResults.length} números
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                      <div style={styles.paginationInfoContainer}>
+                        <span style={styles.paginationLabel}>Mostrar:</span>
                         <select
                           value={numeroItemsPerPage}
                           onChange={(e) => handleNumeroItemsPerPageChange(Number(e.target.value))}
-                          style={{
-                            padding: '5px 8px',
-                            border: '1px solid #ced4da',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
+                          style={styles.itemsPerPageSelect}
                         >
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
                         </select>
-                        <span style={{ fontSize: '14px' }}>por página</span>
+                        <span style={styles.paginationLabel}>por página</span>
                       </div>
                     </div>
 
-                    <div style={{
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      marginBottom: '10px'
-                    }}>
+                    <div style={styles.searchResultContainer}>
                       {currentNumeroResults.map((numero) => (
                         <div
                           key={numero.id}
                           onClick={() => handleSelectNumero(numero)}
-                          style={{
-                            padding: '10px',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid #dee2e6',
-                            backgroundColor: 'white'
-                          }}
+                          style={styles.searchResultItem}
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
                         >
@@ -341,21 +485,15 @@ const InvitationsByIssueReport: React.FC = () => {
 
                     {/* Controles de paginación inferior */}
                     {numeroTotalPages > 1 && (
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginBottom: '10px',
-                        gap: '8px'
-                      }}>
-                        <button onClick={() => setNumeroCurrentPage(1)} disabled={numeroCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
-                        <button onClick={() => setNumeroCurrentPage(prev => Math.max(1, prev - 1))} disabled={numeroCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                      <div style={styles.paginationControls}>
+                        <button onClick={() => setNumeroCurrentPage(1)} disabled={numeroCurrentPage === 1} style={numeroCurrentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Primera</button>
+                        <button onClick={() => setNumeroCurrentPage(prev => Math.max(1, prev - 1))} disabled={numeroCurrentPage === 1} style={numeroCurrentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Anterior</button>
                         {Array.from({ length: numeroTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === numeroTotalPages || Math.abs(page - numeroCurrentPage) <= 2).map((page, index, array) => {
                           const showEllipsis = index > 0 && page - array[index - 1] > 1;
-                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setNumeroCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === page ? '#007bff' : 'white', color: numeroCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: numeroCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={styles.ellipsis}>...</span>}<button onClick={() => setNumeroCurrentPage(page)} style={numeroCurrentPage === page ? styles.pageButtonActive : styles.pageButton}>{page}</button></React.Fragment>);
                         })}
-                        <button onClick={() => setNumeroCurrentPage(prev => Math.min(numeroTotalPages, prev + 1))} disabled={numeroCurrentPage === numeroTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === numeroTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === numeroTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
-                        <button onClick={() => setNumeroCurrentPage(numeroTotalPages)} disabled={numeroCurrentPage === numeroTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: numeroCurrentPage === numeroTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: numeroCurrentPage === numeroTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                        <button onClick={() => setNumeroCurrentPage(prev => Math.min(numeroTotalPages, prev + 1))} disabled={numeroCurrentPage === numeroTotalPages} style={numeroCurrentPage === numeroTotalPages ? styles.disabledPaginationButton : styles.pageButton}>Siguiente</button>
+                        <button onClick={() => setNumeroCurrentPage(numeroTotalPages)} disabled={numeroCurrentPage === numeroTotalPages} style={numeroCurrentPage === numeroTotalPages ? styles.disabledPaginationButton : styles.pageButton}>Última</button>
                       </div>
                     )}
                   </div>
@@ -364,24 +502,17 @@ const InvitationsByIssueReport: React.FC = () => {
             )}
           </div>
 
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
+
           {/* Artículo (Opcional) */}
           <div className="form-group">
             <label>Artículo (Opcional)</label>
-            <small style={{ display: 'block', marginBottom: '8px', color: '#666' }}>
+            <small style={styles.helperText}>
               Dejar vacío para ver todos los artículos del número editorial
             </small>
 
             {selectedArticulo ? (
-              <div style={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#d4edda',
-                border: '1px solid #c3e6cb',
-                borderRadius: '4px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
+              <div style={styles.selectedBadge}>
                 <span>
                   <strong>Artículo seleccionado:</strong> {selectedArticulo.titulo}
                 </span>
@@ -391,21 +522,14 @@ const InvitationsByIssueReport: React.FC = () => {
                     setSelectedArticulo(null);
                     setArticuloId('');
                   }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#721c24',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    padding: '0 10px'
-                  }}
+                  style={styles.closeButton}
                 >
                   ×
                 </button>
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <div style={styles.searchContainer}>
                   <input
                     type="text"
                     placeholder="Buscar por título"
@@ -413,21 +537,12 @@ const InvitationsByIssueReport: React.FC = () => {
                     onChange={(e) => setArticuloSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearchArticulo()}
                     disabled={!numeroEditorialId}
-                    style={{ flex: 1, padding: '10px', fontSize: '16px' }}
+                    style={styles.searchInputDisabled}
                   />
                   <button
                     onClick={handleSearchArticulo}
                     disabled={!numeroEditorialId}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#6c757d',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: !numeroEditorialId ? 'not-allowed' : 'pointer',
-                      fontSize: '16px',
-                      opacity: !numeroEditorialId ? 0.6 : 1
-                    }}
+                    style={!numeroEditorialId ? styles.secondaryButtonDisabled : styles.secondaryButtonEnabled}
                   >
                     Buscar
                   </button>
@@ -436,55 +551,31 @@ const InvitationsByIssueReport: React.FC = () => {
                 {articuloSearchResults.length > 0 && (
                   <div>
                     {/* Controles de paginación superior */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginTop: '10px',
-                      marginBottom: '10px',
-                      padding: '10px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '4px'
-                    }}>
-                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                    <div style={styles.paginationContainer}>
+                      <div style={styles.paginationInfo}>
                         Mostrando {articuloStartIndex + 1} a {Math.min(articuloEndIndex, articuloSearchResults.length)} de {articuloSearchResults.length} artículos
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '14px' }}>Mostrar:</span>
+                      <div style={styles.paginationInfoContainer}>
+                        <span style={styles.paginationLabel}>Mostrar:</span>
                         <select
                           value={articuloItemsPerPage}
                           onChange={(e) => handleArticuloItemsPerPageChange(Number(e.target.value))}
-                          style={{
-                            padding: '5px 8px',
-                            border: '1px solid #ced4da',
-                            borderRadius: '4px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
+                          style={styles.itemsPerPageSelect}
                         >
                           <option value={10}>10</option>
                           <option value={25}>25</option>
                           <option value={50}>50</option>
                         </select>
-                        <span style={{ fontSize: '14px' }}>por página</span>
+                        <span style={styles.paginationLabel}>por página</span>
                       </div>
                     </div>
 
-                    <div style={{
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      marginBottom: '10px'
-                    }}>
+                    <div style={styles.searchResultContainer}>
                       {currentArticuloResults.map((articulo) => (
                         <div
                           key={articulo.id}
                           onClick={() => handleSelectArticulo(articulo)}
-                          style={{
-                            padding: '10px',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid #dee2e6',
-                            backgroundColor: 'white'
-                          }}
+                          style={styles.searchResultItem}
                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
                         >
@@ -495,21 +586,15 @@ const InvitationsByIssueReport: React.FC = () => {
 
                     {/* Controles de paginación inferior */}
                     {articuloTotalPages > 1 && (
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginBottom: '10px',
-                        gap: '8px'
-                      }}>
-                        <button onClick={() => setArticuloCurrentPage(1)} disabled={articuloCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Primera</button>
-                        <button onClick={() => setArticuloCurrentPage(prev => Math.max(1, prev - 1))} disabled={articuloCurrentPage === 1} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === 1 ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Anterior</button>
+                      <div style={styles.paginationControls}>
+                        <button onClick={() => setArticuloCurrentPage(1)} disabled={articuloCurrentPage === 1} style={articuloCurrentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Primera</button>
+                        <button onClick={() => setArticuloCurrentPage(prev => Math.max(1, prev - 1))} disabled={articuloCurrentPage === 1} style={articuloCurrentPage === 1 ? styles.disabledPaginationButton : styles.pageButton}>Anterior</button>
                         {Array.from({ length: articuloTotalPages }, (_, i) => i + 1).filter(page => page === 1 || page === articuloTotalPages || Math.abs(page - articuloCurrentPage) <= 2).map((page, index, array) => {
                           const showEllipsis = index > 0 && page - array[index - 1] > 1;
-                          return (<React.Fragment key={page}>{showEllipsis && <span style={{ padding: '8px' }}>...</span>}<button onClick={() => setArticuloCurrentPage(page)} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === page ? '#007bff' : 'white', color: articuloCurrentPage === page ? 'white' : '#495057', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: articuloCurrentPage === page ? 'bold' : 'normal' }}>{page}</button></React.Fragment>);
+                          return (<React.Fragment key={page}>{showEllipsis && <span style={styles.ellipsis}>...</span>}<button onClick={() => setArticuloCurrentPage(page)} style={articuloCurrentPage === page ? styles.pageButtonActive : styles.pageButton}>{page}</button></React.Fragment>);
                         })}
-                        <button onClick={() => setArticuloCurrentPage(prev => Math.min(articuloTotalPages, prev + 1))} disabled={articuloCurrentPage === articuloTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === articuloTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === articuloTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Siguiente</button>
-                        <button onClick={() => setArticuloCurrentPage(articuloTotalPages)} disabled={articuloCurrentPage === articuloTotalPages} style={{ padding: '8px 12px', border: '1px solid #ced4da', background: articuloCurrentPage === articuloTotalPages ? '#e9ecef' : 'white', borderRadius: '4px', cursor: articuloCurrentPage === articuloTotalPages ? 'not-allowed' : 'pointer', fontSize: '14px' }}>Última</button>
+                        <button onClick={() => setArticuloCurrentPage(prev => Math.min(articuloTotalPages, prev + 1))} disabled={articuloCurrentPage === articuloTotalPages} style={articuloCurrentPage === articuloTotalPages ? styles.disabledPaginationButton : styles.pageButton}>Siguiente</button>
+                        <button onClick={() => setArticuloCurrentPage(articuloTotalPages)} disabled={articuloCurrentPage === articuloTotalPages} style={articuloCurrentPage === articuloTotalPages ? styles.disabledPaginationButton : styles.pageButton}>Última</button>
                       </div>
                     )}
                   </div>
@@ -518,39 +603,21 @@ const InvitationsByIssueReport: React.FC = () => {
             )}
           </div>
 
+          <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #dee2e6' }} />
+
           {/* Botones de acción */}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <div style={styles.reportActionsContainer}>
             <button
               onClick={handleGenerateReport}
               disabled={isLoading || !numeroEditorialId}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: (isLoading || !numeroEditorialId) ? 'not-allowed' : 'pointer',
-                fontWeight: '500',
-                opacity: (isLoading || !numeroEditorialId) ? 0.6 : 1
-              }}
+              style={(isLoading || !numeroEditorialId) ? styles.generateButtonDisabled : styles.generateButtonEnabled}
             >
               {isLoading ? 'Generando...' : 'Generar Reporte'}
             </button>
             <button
               onClick={handleDownloadPDF}
               disabled={isLoading || !numeroEditorialId}
-              style={{
-                flex: 1,
-                padding: '12px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: (isLoading || !numeroEditorialId) ? 'not-allowed' : 'pointer',
-                fontWeight: '500',
-                opacity: (isLoading || !numeroEditorialId) ? 0.6 : 1
-              }}
+              style={(isLoading || !numeroEditorialId) ? styles.downloadButtonDisabled : styles.downloadButtonEnabled}
             >
               {isLoading ? 'Descargando...' : 'Descargar PDF'}
             </button>
@@ -558,29 +625,17 @@ const InvitationsByIssueReport: React.FC = () => {
 
           {/* Mensaje de error */}
           {error && (
-            <div style={{
-              marginTop: '20px',
-              padding: '12px 16px',
-              backgroundColor: '#f8d7da',
-              color: '#842029',
-              border: '1px solid #f5c2c7',
-              borderRadius: '4px'
-            }}>
+            <div style={styles.errorMessage}>
               {error}
             </div>
           )}
 
           {/* Resultados del reporte */}
           {reportData && (
-            <div style={{ marginTop: '30px' }}>
+            <div style={styles.resultsContainer}>
               <h3>Resultados del Reporte</h3>
-              <div style={{
-                padding: '15px',
-                backgroundColor: '#e7f3ff',
-                borderRadius: '4px',
-                marginBottom: '20px'
-              }}>
-                <p><strong>Número de Publicación:</strong> {reportData.numero_editorial_nombre}</p>
+              <div style={styles.reportSummary}>
+                <p><strong>Periodo:</strong> {reportData.numero_editorial_nombre}</p>
                 <p><strong>Total de Invitaciones:</strong> {reportData.total_invitaciones}</p>
 
                 {reportData.articulo_titulo && (
@@ -590,22 +645,18 @@ const InvitationsByIssueReport: React.FC = () => {
 
               {reportData.desglose_por_articulo && reportData.desglose_por_articulo.length > 0 && (
                 <div className="table-responsive">
-                  <table style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    marginTop: '10px'
-                  }}>
+                  <table style={styles.tableContainer}>
                     <thead>
-                      <tr style={{ backgroundColor: '#f8f9fa' }}>
-                        <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>Artículo</th>
-                        <th style={{ padding: '12px', borderBottom: '2px solid #dee2e6', textAlign: 'left' }}>Total Invitaciones</th>
+                      <tr style={styles.tableHeaderRow}>
+                        <th style={styles.tableHeader}>Artículo</th>
+                        <th style={styles.tableHeader}>Total Invitaciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {reportData.desglose_por_articulo.map((item, index) => (
-                        <tr key={item.articulo_id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                          <td style={{ padding: '12px' }}>{item.articulo_titulo}</td>
-                          <td style={{ padding: '12px' }}>{item.total_invitaciones}</td>
+                        <tr key={item.articulo_id} style={styles.tableRow}>
+                          <td style={styles.tableCell}>{item.articulo_titulo}</td>
+                          <td style={styles.tableCell}>{item.total_invitaciones}</td>
                         </tr>
                       ))}
                     </tbody>

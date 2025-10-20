@@ -47,7 +47,7 @@ const ErrorMessage = styled.span`
   font-size: 0.875rem;
 `;
 
-export const Input: React.FC<InputProps> = ({
+export const Input = React.memo<InputProps>(({
   error,
   hasError,
   ...props
@@ -61,4 +61,4 @@ export const Input: React.FC<InputProps> = ({
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </InputWrapper>
   );
-};
+});

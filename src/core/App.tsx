@@ -1,24 +1,34 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Login, RecoverPassword, Register, ResetPassword, Profile } from "../features/auth/pages";
 import Home from "./Home";
 import BuildDefault from "./BuildDefault";
-import { CreateEditorialNumber, ModifyEditorialNumber } from "../features/editorial-numbers/pages";
-import { CreateResearcher, ModifyResearcher } from "../features/researchers/pages";
-import { ManageUsers } from "../features/users/pages";
-import { CreateArticle, UpdateArticle, ModifyArticle } from "../features/articles/pages";
-import { CreateThematicLine, ModifyThematicLine, DeactivateThematicLine } from "../features/thematic-lines/pages";
-import {
-  EvaluatorHistoryReport,
-  EvaluatorsByThemeReport,
-  EvaluatorWorkloadReport,
-  InvitationsByIssueReport,
-  ParticipationByArticleReport,
-  PreviousParticipationReport
-} from "../features/reports/pages";
 import { ROUTES } from "../shared/constants";
 import { useAuth } from "../features/auth/hooks";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
+import { Skeleton } from "../shared/components/Skeleton";
+
+// Lazy loading de componentes pesados
+const CreateEditorialNumber = lazy(() => import("../features/editorial-numbers/pages").then(m => ({ default: m.CreateEditorialNumber })));
+const ModifyEditorialNumber = lazy(() => import("../features/editorial-numbers/pages").then(m => ({ default: m.ModifyEditorialNumber })));
+const CreateResearcher = lazy(() => import("../features/researchers/pages").then(m => ({ default: m.CreateResearcher })));
+const ModifyResearcher = lazy(() => import("../features/researchers/pages").then(m => ({ default: m.ModifyResearcher })));
+const ManageUsers = lazy(() => import("../features/users/pages").then(m => ({ default: m.ManageUsers })));
+const CreateArticle = lazy(() => import("../features/articles/pages").then(m => ({ default: m.CreateArticle })));
+const UpdateArticle = lazy(() => import("../features/articles/pages").then(m => ({ default: m.UpdateArticle })));
+const ModifyArticle = lazy(() => import("../features/articles/pages").then(m => ({ default: m.ModifyArticle })));
+const CreateThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.CreateThematicLine })));
+const ModifyThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.ModifyThematicLine })));
+const DeactivateThematicLine = lazy(() => import("../features/thematic-lines/pages").then(m => ({ default: m.DeactivateThematicLine })));
+const CreateLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.CreateLanguage })));
+const ModifyLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.ModifyLanguage })));
+const DeactivateLanguage = lazy(() => import("../features/languages/pages").then(m => ({ default: m.DeactivateLanguage })));
+const EvaluatorHistoryReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorHistoryReport })));
+const EvaluatorsByThemeReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorsByThemeReport })));
+const EvaluatorWorkloadReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.EvaluatorWorkloadReport })));
+const InvitationsByIssueReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.InvitationsByIssueReport })));
+const ParticipationByArticleReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.ParticipationByArticleReport })));
+const PreviousParticipationReport = lazy(() => import("../features/reports/pages").then(m => ({ default: m.PreviousParticipationReport })));
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -62,7 +72,9 @@ const App: React.FC = () => {
           path={ROUTES.CREATE_EDITORIAL_NUMBER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <CreateEditorialNumber />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateEditorialNumber />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -70,7 +82,9 @@ const App: React.FC = () => {
           path={ROUTES.MODIFY_EDITORIAL_NUMBER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <ModifyEditorialNumber />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyEditorialNumber />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -78,7 +92,9 @@ const App: React.FC = () => {
           path={ROUTES.CREATE_RESEARCHER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <CreateResearcher />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateResearcher />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -86,7 +102,9 @@ const App: React.FC = () => {
           path={ROUTES.MODIFY_RESEARCHER}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <ModifyResearcher />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyResearcher />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -94,7 +112,9 @@ const App: React.FC = () => {
           path={ROUTES.MANAGE_USERS}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <ManageUsers />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ManageUsers />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -110,7 +130,9 @@ const App: React.FC = () => {
           path={ROUTES.CREATE_ARTICLE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <CreateArticle />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateArticle />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -118,7 +140,9 @@ const App: React.FC = () => {
           path={ROUTES.MODIFY_ARTICLE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <ModifyArticle />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyArticle />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -126,7 +150,9 @@ const App: React.FC = () => {
           path={ROUTES.EDIT_ARTICLE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR']}>
-              <UpdateArticle />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <UpdateArticle />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -134,7 +160,9 @@ const App: React.FC = () => {
           path={ROUTES.CREATE_THEMATIC_LINE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <CreateThematicLine />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateThematicLine />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -142,7 +170,9 @@ const App: React.FC = () => {
           path={ROUTES.MODIFY_THEMATIC_LINE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <ModifyThematicLine />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyThematicLine />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -150,7 +180,39 @@ const App: React.FC = () => {
           path={ROUTES.DEACTIVATE_THEMATIC_LINE}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
-              <DeactivateThematicLine />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <DeactivateThematicLine />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CREATE_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <CreateLanguage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.MODIFY_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ModifyLanguage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.DEACTIVATE_LANGUAGE}
+          element={
+            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <DeactivateLanguage />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -158,7 +220,9 @@ const App: React.FC = () => {
           path={ROUTES.EVALUATOR_HISTORY_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <EvaluatorHistoryReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <EvaluatorHistoryReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -166,7 +230,9 @@ const App: React.FC = () => {
           path={ROUTES.EVALUATORS_BY_THEME_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <EvaluatorsByThemeReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <EvaluatorsByThemeReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -174,7 +240,9 @@ const App: React.FC = () => {
           path={ROUTES.EVALUATOR_WORKLOAD_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <EvaluatorWorkloadReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <EvaluatorWorkloadReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -182,7 +250,9 @@ const App: React.FC = () => {
           path={ROUTES.INVITATIONS_BY_ISSUE_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <InvitationsByIssueReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <InvitationsByIssueReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -190,7 +260,9 @@ const App: React.FC = () => {
           path={ROUTES.PARTICIPATION_BY_ARTICLE_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <ParticipationByArticleReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <ParticipationByArticleReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />
@@ -198,7 +270,9 @@ const App: React.FC = () => {
           path={ROUTES.PREVIOUS_PARTICIPATION_REPORT}
           element={
             <ProtectedRoute allowedRoles={['ADMINISTRADOR', 'EDITOR', 'ASISTENTE']}>
-              <PreviousParticipationReport />
+              <Suspense fallback={<Skeleton variant="page" />}>
+                <PreviousParticipationReport />
+              </Suspense>
             </ProtectedRoute>
           }
         />

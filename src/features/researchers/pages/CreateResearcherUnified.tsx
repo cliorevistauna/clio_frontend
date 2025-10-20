@@ -39,8 +39,8 @@ const CreateResearcher: React.FC = () => {
     e.preventDefault();
 
     // Validaciones básicas
-    if (!orcid || !nombre || !apellido1 || !apellido2 || !correo) {
-      alert("Por favor, complete todos los campos obligatorios (ORCID, Nombre, Apellidos y Correo).");
+    if (!nombre || !apellido1 || !apellido2 || !correo) {
+      alert("Por favor, complete todos los campos obligatorios (Nombre, Apellidos y Correo).");
       return;
     }
 
@@ -51,11 +51,13 @@ const CreateResearcher: React.FC = () => {
       return;
     }
 
-    // Validar formato ORCID básico (0000-0000-0000-0000)
-    const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
-    if (!orcidRegex.test(orcid)) {
-      alert("El ORCID debe tener el formato: 0000-0000-0000-0000");
-      return;
+    // Validar formato ORCID si se proporciona
+    if (orcid) {
+      const orcidRegex = /^\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/;
+      if (!orcidRegex.test(orcid)) {
+        alert("El ORCID debe tener el formato: 0000-0000-0000-0000");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -134,12 +136,11 @@ const CreateResearcher: React.FC = () => {
           <h2>Formulario de Registro</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>ORCID *</label>
+              <label>ORCID</label>
               <input
                 type="text"
                 value={orcid}
                 onChange={(e) => setOrcid(e.target.value)}
-                required
                 disabled={isSubmitting}
               />
             </div>

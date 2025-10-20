@@ -247,16 +247,22 @@ const DeactivateThematicLine: React.FC = () => {
 
       alert("Línea temática eliminada exitosamente");
 
-      // Remover de listas locales
-      if (activeTab === 'search') {
-        setSearchResults(prev => prev.filter(line => line.id !== selectedLine.id));
-      } else {
-        setAllThematicLines(prev => prev.filter(line => line.id !== selectedLine.id));
-      }
-
       // Limpiar selección
       setSelectedLine(null);
       setShowConfirmation(false);
+
+      // Recargar desde backend para garantizar consistencia de datos
+      if (activeTab === 'table' && allThematicLines.length > 0) {
+        await loadAllThematicLines(); // Refrescar toda la tabla desde backend
+      } else if (activeTab === 'search' && searchResults.length > 0) {
+        // Rehacer la búsqueda para actualizar resultados desde backend
+        const lines = await thematicLinesService.getThematicLines(false);
+        const results = lines.filter(line =>
+          line.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setSearchResults(results);
+        setSearchCurrentPage(1); // Resetear a página 1
+      }
 
     } catch (error: any) {
       console.error("Error al eliminar:", error);
@@ -273,6 +279,14 @@ const DeactivateThematicLine: React.FC = () => {
     setShowConfirmation(false);
   };
 
+  const handleTabChange = (tab: 'search' | 'table') => {
+    setActiveTab(tab);
+    setSearchTerm("");
+    setSearchResults([]);
+    setSelectedLine(null);
+    setShowConfirmation(false);
+  };
+
   return (
     <div className="app-layout">
       <PageHeader />
@@ -282,15 +296,15 @@ const DeactivateThematicLine: React.FC = () => {
           <div className="tabs">
             <button
               className={`tab ${activeTab === 'search' ? 'active' : ''}`}
-              onClick={() => setActiveTab('search')}
+              onClick={() => handleTabChange('search')}
             >
-              Buscar Específica
+              Buscar Una Específica
             </button>
             <button
               className={`tab ${activeTab === 'table' ? 'active' : ''}`}
-              onClick={() => setActiveTab('table')}
+              onClick={() => handleTabChange('table')}
             >
-              Mostrar Todas
+              Ver Todas en Tabla
             </button>
           </div>
 
@@ -363,7 +377,6 @@ const DeactivateThematicLine: React.FC = () => {
                           <thead>
                             <tr>
                               <th>Nombre</th>
-                              <th>Estado</th>
                               <th>Acciones</th>
                             </tr>
                           </thead>
@@ -371,11 +384,6 @@ const DeactivateThematicLine: React.FC = () => {
                             {currentSearchResults.map(line => (
                               <tr key={line.id}>
                                 <td>{line.nombre}</td>
-                                <td>
-                                  <span className="status-badge active">
-                                    Activa
-                                  </span>
-                                </td>
                                 <td>
                                   <button
                                     onClick={() => selectLineForDeactivation(line)}
@@ -430,7 +438,8 @@ const DeactivateThematicLine: React.FC = () => {
                         border: '1px solid #b3d9ff',
                         borderRadius: '4px',
                         marginBottom: '10px',
-                        color: '#004085'
+                        color: '#004085',
+                        fontSize: '13px'
                       }}>
                         ℹ️ <strong>Nota:</strong> Esta opción carga todos los registros. Puede tomar unos segundos.
                       </div>
@@ -517,14 +526,13 @@ const DeactivateThematicLine: React.FC = () => {
                           <thead>
                             <tr>
                               <th>Nombre</th>
-                              <th>Estado</th>
                               <th>Acciones</th>
                             </tr>
                           </thead>
                           <tbody>
                             {currentLines.length === 0 ? (
                               <tr>
-                                <td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
+                                <td colSpan={2} style={{ textAlign: 'center', padding: '20px' }}>
                                   No se encontraron resultados
                                 </td>
                               </tr>
@@ -532,11 +540,6 @@ const DeactivateThematicLine: React.FC = () => {
                               currentLines.map(line => (
                                 <tr key={line.id}>
                                   <td>{line.nombre}</td>
-                                  <td>
-                                    <span className="status-badge active">
-                                      Activa
-                                    </span>
-                                  </td>
                                   <td>
                                     <button
                                       onClick={() => selectLineForDeactivation(line)}

@@ -9,7 +9,7 @@ interface ThematicLineSingleSelectorProps {
   allOptionLabel?: string;
 }
 
-const ThematicLineSingleSelector: React.FC<ThematicLineSingleSelectorProps> = ({
+const ThematicLineSingleSelector: React.FC<ThematicLineSingleSelectorProps> = React.memo(({
   selectedId,
   onChange,
   label = "Línea Temática",
@@ -230,6 +230,6 @@ const ThematicLineSingleSelector: React.FC<ThematicLineSingleSelectorProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default ThematicLineSingleSelector;

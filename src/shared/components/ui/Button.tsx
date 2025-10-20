@@ -70,7 +70,7 @@ const StyledButton = styled.button<ButtonProps>`
   }
 `;
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = React.memo<ButtonProps>(({
   children,
   loading = false,
   disabled = false,
@@ -84,4 +84,4 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? 'Cargando...' : children}
     </StyledButton>
   );
-};
+});
