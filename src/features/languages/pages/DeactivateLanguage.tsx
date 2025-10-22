@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { languagesService } from "../services/languagesService";
 import { Language } from "../types";
 import { Button } from "../../../shared/components/ui";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 import "./Languages.css";
 
 // Styled components para el diálogo de confirmación
@@ -120,8 +120,7 @@ const ActionButton = styled(Button)<{ variant?: 'danger' | 'secondary' }>`
 `;
 
 const DeactivateLanguage: React.FC = () => {
-  const navigate = useNavigate();
-
+  const { viewMode } = useViewMode();
   // Estado para controlar qué pestaña está activa
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
 
@@ -287,8 +286,8 @@ const DeactivateLanguage: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
-      <PageHeader />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle />
       <div className="main-content">
         <div className="form-container">
           {/* Pestañas */}

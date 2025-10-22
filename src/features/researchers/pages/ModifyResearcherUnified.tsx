@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../shared/constants";
 import { useAuth } from "../../auth/hooks";
@@ -12,6 +12,7 @@ import { useResearcherForm } from "../hooks/useResearcherForm";
 import { ResearcherSearchTab } from "../components/ResearcherSearchTab";
 import { ResearcherTableTab } from "../components/ResearcherTableTab";
 import { ResearcherEditForm } from "../components/ResearcherEditForm";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 const styles = {
   activeTabButton: {
@@ -50,6 +51,7 @@ const styles = {
 const ModifyResearcher: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
 
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
 
@@ -122,26 +124,6 @@ const ModifyResearcher: React.FC = () => {
     searchHook.setSearchResults([]);
   }, [formHook, searchHook]);
 
-  const cancelEdit = useCallback(() => {
-    formHook.clearForm();
-    searchHook.clearSearch();
-    if (activeTab === 'table') {
-      loadAllAuthors();
-    }
-  }, [formHook, searchHook, activeTab]);
-
-  const handleUpdate = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    const result = await formHook.handleUpdate(() => {
-      searchHook.clearSearch();
-      if (activeTab === 'table' && allAuthors.length > 0) {
-        loadAllAuthors();
-      }
-    });
-
-    alert(result.message);
-  }, [formHook, searchHook, activeTab, allAuthors]);
-
   const loadAllAuthors = useCallback(async () => {
     setIsLoadingTable(true);
     try {
@@ -156,11 +138,31 @@ const ModifyResearcher: React.FC = () => {
     }
   }, [showInactive]);
 
+  const cancelEdit = useCallback(() => {
+    formHook.clearForm();
+    searchHook.clearSearch();
+    if (activeTab === 'table') {
+      loadAllAuthors();
+    }
+  }, [formHook, searchHook, activeTab, loadAllAuthors]);
+
+  const handleUpdate = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = await formHook.handleUpdate(() => {
+      searchHook.clearSearch();
+      if (activeTab === 'table' && allAuthors.length > 0) {
+        loadAllAuthors();
+      }
+    });
+
+    alert(result.message);
+  }, [formHook, searchHook, activeTab, allAuthors, loadAllAuthors]);
+
   useEffect(() => {
     if (allAuthors.length > 0) {
       loadAllAuthors();
     }
-  }, [showInactive]);
+  }, [showInactive, allAuthors.length, loadAllAuthors]);
 
   useEffect(() => {
     if (!tableFilter.trim()) {
@@ -263,8 +265,8 @@ const ModifyResearcher: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { thematicLinesService } from "../services/thematicLinesService";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 import "./ThematicLines.css";
 
 const CreateThematicLine: React.FC = () => {
-  const navigate = useNavigate();
+  const { viewMode } = useViewMode();
   const [nombre, setNombre] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,8 +35,8 @@ const CreateThematicLine: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
-      <PageHeader />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle />
       <main className="main-content">
         <div className="form-container">
           <form onSubmit={handleSubmit}>

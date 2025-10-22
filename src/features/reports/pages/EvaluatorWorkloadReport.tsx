@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PageHeader from '../../../shared/components/PageHeader';
+import { HeaderWithToggle } from '../../../shared/components/HeaderWithToggle';
 import { useAuth } from '../../auth/hooks';
 import { ROUTES } from '../../../shared/constants';
 import { reportService } from '../services/reportService';
 import { EvaluatorWorkloadResponse } from '../types';
 import { researcherService } from '../../researchers/services/researcherService';
 import { Researcher } from '../../researchers/types';
+import { useViewMode } from '../../../shared/contexts/ViewModeContext';
 
 const styles = {
   subtitle: { color: '#6c757d', marginBottom: '20px' },
@@ -184,6 +185,7 @@ const styles = {
 const EvaluatorWorkloadReport: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
 
   const [evaluadorId, setEvaluadorId] = useState<string>('');
   const [evaluadorSearchQuery, setEvaluadorSearchQuery] = useState('');
@@ -287,8 +289,8 @@ const EvaluatorWorkloadReport: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">

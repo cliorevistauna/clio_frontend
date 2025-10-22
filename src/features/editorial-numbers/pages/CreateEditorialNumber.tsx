@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { editorialNumberService } from "../services";
 import { CreateEditorialNumberRequest } from "../types";
 import { DateInput } from "../../../shared/components/ui";
@@ -9,8 +9,10 @@ import {
   backendToFrontendDate,
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 const CreateEditorialNumber: React.FC = () => {
+  const { viewMode } = useViewMode();
   const [numero, setNumero] = useState("");
   const [anio, setAnio] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -162,9 +164,9 @@ const CreateEditorialNumber: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
       {/* Header fijo arriba */}
-      <PageHeader onLogout={() => console.log("Logout")} />
+      <HeaderWithToggle onLogout={() => console.log("Logout")} />
 
       {/* Contenido principal */}
       <main className="main-content">

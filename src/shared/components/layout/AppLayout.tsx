@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useViewMode } from '../../contexts/ViewModeContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,8 +16,15 @@ const LayoutContainer = styled.div`
 `;
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children, className }) => {
+  const { viewMode } = useViewMode();
+
+  // Combinar clases: app-layout + wide-layout (si está en modo wide) + className adicional
+  const combinedClassName = `app-layout ${viewMode === 'wide' ? 'wide-layout' : ''} ${className || ''}`.trim();
+
+  console.log('AppLayout - viewMode:', viewMode, 'combinedClassName:', combinedClassName);
+
   return (
-    <LayoutContainer className={className}>
+    <LayoutContainer className={combinedClassName}>
       {children}
     </LayoutContainer>
   );

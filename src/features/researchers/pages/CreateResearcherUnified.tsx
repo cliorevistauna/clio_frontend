@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import LanguageSelector from "../../../shared/components/LanguageSelector";
 import ThematicLineSelector from "../../../shared/components/ThematicLineSelector";
 import { useNavigate } from "react-router-dom";
@@ -7,10 +7,12 @@ import { ROUTES } from "../../../shared/constants";
 import { useAuth } from "../../auth/hooks";
 import { researcherService } from "../services/researcherService";
 import { CreateResearcherRequest } from "../types/Researcher";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 const CreateResearcher: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
   const [orcid, setOrcid] = useState("");
   const [nombre, setNombre] = useState("");
   const [apellido1, setApellido1] = useState("");
@@ -126,9 +128,9 @@ const CreateResearcher: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
       {/* Header fijo arriba */}
-      <PageHeader onLogout={handleLogout} />
+      <HeaderWithToggle onLogout={handleLogout} />
 
       {/* Contenido principal */}
       <main className="main-content">

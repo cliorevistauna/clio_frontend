@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { useAuth } from "../../auth/hooks";
 import { ROUTES } from "../../../shared/constants";
 import { articleService } from "../services";
 import { Article } from "../types";
 import { backendToFrontendDate } from "../../../shared/utils/dateUtils";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 import "./ModifyArticle.css";
 
 /**
@@ -15,6 +16,7 @@ import "./ModifyArticle.css";
 const ModifyArticle: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Article[]>([]);
@@ -87,8 +89,8 @@ const ModifyArticle: React.FC = () => {
   };
 
   return (
-    <div className="app-layout modify-article-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+            <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">

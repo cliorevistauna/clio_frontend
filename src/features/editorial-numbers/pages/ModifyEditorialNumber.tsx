@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { editorialNumberService } from "../services";
 import { EditorialNumber, UpdateEditorialNumberRequest } from "../types";
 import {
@@ -11,6 +11,7 @@ import {
 import { EditorialNumberSearchTab } from "../components/EditorialNumberSearchTab";
 import { EditorialNumberTableTab } from "../components/EditorialNumberTableTab";
 import { EditorialNumberForm } from "../components/EditorialNumberForm";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 const styles = {
   activeTabButton: {
@@ -47,6 +48,7 @@ const styles = {
  * Vista con pestañas: Búsqueda específica y tabla con todos los números
  */
 const ModifyEditorialNumber: React.FC = () => {
+  const { viewMode } = useViewMode();
   const [activeTab, setActiveTab] = useState<'search' | 'table'>('search');
 
   const [searchNumero, setSearchNumero] = useState("");
@@ -98,6 +100,42 @@ const ModifyEditorialNumber: React.FC = () => {
     }
   }, []);
 
+  const clearForm = useCallback(() => {
+    setSelectedEditorial(null);
+    setNumero("");
+    setAnio("");
+    setFechaInicio("");
+    setFechaFin("");
+    setComentarios("");
+    setUsarHoyInicio(false);
+    setUsarHoyFin(false);
+  }, []);
+
+  const preloadForm = useCallback((editorial: EditorialNumber) => {
+    setSelectedEditorial(editorial);
+    setNumero(editorial.numero.toString());
+    setAnio(editorial.anio.toString());
+    setFechaInicio(editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : "");
+    setFechaFin(editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : "");
+    setComentarios(editorial.comentarios || "");
+    setUsarHoyInicio(false);
+    setUsarHoyFin(false);
+  }, []);
+
+  const loadAllEditorialNumbers = useCallback(async () => {
+    setIsLoadingTable(true);
+    try {
+      const numbers = await editorialNumberService.getAll({ includeInactive: showInactive });
+      setAllEditorialNumbers(numbers);
+      setFilteredNumbers(numbers);
+    } catch (error) {
+      console.error('Error al cargar periodos de publicación:', error);
+      alert('Error al cargar los periodos de publicación.');
+    } finally {
+      setIsLoadingTable(false);
+    }
+  }, [showInactive]);
+
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -137,34 +175,12 @@ const ModifyEditorialNumber: React.FC = () => {
     } finally {
       setIsSearching(false);
     }
-  }, [searchNumero, searchAnio]);
+  }, [searchNumero, searchAnio, clearForm, preloadForm]);
 
   const selectEditorialForEdit = useCallback((editorial: EditorialNumber) => {
     preloadForm(editorial);
     setSearchResults([]);
-  }, []);
-
-  const preloadForm = useCallback((editorial: EditorialNumber) => {
-    setSelectedEditorial(editorial);
-    setNumero(editorial.numero.toString());
-    setAnio(editorial.anio.toString());
-    setFechaInicio(editorial.fecha_inicio ? backendToFrontendDate(editorial.fecha_inicio) : "");
-    setFechaFin(editorial.fecha_final ? backendToFrontendDate(editorial.fecha_final) : "");
-    setComentarios(editorial.comentarios || "");
-    setUsarHoyInicio(false);
-    setUsarHoyFin(false);
-  }, []);
-
-  const clearForm = useCallback(() => {
-    setSelectedEditorial(null);
-    setNumero("");
-    setAnio("");
-    setFechaInicio("");
-    setFechaFin("");
-    setComentarios("");
-    setUsarHoyInicio(false);
-    setUsarHoyFin(false);
-  }, []);
+  }, [preloadForm]);
 
   const cancelEdit = useCallback(() => {
     clearForm();
@@ -172,7 +188,7 @@ const ModifyEditorialNumber: React.FC = () => {
     if (activeTab === 'table') {
       loadAllEditorialNumbers();
     }
-  }, [activeTab]);
+  }, [activeTab, clearForm, loadAllEditorialNumbers]);
 
   const executeStatusChange = useCallback(async () => {
     if (!confirmation || !selectedEditorial) return;
@@ -198,7 +214,7 @@ const ModifyEditorialNumber: React.FC = () => {
       setIsChangingStatus(false);
       setConfirmation(null);
     }
-  }, [confirmation, selectedEditorial, activeTab, allEditorialNumbers]);
+  }, [confirmation, selectedEditorial, activeTab, allEditorialNumbers, loadAllEditorialNumbers]);
 
   const handleUpdate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -285,27 +301,13 @@ const ModifyEditorialNumber: React.FC = () => {
     } finally {
       setIsUpdating(false);
     }
-  }, [selectedEditorial, numero, anio, fechaInicio, fechaFin, comentarios, activeTab, allEditorialNumbers, clearForm]);
-
-  const loadAllEditorialNumbers = useCallback(async () => {
-    setIsLoadingTable(true);
-    try {
-      const numbers = await editorialNumberService.getAll({ includeInactive: showInactive });
-      setAllEditorialNumbers(numbers);
-      setFilteredNumbers(numbers);
-    } catch (error) {
-      console.error('Error al cargar periodos de publicación:', error);
-      alert('Error al cargar los periodos de publicación.');
-    } finally {
-      setIsLoadingTable(false);
-    }
-  }, [showInactive]);
+  }, [selectedEditorial, numero, anio, fechaInicio, fechaFin, comentarios, activeTab, allEditorialNumbers, clearForm, loadAllEditorialNumbers]);
 
   useEffect(() => {
     if (allEditorialNumbers.length > 0) {
       loadAllEditorialNumbers();
     }
-  }, [showInactive]);
+  }, [showInactive, allEditorialNumbers.length, loadAllEditorialNumbers]);
 
   useEffect(() => {
     if (!tableFilter.trim()) {
@@ -456,8 +458,8 @@ const ModifyEditorialNumber: React.FC = () => {
   };
 
   return (
-    <div className="app-layout">
-      <PageHeader onLogout={() => console.log("Logout")} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={() => console.log("Logout")} />
 
       <main className="main-content">
         <div className="form-container">

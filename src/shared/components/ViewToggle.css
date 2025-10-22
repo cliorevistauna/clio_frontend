@@ -1,0 +1,46 @@
+.view-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #A7A7A9; /* Fondo gris igual que el resto */
+  justify-content: flex-end;
+}
+
+.view-toggle-btn {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.view-toggle-btn:hover {
+  color: #034991; /* Color primario al hover */
+  text-decoration: underline;
+}
+
+.view-toggle-btn.active {
+  color: #034991; /* Color primario cuando está activo */
+  font-weight: 600;
+}
+
+.view-toggle-separator {
+  color: #666;
+  font-size: 14px;
+  user-select: none;
+}
+
+.view-toggle-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}

@@ -7,6 +7,8 @@ import { ROUTES } from "../shared/constants";
 import { useAuth } from "../features/auth/hooks";
 import ProtectedRoute from "../shared/components/ProtectedRoute";
 import { Skeleton } from "../shared/components/Skeleton";
+import { ViewModeProvider } from "../shared/contexts/ViewModeContext";
+import "./App.css";
 
 // Lazy loading de componentes pesados
 const CreateEditorialNumber = lazy(() => import("../features/editorial-numbers/pages").then(m => ({ default: m.CreateEditorialNumber })));
@@ -38,8 +40,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <Router>
-      <Routes>
+    <ViewModeProvider>
+      <Router>
+        <Routes>
         <Route
           path={ROUTES.HOME}
           element={
@@ -276,8 +279,9 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </ViewModeProvider>
   );
 };
 

@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* ocupa toda la pantalla */
-  background-color: #f9f9f9; /* gris muy claro para contraste */
+  background-color: #A7A7A9; /* gris muy claro para contraste */
 }
 
 /* Header fijo */
@@ -19,11 +19,8 @@
 .main-content {
   flex: 1;
   max-width: 1200px; /* ancho máximo en pantallas grandes */
-  margin: 40px auto; /* centrado */
-  padding: 20px;
-  background: #fff;
+  background: #A7A7A9;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 /* Ajuste para pantallas grandes (16:9 o mayores) */
@@ -32,4 +29,17 @@
     max-width: 1400px;
     padding: 40px;
   }
+}
+
+/* Vista Ampliada - permite que el contenido use el 100% del ancho disponible */
+.wide-layout .main-content {
+  flex: 1;
+  max-width: 100%;
+  background: #A7A7A9;
+  border-radius: 8px;
+}
+
+.wide-layout .form-container {
+  max-width: 100%;
+  background-color: #FFF;
 }

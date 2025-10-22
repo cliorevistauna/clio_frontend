@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import PageHeader from "../../../shared/components/PageHeader";
+import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { SearchAuthorModal, SearchEvaluatorModal } from "../components";
 import ArticleInfoSection from "../components/ArticleInfoSection";
 import AuthorSection from "../components/AuthorSection";
@@ -13,7 +13,7 @@ import { editorialNumberService } from "../../editorial-numbers/services";
 import { EditorialNumber } from "../../editorial-numbers/types";
 import { useArticleForm } from "../hooks/useArticleForm";
 import { useEvaluatorsManager } from "../hooks/useEvaluatorsManager";
-import "../../../shared/styles/WideLayout.css";
+import { useViewMode } from "../../../shared/contexts/ViewModeContext";
 
 const styles = {
   buttonFlexContainer: {
@@ -40,6 +40,7 @@ const UpdateArticle: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { viewMode } = useViewMode();
 
   const [isLoading, setIsLoading] = useState(true);
   const [article, setArticle] = useState<Article | null>(null);
@@ -236,8 +237,8 @@ const UpdateArticle: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="app-layout wide-layout">
-        <PageHeader onLogout={handleLogout} />
+      <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+        <HeaderWithToggle onLogout={handleLogout} />
         <main className="main-content">
           <div className="form-container">
             <p>Cargando artículo...</p>
@@ -249,8 +250,8 @@ const UpdateArticle: React.FC = () => {
 
   if (!article) {
     return (
-      <div className="app-layout wide-layout">
-        <PageHeader onLogout={handleLogout} />
+      <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+        <HeaderWithToggle onLogout={handleLogout} />
         <main className="main-content">
           <div className="form-container">
             <p>Artículo no encontrado.</p>
@@ -261,8 +262,8 @@ const UpdateArticle: React.FC = () => {
   }
 
   return (
-    <div className="app-layout wide-layout">
-      <PageHeader onLogout={handleLogout} />
+    <div className={`app-layout ${viewMode === 'wide' ? 'wide-layout' : ''}`}>
+      <HeaderWithToggle onLogout={handleLogout} />
 
       <main className="main-content">
         <div className="form-container">
