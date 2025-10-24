@@ -315,13 +315,32 @@ const ModifyEditorialNumber: React.FC = () => {
     } else {
       const filtered = allEditorialNumbers.filter(editorial => {
         const searchTerm = tableFilter.toLowerCase();
+
+        // Intentar convertir el término de búsqueda de DD-MM-YYYY a YYYY-MM-DD
+        // para permitir búsqueda por fechas en formato costarricense
+        let searchTermBackendFormat = searchTerm;
+        const ddmmyyyyPattern = /^(\d{2})-(\d{2})-(\d{4})$/;
+        const match = searchTerm.match(ddmmyyyyPattern);
+        if (match) {
+          // Si el usuario busca en formato DD-MM-YYYY, convertir a YYYY-MM-DD
+          const [, day, month, year] = match;
+          searchTermBackendFormat = `${year}-${month}-${day}`;
+        }
+
         return (
           editorial.numero.toString().includes(searchTerm) ||
           editorial.anio.toString().includes(searchTerm) ||
           editorial.estado.toLowerCase().includes(searchTerm) ||
           (editorial.comentarios && editorial.comentarios.toLowerCase().includes(searchTerm)) ||
-          (editorial.fecha_inicio && editorial.fecha_inicio.includes(searchTerm)) ||
-          (editorial.fecha_final && editorial.fecha_final.includes(searchTerm))
+          // Buscar en fechas: tanto en formato backend (YYYY-MM-DD) como con el término convertido
+          (editorial.fecha_inicio && (
+            editorial.fecha_inicio.includes(searchTerm) ||
+            editorial.fecha_inicio.includes(searchTermBackendFormat)
+          )) ||
+          (editorial.fecha_final && (
+            editorial.fecha_final.includes(searchTerm) ||
+            editorial.fecha_final.includes(searchTermBackendFormat)
+          ))
         );
       });
       setFilteredNumbers(filtered);

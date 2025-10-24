@@ -3,8 +3,8 @@ export const ROUTES = {
   LOGIN: '/iniciar-sesión',
   REGISTER: '/registrarse',
   RECOVER_PASSWORD: '/recuperar-contraseña',
-  RESET_PASSWORD: '/reset-password/:uidb64/:token',
-  DASHBOARD: '/home',
+  RESET_PASSWORD: '/restablecer-contraseña/:uidb64/:token',
+  DASHBOARD: '/bienvenida',
   PROFILE: '/mi-perfil',
 
   // Editorial Numbers

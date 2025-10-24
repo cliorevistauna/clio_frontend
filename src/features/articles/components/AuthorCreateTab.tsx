@@ -243,9 +243,6 @@ const AuthorCreateTab: React.FC<AuthorCreateTabProps> = ({ onAuthorCreated, onCa
         </div>
 
         <div className="modal-footer">
-          <button type="button" onClick={onCancel} className="cancel-btn">
-            Cancelar
-          </button>
           <button type="submit" className="submit-btn" disabled={isCreating}>
             {isCreating ? "Creando..." : "Crear y Seleccionar"}
           </button>

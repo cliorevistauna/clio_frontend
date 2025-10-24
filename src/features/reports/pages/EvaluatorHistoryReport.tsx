@@ -999,7 +999,7 @@ const EvaluatorHistoryReport: React.FC = () => {
                     <thead>
                       <tr style={styles.tableHeaderRow}>
                         <th style={styles.tableHeader}>Artículo</th>
-                        <th style={styles.tableHeader}>Nº Publicación</th>
+                        <th style={styles.tableHeader}>Periodo</th>
                         <th style={styles.tableHeader}>Fecha Asignación</th>
                         <th style={styles.tableHeader}>Estado Invitación</th>
                         <th style={styles.tableHeader}>Dictamen</th>

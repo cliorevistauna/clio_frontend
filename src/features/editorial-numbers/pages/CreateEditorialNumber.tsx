@@ -10,9 +10,12 @@ import {
   isValidFrontendDateFormat
 } from "../../../shared/utils/dateUtils";
 import { useViewMode } from "../../../shared/contexts/ViewModeContext";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../shared/constants";
 
 const CreateEditorialNumber: React.FC = () => {
   const { viewMode } = useViewMode();
+  const navigate = useNavigate();
   const [numero, setNumero] = useState("");
   const [anio, setAnio] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -254,9 +257,31 @@ const CreateEditorialNumber: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="submit-btn" disabled={isLoading}>
-              {isLoading ? "Registrando..." : "Registrar"}
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className="submit-btn" disabled={isLoading} style={{ flex: 1 }}>
+                {isLoading ? "Registrando..." : "Registrar"}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.DASHBOARD)}
+                disabled={isLoading}
+                className="submit-btn"
+                style={{
+                  flex: 1,
+                  backgroundColor: '#6c757d'
+                }}
+                onMouseOver={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = '#5a6268';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#6c757d';
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
           </form>
         </div>
       </main>

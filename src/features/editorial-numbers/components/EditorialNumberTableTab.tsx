@@ -232,7 +232,7 @@ export const EditorialNumberTableTab: React.FC<EditorialNumberTableTabProps> = (
                 onTableFilterChange(e.target.value);
                 onPageChange(1);
               }}
-              placeholder="Filtrar por número, año, estado, comentarios o fechas..."
+              placeholder="Filtrar por número, año, comentarios, fechas de inicio, fecha final..."
               style={styles.fullWidthInput}
             />
           </div>

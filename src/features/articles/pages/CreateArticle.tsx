@@ -508,9 +508,31 @@ const CreateArticle: React.FC = () => {
               </button>
             </div>
 
-            <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Registrando..." : "Registrar Artículo"}
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className="submit-btn" disabled={isSubmitting} style={{ flex: 1 }}>
+                {isSubmitting ? "Registrando..." : "Registrar Artículo"}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.DASHBOARD)}
+                disabled={isSubmitting}
+                className="submit-btn"
+                style={{
+                  flex: 1,
+                  backgroundColor: '#6c757d'
+                }}
+                onMouseOver={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.backgroundColor = '#5a6268';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#6c757d';
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
           </form>
         </div>
       </main>

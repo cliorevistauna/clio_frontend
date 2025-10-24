@@ -19,8 +19,13 @@
 .main-content {
   flex: 1;
   max-width: 1200px; /* ancho máximo en pantallas grandes */
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto; /* centra horizontalmente */
+  align-self: center; /* refuerzo para contenedores flex */
   background: #A7A7A9;
   border-radius: 8px;
+  padding: 16px;
 }
 
 /* Ajuste para pantallas grandes (16:9 o mayores) */

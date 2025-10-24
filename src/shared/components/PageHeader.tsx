@@ -128,9 +128,6 @@ const PageHeader: React.FC<PageHeaderProps> = React.memo(({ onLogout }) => {
                     <Link to={ROUTES.MODIFY_LANGUAGE} className="submenu-link">
                       Modificar
                     </Link>
-                    <Link to={ROUTES.DEACTIVATE_LANGUAGE} className="submenu-link">
-                      Eliminar
-                    </Link>
                   </div>
                 )}
               </div>

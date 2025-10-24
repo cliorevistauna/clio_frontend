@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { HeaderWithToggle } from "../../../shared/components/HeaderWithToggle";
 import { thematicLinesService } from "../services/thematicLinesService";
 import { useViewMode } from "../../../shared/contexts/ViewModeContext";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../shared/constants";
 import "./ThematicLines.css";
 
 const CreateThematicLine: React.FC = () => {
   const { viewMode } = useViewMode();
+  const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,9 +56,31 @@ const CreateThematicLine: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Registrando..." : "Registrar"}
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className="submit-btn" disabled={isSubmitting} style={{ flex: 1 }}>
+                {isSubmitting ? "Registrando..." : "Registrar"}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.DASHBOARD)}
+                disabled={isSubmitting}
+                className="submit-btn"
+                style={{
+                  flex: 1,
+                  backgroundColor: '#6c757d'
+                }}
+                onMouseOver={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.backgroundColor = '#5a6268';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#6c757d';
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
           </form>
         </div>
       </main>
