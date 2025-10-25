@@ -7,8 +7,8 @@ const PORT = process.env.PORT || 3000;
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'build')));
 
-// Todas las rutas devuelven index.html
-app.get('*', (req, res) => {
+// Todas las rutas devuelven index.html (para React Router)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
